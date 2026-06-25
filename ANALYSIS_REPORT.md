@@ -1075,6 +1075,79 @@ this repo should be treated as an ongoing target. See recommended actions.
 
 ---
 
+## IOC Quick-Reference Table
+
+Consolidated for ingestion into SIEM, EDR, or threat intel platforms. All network IOCs confirmed live as of 2026-06-18 unless marked DEAD.
+
+### Network
+
+| Type | Value | Notes |
+|------|-------|-------|
+| IPv4 | `198.105.127.210` | Primary C2 — AS149440 Evoxt, London GB — **ALIVE** |
+| IPv4 | `23.27.202.27` | Secondary C2 (socket.io only) — AS149440 Evoxt, New York US — **ALIVE** |
+| IPv4 | `136.0.9.8` | Former C2 (_V=A campaigns) — **DEAD** as of 2026-06-18 |
+| IP:Port | `198.105.127.210:443` | Stage 4 delivery + RAT WebSocket |
+| IP:Port | `198.105.127.210:80` | C2 fallback — not responding |
+| IP:Port | `23.27.202.27:443` | RAT WebSocket listener |
+| URL path | `/0x/js?_V=<ver>&id=<uuid>` | Stage 4 delivery endpoint |
+| URL path | `/u/f` | File upload (POST) |
+| URL path | `/verify-human/<channel>` | Operator alert (POST) |
+| URL path | `/socket.io/?EIO=4&transport=...` | RAT WebSocket handshake |
+| External | `ip-api.com/json` | IP geolocation called by Stage 4 |
+| Blockchain RPC | `bsc-dataseed.binance.org` | BSC payload resolution |
+| Blockchain RPC | `bsc-rpc.publicnode.com` | BSC fallback |
+| Blockchain RPC | `api.trongrid.io` | TRON wallet dead-drop lookup |
+| Blockchain RPC | `fullnode.mainnet.aptoslabs.com` | Aptos dead-drop lookup |
+
+### File Hashes
+
+| Hash type | Value | File / Description |
+|-----------|-------|--------------------|
+| SHA-256 | `c1314e72963f6be2aaa0f5d51a34608203b69401eb7e4b2828f5fc7413febc37` | `postcss.config.mjs` — Stage 0 infection (injected file) |
+| SHA-256 | `d017fe6e8e138630575050902acde5a41a4d676f73eace64ecc47d49262e2330` | Stage 1 (XOR-decrypted from BSC) |
+| SHA-256 | `c74e11f97168d9f1f3a434248c9d875b0012cca23e90a5940b7bd4a61063172d` | Stage 4 v1 — 69,913 bytes, retrieved 2026-06-05 |
+| MD5 | `c45e510e59bc503d06e66a7cf046af5a` | Stage 4 v2 — 68,572 bytes, silently updated 2026-06-18 |
+| Build marker | `/*RS260605*/` | Embedded in Stage 4 (both v1 and v2) |
+
+### Blockchain Addresses
+
+| Chain | Address | Role | Status |
+|-------|---------|------|--------|
+| TRON | `TCqf6ZkaQD84vYsC2cuu1jRwB6JveTaRrF` | Stage 1 dead-drop — primary | Dormant since 2026-05-19 |
+| TRON | `TFMryB9m6d4kBMRjEVyFRbqKSV1cV2NcpH` | Stage 1 dead-drop — fallback | Dormant since 2026-02-27 |
+| TRON | `TA48dct6rFW8BXsiLAtjFaVFoSuryMjD3v` | Stage 1b dead-drop (active payload) | **ACTIVE** — last tx 2026-06-08 |
+| Aptos | `0x9d202c824402ca89e9aaccd2390b6f8b332ae743caa1469c695feb2781d56519` | Aptos mirror of W1 | 24 txs |
+| Aptos | `0x3d2075f97b7b1e3234bd653779d21c605d7d8c6ec9c98d983880be5c7f4f9471` | Aptos mirror of W2 | 3 txs |
+| Aptos | `0x533b2dbcaeff19cd1f799234a27b578d713d8fcaa341b7501e4526106483e0b1` | Aptos mirror of W3 (active) | 63 txs — **ACTIVE** |
+
+### Notable BSC Transactions (Stage Payloads)
+
+| BSC tx hash | Written | Content |
+|-------------|---------|---------|
+| `0x5ab85abe6c67adb94322e5700a36915c38d1db1e604920da8aa4fcb530408af0` | 2026-05-19 | Stage 2→3 (from W1/W2 dead-drop) |
+| `0x23fea476d18039a65bd438a4a071c2feb1530592b96ddf15c6ffb93acc03cd3f` | 2026-06-05 | Stage 2→3 (from W3 dead-drop) |
+| `0xb6c725890be6890fd2c735eedc47e24b85a350301f6c19a3864e43c35e470968` | 2026-06-08 | Stage 2→3 (from W3 — **most recent**) |
+
+### Filesystem Indicators
+
+| Path | Description |
+|------|-------------|
+| `<appDir>/resources/app/node_modules/postcss/lib/postcss.config.mjs` | Persistence injection target (VS Code / Cursor) |
+| `<appDir>/resources/app/node_modules/postcss/lib/next.config.mjs` | Prior campaign injection target |
+| `~/Library/Application Support/discord/…/postcss.config.mjs` | Persistence injection target (Discord, macOS) |
+| `<GitHub Desktop appDir>/…/postcss.config.mjs` | Persistence injection target (GitHub Desktop) |
+| `<npm global prefix>/lib/node_modules/npm/…/postcss.config.mjs` | Persistence injection target (npm global) |
+
+### Telegram (Operator Exfiltration — from eSentire analysis of related campaigns)
+
+| Type | Value |
+|------|-------|
+| Chat/group ID | `7699029999` |
+| Chat/group ID | `7609033774` |
+| Chat/group ID | `-4697384025` |
+
+---
+
 ## References
 
 1. Previous campaign analysis: /root/OPENCTI_REPORT.md (campaign 5-3-161)
