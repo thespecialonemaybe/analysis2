@@ -1138,13 +1138,15 @@ Consolidated for ingestion into SIEM, EDR, or threat intel platforms. All networ
 | `<GitHub Desktop appDir>/…/postcss.config.mjs` | Persistence injection target (GitHub Desktop) |
 | `<npm global prefix>/lib/node_modules/npm/…/postcss.config.mjs` | Persistence injection target (npm global) |
 
-### Telegram (Operator Exfiltration — from eSentire analysis of related campaigns)
+### Telegram (Operator Exfiltration)
 
-| Type | Value |
-|------|-------|
-| Chat/group ID | `7699029999` |
-| Chat/group ID | `7609033774` |
-| Chat/group ID | `-4697384025` |
+> **Source: eSentire TRU [5]** — not independently extracted. Included for completeness; verify against original report before ingesting.
+
+| Type | Value | Source |
+|------|-------|--------|
+| Chat/group ID | `7699029999` | eSentire TRU |
+| Chat/group ID | `7609033774` | eSentire TRU |
+| Chat/group ID | `-4697384025` | eSentire TRU |
 
 ---
 
