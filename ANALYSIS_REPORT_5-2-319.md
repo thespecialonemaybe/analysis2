@@ -83,22 +83,49 @@ naming convention, lending the PR additional apparent legitimacy.
 
 ## Previously Undocumented Injection: zurichjs-conf PR #177 (2026-05-25)
 
-A prior injection into the same repository was discovered during this analysis.
+A prior injection into the same repository was discovered during this analysis. Full forensic
+details confirmed by direct GitHub API inspection.
 
 | Field | Value |
 |-------|-------|
-| PR #177 | "Make flight form fields nullable and handle async save operations" |
-| Branch | claude/modest-cray-WgarO |
+| PR title | "Make flight form fields nullable and handle async save operations" |
+| Branch | `claude/modest-cray-WgarO` (Claude Code branch naming — actor mimicry) |
 | PR created | 2026-05-25T13:01:08Z |
-| PR merged | 2026-05-25T13:01:52Z (44 seconds — instant self-merge) |
-| Merge commit | 4b46f2e19783 |
-| Author timestamp | 2026-05-25T13:01:52Z |
-| Committer timestamp | 2026-05-25T18:31:28Z (**+5h30m gap** — same commit rewrite signature) |
-| Remediation | Bogdan Ilie "clean" commit d3f27a237cf8 at 2026-05-25T18:51:17Z |
-| Follow-up fix | Claude Code commit 221ee12a9b48 at 2026-05-25T19:11:19Z |
+| PR merged (clean) | 2026-05-25T13:01:52Z (44 seconds — instant self-merge) |
+| Original clean merge SHA | `01f9fb85c6ee65afd5e1c2a8a8ace865cab88064` (GitHub-created merge, no injection) |
+| **Infected merge SHA** | `4b46f2e19783b065e23210afa1b11b9288dc261b` (force-pushed replacement) |
+| Author timestamp | 2026-05-25T13:01:52Z (preserved from original merge) |
+| Committer timestamp | 2026-05-25T18:31:28Z (**+5h29m gap** — commit rewrite signature) |
+| Committer name | `Faris` (not "Faris Aziz" — temp_auto_push.bat metadata artifact) |
+| Infected file | `postcss.config.mjs` — 7,598 bytes |
+| Infected file SHA-256 | `720dae7c174d11f4a4397f2c8032bec54319615f14abaf87a143bb72ac7a8f8c` |
+| Infected file MD5 | `b35272fb0b90f680cab72efa577bd64d` |
+| Trailing spaces | **3,643** (before payload, after `export default config;`) |
+| Payload length | 3,787 bytes |
+| Campaign ID | `global.i='5-3-298'` ← same as zurichjs-website simultaneous attack |
+| Remediation commit 1 | Bogdan Ilie "clean" `d3f27a237cf8` at 2026-05-25T18:51:17Z (20 min after infection) |
+| Remediation commit 2 | Claude Code `221ee12a9b48` at 2026-05-25T19:11:19Z |
 
-This injection ran concurrently with campaign 5-3-298 on `zurichjs-website` (injected 18:32 UTC
-the same day). The actor targeted both ZurichJS repositories simultaneously on 2026-05-25.
+**Branch is clean:** The single PR branch commit (`b9c958820527bf12`, 2026-05-25T12:57:57Z)
+touches only 8 admin flight form TypeScript files — no `postcss.config.mjs`. The injection was
+added solely in the force-pushed merge commit, confirming the same **merge commit injection**
+technique used in PR #199 five weeks later.
+
+**Simultaneous attack on both repositories:** The infected merge commit was force-pushed at
+`18:31:28Z`. Campaign 5-3-298 was injected into `zurichjs-website` at `18:32Z` — within 90
+seconds. The actor used `temp_auto_push.bat` to target both ZurichJS repositories in the same
+automation run on 2026-05-25.
+
+**Forensic timestamp analysis:**
+
+| Commit | Author date | Committer date | Gap | Committer name |
+|--------|------------|----------------|-----|----------------|
+| Original clean merge (`01f9fb85`) | 13:01:52Z | 13:01:52Z | 0s | GitHub |
+| Infected rewrite (`4b46f2e1`) | 13:01:52Z | 18:31:28Z | **+5h29m** | Faris |
+| Campaign 5-2-319 infected (`e7b90585`) | 04:55:43Z | 10:54:03Z | **+5h58m** | Faris Aziz |
+
+The committer name regression (`Faris` vs `Faris Aziz`) between campaigns may reflect a
+configuration change in `temp_auto_push.bat`'s git config spoofing between May and June 2026.
 
 ---
 
@@ -225,6 +252,47 @@ capability cannot be determined.
 Variable names are fully re-randomized between versions, confirming the actor re-runs their
 obfuscator on each build. The two encoding alphabets visible in plaintext (base-91/base-92 LZString
 variants) changed between versions but are the same structure.
+
+### Stage 4 v3 String Table — Partial Decode
+
+Manual static deobfuscation of the 170-entry `ePVaOH6` string table
+(`decode_stage4_strings.py` in `/root/zurichjs3_analysis/`).
+
+**Encoding scheme:** Stage 4 uses **4+ different base-91 alphabets** applied to different index
+ranges — a deliberate per-range obfuscation that prevents a single-key brute-force. The alphabets
+are assigned at runtime by different decoder generator chains; only ~40% of entries decode via
+known alphabets.
+
+**Key decoded values:**
+
+| Index | Decoded value | Significance |
+|-------|--------------|--------------|
+| 0x4e | `_t_t` | Global re-execution guard key (`global['_t_t']`) |
+| 0x4f | `undefined` | Used in `typeof __dirname !== E99nzWQ(0x4f)` |
+| 0x52 | `_t_1` | Second execution-state guard |
+| 0x54 | `_t_2` | Third execution-state guard |
+| 0x55 | `0x9d202c824402ca89e9aaccd2390b6f8b332ae743caa1469c695feb2781d56519` | **BSC dead-drop transaction hash** (v3 payload location) |
+| 0x5b | `JSON` | JSON.parse usage |
+| 0x5c | `parse` | JSON.parse usage |
+| 0x5f | `Promise` | Async orchestration |
+| 0x8d | `Buffer` | Buffer.from() — binary data handling |
+| 0x8e | `from` | Buffer.from() |
+| 0x99 | `length` | String/array length access |
+| 0x9a | `charCodeAt` | String.charCodeAt() — character-level processing |
+| 0x9b | `String` | String constructor / String.fromCharCode |
+| 0x9c | `fromCharCode` | String.fromCharCode() — likely output encoding |
+
+**New C2 dead-drop IOC:** The BSC transaction hash at index `0x55` is an embedded dead-drop pointer
+consistent with the TRON→BSC→payload chain documented in the main analysis. This hash is specific
+to Stage 4 v3 and was not present in v2 (different index ranges).
+
+**Strings 0x00–0x4d:** Decode via A3 alphabet (`Uy8j0G`) to alphanumeric strings
+(e.g., `'Iv2THnhmsfeI4oFElufHjZ'`, `'en2RcqhPrvaoMAtyiOwKgmE0tidYBZpvvIoax'`). These are a
+**second encoding layer** — likely XOR or base64 applied over the base-91 decode. Contents
+are presumed to be C2 URLs, operator strings, and API method names that require dynamic execution
+to fully resolve.
+
+Full decoded table saved to `exports/stage4_v3_strings.txt`.
 
 ---
 
