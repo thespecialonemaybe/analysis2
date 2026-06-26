@@ -199,6 +199,33 @@ The actor has trimmed ~4,333 bytes from the RAT since June 5. Build marker uncha
 iterative cleanup of the same build rather than a rewrite. W3 was last updated 2026-06-08 (18 days
 ago) — Stage 3 has not changed.
 
+### Stage 4 Static Analysis — v2 vs v3 Diff
+
+Full dynamic execution was blocked by the `with`-inside-generator-function construction (a known
+static analysis evasion technique that prevents execution in Node.js strict-mode contexts). Static
+structural comparison between v2 (68,572 B) and v3 (65,580 B):
+
+| Metric | v2 (2026-06-18) | v3 (2026-06-26) | Delta |
+|--------|-----------------|-----------------|-------|
+| Generator functions | 24 | 23 | **-1** |
+| String table max index | `0xd6` = 214 | `0xa9` = 169 | **-45 entries** |
+| Unique string indices accessed | 66 | 72 | +6 |
+| Encoded string chunks | 186 | 149 | **-37** |
+| Main encoded string payload | ~5,928 chars | ~4,308 chars | **-1,620 chars** |
+| Encoding alphabets | 20 | 19 | -1 |
+| Variable names | dfifCQ, wQvnfg, MQLFmK... | yZGmjVt, oDCXdB, _frDQc... | Fully re-randomized |
+
+**Interpretation:** One complete generator function was removed along with ~45 string table entries.
+This is consistent with a capability module removal rather than code optimization — a pure size
+reduction would not systematically shrink the string table by 21%. The removed module likely
+corresponds to one of the documented Stage 4 capabilities (multi-operator session management,
+persistence injection, clipboard capture, or CI/CD evasion). Without dynamic execution the exact
+capability cannot be determined.
+
+Variable names are fully re-randomized between versions, confirming the actor re-runs their
+obfuscator on each build. The two encoding alphabets visible in plaintext (base-91/base-92 LZString
+variants) changed between versions but are the same structure.
+
 ---
 
 ## Campaign Timeline (full ZurichJS series)
