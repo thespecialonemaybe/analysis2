@@ -1,5 +1,5 @@
 # ZurichJS Supply-Chain Attack -- SECOND CAMPAIGN (5-3-298)
-# DEV#POPPER / PolinRider Reinfection
+# DEV#POPPER / PolinRider / Void Dokkaebi (Famous Chollima) Reinfection
 
 **TLP: WHITE**
 **Report date:** 2026-06-05
@@ -13,8 +13,12 @@
 
 A second malicious payload was injected into `zurich-js/zurichjs-website` on **2026-05-25**, only
 **21 days after the first campaign (5-3-161) was remediated on 2026-05-04**. The injection was
-committed via the same compromised/sock-puppet GitHub account (`farisaziz12`, ID 53216647) used in
-the previous attack.
+committed via the same compromised GitHub account (`farisaziz12`, ID 53216647) used in
+the previous attack. Trend Micro's April 2026 analysis of the broader campaign [7] documents
+the `temp_auto_push.bat` commit-tampering tool, which explains how the injection appears as a
+legitimate commit from the account holder: the actor gains remote access to the developer's machine
+first, then uses the script to amend existing commits with injected code while preserving original
+authorship metadata, timestamps, and commit messages, before force-pushing.
 
 This time the payload was embedded in `postcss.config.mjs` (instead of `next.config.mjs`), using
 the same technique: 2,700+ trailing ASCII space characters hiding the payload on line 10, invisible
@@ -57,6 +61,71 @@ button loading from `https://unpkg.com/@raisenow/paylink-button@2/dist/TwintButt
 **Assessment: LEGITIMATE** -- `@raisenow` is a Swiss fundraising platform providing TWINT payment
 integration. This change appears to be genuine UX work by the compromised developer account,
 injected alongside the malicious payload to make the commit appear routine.
+
+---
+
+## Broader Campaign Context
+
+> **Source: Trend Micro TRU, April 2026 [8]** — corroborated by our independent infrastructure analysis.
+> All IOCs in this section are attributed to Trend Micro unless noted otherwise.
+
+The ZurichJS infection is one node in a large self-propagating supply-chain campaign tracked by
+Trend Micro as **Void Dokkaebi** (also **Famous Chollima**), independently tracked as **DEV#POPPER**
+by Securonix and **PolinRider** by other vendors. All names refer to the same DPRK-aligned intrusion
+set.
+
+### Scale (late March 2026)
+
+| Metric | Count |
+|--------|-------|
+| Infected public repositories | **750+** |
+| Malicious `.vscode/tasks.json` configs | **500+** |
+| Repositories containing `temp_auto_push.bat` (confirmed active remote access) | **101** |
+| Repositories using `global['_V']` variant (our campaigns) | ~60 |
+
+Named organisations with confirmed compromised repositories:
+- **DataStax** — at least 5 repositories, January 31–February 3, 2026 (since remediated)
+- **Neutralinojs** — 4 repositories (8,400 stars, 495 forks), force-pushed March 2, 2026 with
+  commits backdated 5–35 days; undetected for 3 days
+
+### Two Propagation Vectors
+
+**Flow 1 — VS Code workspace tasks (passive, worm-like):**
+A malicious `.vscode/tasks.json` with `runOn: folderOpen` is committed alongside legitimate code.
+Any developer who clones the repository and opens it in VS Code triggers the task automatically
+upon accepting the workspace trust prompt, delivering the backdoor. The `.vscode/` folder is
+rarely in `.gitignore` and is hidden by default in file explorers, making this an effective trojan
+horse that propagates with every subsequent commit or fork.
+
+**Flow 2 — Config file injection + commit tampering (active, requires prior compromise):**
+After achieving remote access via Flow 1, the actor uses `temp_auto_push.bat` to inject
+obfuscated JavaScript into the victim's repositories. The script:
+1. Extracts metadata (date, time, author, email, commit message) from the most recent git commit
+2. Temporarily alters the system clock to match the original commit's timestamp
+3. Amends the commit with injected payload while preserving all authorship metadata
+4. Uses `--no-verify` to bypass pre-commit hooks
+5. Force-pushes the rewritten history to the remote branch
+
+The result is indistinguishable from the original commit in git history. This is the mechanism
+used in the ZurichJS injection — `farisaziz12`'s machine was compromised first (likely via a
+fake job interview lure), and `temp_auto_push.bat` then rewrote his commit history to include
+the payload.
+
+### Payload Variant Markers
+
+The broader campaign uses two JavaScript infection markers:
+- `global['!']` — primary variant (750+ repositories)
+- `global['_V']` — variant cluster (our campaigns: `_V=A`, `_V=C`, `_V=5-3-161`, `_V=5-3-298`)
+
+Both variants use identical blockchain dead-drop infrastructure and the same C2.
+
+### Commit Tampering Tool
+
+`temp_auto_push.bat` — SHA-256 hashes from Trend Micro [8]:
+```
+23e37cf4e2a7d55ed107b3bc3eb7812a0e3d8f90b23b0c8f549d5c10d089a2c8
+834a92277f1bd82d4d473ac0aa2ddb23208a3a8763a576b882e7326c42bc5412
+```
 
 ---
 
@@ -375,18 +444,28 @@ port 443.
 ### Network
 
 ```
-# All confirmed AS149440 (Evoxt Sdn. Bhd.)
+# Independently verified (this analysis)
+# All on AS149440 (Evoxt Sdn. Bhd.)
 198.105.127.210:443      # Primary C2 -- Stage 4 delivery + socket.io RAT -- ALIVE 2026-06-18
 198.105.127.210:80       # C2 fallback -- not responding
 198.105.127.210:27017    # nginx/1.28.0 -- was decoy redirect (gone as of 2026-06-18, now 404)
 23.27.202.27:443         # Secondary C2 -- socket.io WebSocket listener ONLY -- ALIVE 2026-06-18 (New York)
 136.0.9.8                # Former C2 (_V=A campaigns) -- ALL PORTS DEAD as of 2026-06-18
 
-# C2 paths
+# C2 paths (independently verified)
 GET  /0x/js?_V=<version>&id=<uuid>   # Stage 4 delivery
 POST /u/f                              # File upload
 POST /verify-human/<channel>           # Operator alert
 GET  /socket.io/?EIO=4&transport=...   # WebSocket C2
+
+# Additional C2 nodes -- Source: Trend Micro TRU [8]
+154.91.0.196:443
+23.27.202.27:27017
+23.27.20.143:27017
+85.239.62.36:27017
+83.168.68.219:27017
+166.88.4.2
+23.27.120.142
 ```
 
 Blockchain dead-drops (confirmed active as of 2026-06-08 -- 8 days before this update):
@@ -396,6 +475,42 @@ fullnode.mainnet.aptoslabs.com         # Aptos fallback
 bsc-dataseed.binance.org               # BSC RPC
 bsc-rpc.publicnode.com                 # BSC RPC fallback
 http://ip-api.com/json                 # IP geolocation (Stage 4)
+```
+
+VS Code tasks hijack downloader domains -- Source: Trend Micro TRU [8]:
+```
+vscode-config-settings.vercel.app
+vscode-extension-260120.vercel.app
+vscode-settings-config.vercel.app
+vscode-settings-bootstrap.vercel.app
+vscode-extensions-bootstrap.vercel.app
+davhub88.vercel.app
+codeviewer-three.vercel.app
+coreviewer.vercel.app
+vscode-helper171.vercel.app
+task-hrec.vercel.app
+vscode-bootstrapper.vercel.app
+vscode-production-setting.vercel.app
+vscode-toolkit-settings.vercel.app
+tailwind-version-4.vercel.app
+default-configuration-sandy.vercel.app
+260120.vercel.app
+vscode-ext-git.vercel.app
+thopywork.vercel.app
+regioncheck.xyz
+vscode-config.vercel.app
+vscode-helper171-ruby.vercel.app
+isvalid-regions.vercel.app
+vscode-config-setting.vercel.app
+vscode-settings-config-md.vercel.app
+default-configuration.vercel.app
+ext-checkedin.vercel.app
+data-kappa.vercel.app
+chvsvr.short.gy
+PEsnCV.short.gy
+cgbrandh.short.gy
+lackservice.short.gy
+gurucooldown.short.gy
 ```
 
 Telegram fallback exfiltration (from eSentire analysis of related campaign):
@@ -421,17 +536,26 @@ c45e510e59bc503d06e66a7cf046af5a  stage4_live_20260618.js (C2, 2026-06-18; 68,57
 ### Blockchain IOCs
 
 ```
-# TRON wallets
+# TRON wallets (independently verified -- this analysis)
 TCqf6ZkaQD84vYsC2cuu1jRwB6JveTaRrF   <- Stage 0/1 primary   (26 txs, 2025-11-13 to 2026-05-19, dormant since)
 TFMryB9m6d4kBMRjEVyFRbqKSV1cV2NcpH   <- Stage 0/1 fallback  (3 outbound txs, 2025-11-19 to 2026-02-27, dormant since)
 TA48dct6rFW8BXsiLAtjFaVFoSuryMjD3v   <- Stage 1b            (62 txs, 2025-11-14 to 2026-06-08, STILL ACTIVE)
 
+# Additional TRON wallets -- Source: Trend Micro TRU [8]
+TXfxHUet9pJVU1BgVkBAbrES4YUc1nGzcG
+TMfKQEd7TJJa5xNZJZ2Lep838vrzrs7mAP
+
 # Aptos addresses (parallel dead-drop -- BSC hash embedded as 0-APT transfer recipient)
+# Independently verified -- this analysis
 0x9d202c824402ca89e9aaccd2390b6f8b332ae743caa1469c695feb2781d56519  # Aptos-1 (Stage 0/1, 24 txs, matches W1)
 0x3d2075f97b7b1e3234bd653779d21c605d7d8c6ec9c98d983880be5c7f4f9471  # Aptos-2 (Stage 0/1 fallback, 3 txs, matches W2)
 0x533b2dbcaeff19cd1f799234a27b578d713d8fcaa341b7501e4526106483e0b1  # Aptos-3 (Stage 1b, 63 txs, matches W3 -- first tx 2025-11-14)
 
-# BSC transactions (Stage payloads -- most recent per wallet at analysis time)
+# Additional Aptos addresses -- Source: Trend Micro TRU [8]
+0x3f0e5781d0855fb460661ac63257376db1941b2bb522499e4757ecb3ebd5dce3
+0xbe037400670fbf1c32364f762975908dc43eeb38759263e7dfcdabc76380811e
+
+# BSC transactions (Stage payloads -- most recent per wallet at analysis time -- independently verified)
 0x5ab85abe6c67adb94322e5700a36915c38d1db1e604920da8aa4fcb530408af0  <- Stage 0->1 (written 2026-05-19)
 0x23fea476d18039a65bd438a4a071c2feb1530592b96ddf15c6ffb93acc03cd3f  <- Stage 2->3 (written 2026-06-05)
 0xb6c725890be6890fd2c735eedc47e24b85a350301f6c19a3864e43c35e470968  <- Stage 2->3 (written 2026-06-08, LATEST)
@@ -895,6 +1019,12 @@ are at risk, not just browser-stored passwords.
    - Scan `postcss.config.mjs`, `next.config.mjs`, and all build config files for trailing
      whitespace > 100 chars followed by `global.i=`
    - Alert on `global['_V']` or `global.i` set to hyphen-delimited version strings in Node.js
+   - Alert on `global['!']` initialization markers in any JS source file (primary variant per
+     Trend Micro [8] — used in 750+ infected repositories)
+   - Check `.vscode/tasks.json` for `runOn: folderOpen` tasks in any cloned repository,
+     especially from untrusted sources such as job interview assignments
+   - Search for `temp_auto_push.bat` in any repository — its presence is direct evidence
+     of prior remote access to the committing developer's machine
 
 8. **Report Telegram bot** `@file_1018_bot` to https://t.me/abuse (same as campaign 5-3-161).
 
@@ -1083,42 +1213,57 @@ Consolidated for ingestion into SIEM, EDR, or threat intel platforms. All networ
 
 | Type | Value | Notes |
 |------|-------|-------|
-| IPv4 | `198.105.127.210` | Primary C2 — AS149440 Evoxt, London GB — **ALIVE** |
-| IPv4 | `23.27.202.27` | Secondary C2 (socket.io only) — AS149440 Evoxt, New York US — **ALIVE** |
-| IPv4 | `136.0.9.8` | Former C2 (_V=A campaigns) — **DEAD** as of 2026-06-18 |
-| IP:Port | `198.105.127.210:443` | Stage 4 delivery + RAT WebSocket |
-| IP:Port | `198.105.127.210:80` | C2 fallback — not responding |
-| IP:Port | `23.27.202.27:443` | RAT WebSocket listener |
-| URL path | `/0x/js?_V=<ver>&id=<uuid>` | Stage 4 delivery endpoint |
-| URL path | `/u/f` | File upload (POST) |
-| URL path | `/verify-human/<channel>` | Operator alert (POST) |
-| URL path | `/socket.io/?EIO=4&transport=...` | RAT WebSocket handshake |
-| External | `ip-api.com/json` | IP geolocation called by Stage 4 |
-| Blockchain RPC | `bsc-dataseed.binance.org` | BSC payload resolution |
-| Blockchain RPC | `bsc-rpc.publicnode.com` | BSC fallback |
-| Blockchain RPC | `api.trongrid.io` | TRON wallet dead-drop lookup |
-| Blockchain RPC | `fullnode.mainnet.aptoslabs.com` | Aptos dead-drop lookup |
+| IPv4 | `198.105.127.210` | Primary C2 — AS149440 Evoxt, London GB — **ALIVE** — *this analysis* |
+| IPv4 | `23.27.202.27` | Secondary C2 (socket.io only) — AS149440 Evoxt, New York US — **ALIVE** — *this analysis* |
+| IPv4 | `136.0.9.8` | Former C2 (_V=A campaigns) — **DEAD** as of 2026-06-18 — *this analysis* |
+| IPv4 | `154.91.0.196` | Additional C2 — *Trend Micro TRU [8]* |
+| IPv4 | `23.27.20.143` | Additional C2 — *Trend Micro TRU [8]* |
+| IPv4 | `85.239.62.36` | Additional C2 — *Trend Micro TRU [8]* |
+| IPv4 | `83.168.68.219` | Additional C2 — *Trend Micro TRU [8]* |
+| IPv4 | `166.88.4.2` | Additional C2 — *Trend Micro TRU [8]* |
+| IPv4 | `23.27.120.142` | Additional C2 — *Trend Micro TRU [8]* |
+| IP:Port | `198.105.127.210:443` | Stage 4 delivery + RAT WebSocket — *this analysis* |
+| IP:Port | `198.105.127.210:80` | C2 fallback — not responding — *this analysis* |
+| IP:Port | `23.27.202.27:443` | RAT WebSocket listener — *this analysis* |
+| IP:Port | `23.27.202.27:27017` | Additional port — *Trend Micro TRU [8]* |
+| URL path | `/0x/js?_V=<ver>&id=<uuid>` | Stage 4 delivery endpoint — *this analysis* |
+| URL path | `/u/f` | File upload (POST) — *this analysis* |
+| URL path | `/verify-human/<channel>` | Operator alert (POST) — *this analysis* |
+| URL path | `/socket.io/?EIO=4&transport=...` | RAT WebSocket handshake — *this analysis* |
+| External | `ip-api.com/json` | IP geolocation called by Stage 4 — *this analysis* |
+| Domain | `regioncheck.xyz` | Actor region-check filter — *Trend Micro TRU [8]* |
+| Blockchain RPC | `bsc-dataseed.binance.org` | BSC payload resolution — *this analysis* |
+| Blockchain RPC | `bsc-rpc.publicnode.com` | BSC fallback — *this analysis* |
+| Blockchain RPC | `api.trongrid.io` | TRON wallet dead-drop lookup — *this analysis* |
+| Blockchain RPC | `fullnode.mainnet.aptoslabs.com` | Aptos dead-drop lookup — *this analysis* |
+| Domain (downloader) | `vscode-config-settings.vercel.app` and 30+ other Vercel/short.gy domains | VS Code tasks hijack — *Trend Micro TRU [8]* |
 
 ### File Hashes
 
 | Hash type | Value | File / Description |
 |-----------|-------|--------------------|
-| SHA-256 | `c1314e72963f6be2aaa0f5d51a34608203b69401eb7e4b2828f5fc7413febc37` | `postcss.config.mjs` — Stage 0 infection (injected file) |
-| SHA-256 | `d017fe6e8e138630575050902acde5a41a4d676f73eace64ecc47d49262e2330` | Stage 1 (XOR-decrypted from BSC) |
-| SHA-256 | `c74e11f97168d9f1f3a434248c9d875b0012cca23e90a5940b7bd4a61063172d` | Stage 4 v1 — 69,913 bytes, retrieved 2026-06-05 |
-| MD5 | `c45e510e59bc503d06e66a7cf046af5a` | Stage 4 v2 — 68,572 bytes, silently updated 2026-06-18 |
-| Build marker | `/*RS260605*/` | Embedded in Stage 4 (both v1 and v2) |
+| SHA-256 | `c1314e72963f6be2aaa0f5d51a34608203b69401eb7e4b2828f5fc7413febc37` | `postcss.config.mjs` — Stage 0 infection (injected file) — *this analysis* |
+| SHA-256 | `d017fe6e8e138630575050902acde5a41a4d676f73eace64ecc47d49262e2330` | Stage 1 (XOR-decrypted from BSC) — *this analysis* |
+| SHA-256 | `c74e11f97168d9f1f3a434248c9d875b0012cca23e90a5940b7bd4a61063172d` | Stage 4 v1 — 69,913 bytes, retrieved 2026-06-05 — *this analysis* |
+| MD5 | `c45e510e59bc503d06e66a7cf046af5a` | Stage 4 v2 — 68,572 bytes, silently updated 2026-06-18 — *this analysis* |
+| Build marker | `/*RS260605*/` | Embedded in Stage 4 (both v1 and v2) — *this analysis* |
+| SHA-256 | `23e37cf4e2a7d55ed107b3bc3eb7812a0e3d8f90b23b0c8f549d5c10d089a2c8` | `temp_auto_push.bat` — commit tampering tool — *Trend Micro TRU [8]* |
+| SHA-256 | `834a92277f1bd82d4d473ac0aa2ddb23208a3a8763a576b882e7326c42bc5412` | `temp_auto_push.bat` — alternate variant — *Trend Micro TRU [8]* |
 
 ### Blockchain Addresses
 
-| Chain | Address | Role | Status |
-|-------|---------|------|--------|
-| TRON | `TCqf6ZkaQD84vYsC2cuu1jRwB6JveTaRrF` | Stage 1 dead-drop — primary | Dormant since 2026-05-19 |
-| TRON | `TFMryB9m6d4kBMRjEVyFRbqKSV1cV2NcpH` | Stage 1 dead-drop — fallback | Dormant since 2026-02-27 |
-| TRON | `TA48dct6rFW8BXsiLAtjFaVFoSuryMjD3v` | Stage 1b dead-drop (active payload) | **ACTIVE** — last tx 2026-06-08 |
-| Aptos | `0x9d202c824402ca89e9aaccd2390b6f8b332ae743caa1469c695feb2781d56519` | Aptos mirror of W1 | 24 txs |
-| Aptos | `0x3d2075f97b7b1e3234bd653779d21c605d7d8c6ec9c98d983880be5c7f4f9471` | Aptos mirror of W2 | 3 txs |
-| Aptos | `0x533b2dbcaeff19cd1f799234a27b578d713d8fcaa341b7501e4526106483e0b1` | Aptos mirror of W3 (active) | 63 txs — **ACTIVE** |
+| Chain | Address | Role | Status | Source |
+|-------|---------|------|--------|--------|
+| TRON | `TCqf6ZkaQD84vYsC2cuu1jRwB6JveTaRrF` | Stage 1 dead-drop — primary | Dormant since 2026-05-19 | This analysis |
+| TRON | `TFMryB9m6d4kBMRjEVyFRbqKSV1cV2NcpH` | Stage 1 dead-drop — fallback | Dormant since 2026-02-27 | This analysis |
+| TRON | `TA48dct6rFW8BXsiLAtjFaVFoSuryMjD3v` | Stage 1b dead-drop (active payload) | **ACTIVE** — last tx 2026-06-08 | This analysis + Trend Micro [8] |
+| TRON | `TXfxHUet9pJVU1BgVkBAbrES4YUc1nGzcG` | Additional dead-drop wallet | Unknown | Trend Micro TRU [8] |
+| TRON | `TMfKQEd7TJJa5xNZJZ2Lep838vrzrs7mAP` | Additional dead-drop wallet | Unknown | Trend Micro TRU [8] |
+| Aptos | `0x9d202c824402ca89e9aaccd2390b6f8b332ae743caa1469c695feb2781d56519` | Aptos mirror of W1 | 24 txs | This analysis |
+| Aptos | `0x3d2075f97b7b1e3234bd653779d21c605d7d8c6ec9c98d983880be5c7f4f9471` | Aptos mirror of W2 | 3 txs | This analysis |
+| Aptos | `0x533b2dbcaeff19cd1f799234a27b578d713d8fcaa341b7501e4526106483e0b1` | Aptos mirror of W3 (active) | 63 txs — **ACTIVE** | This analysis + Trend Micro [8] |
+| Aptos | `0x3f0e5781d0855fb460661ac63257376db1941b2bb522499e4757ecb3ebd5dce3` | Additional wallet | Unknown | Trend Micro TRU [8] |
+| Aptos | `0xbe037400670fbf1c32364f762975908dc43eeb38759263e7dfcdabc76380811e` | Additional wallet | Unknown | Trend Micro TRU [8] |
 
 ### Notable BSC Transactions (Stage Payloads)
 
@@ -1159,3 +1304,4 @@ Consolidated for ingestion into SIEM, EDR, or threat intel platforms. All networ
 5. eSentire TRU -- DEV#POPPER RAT and OmniStealer (Feb 2026): https://www.esentire.com/blog/north-korean-apt-malware-analysis-dev-popper-rat-and-omnistealer-everyday-im-shufflin
 6. Securonix -- Analysis of DEV#POPPER: https://www.securonix.com/blog/analysis-of-devpopper-new-attack-campaign-targeting-software-developers-likely-associated-with-north-korean-threat-actors/
 7. OpenSourceMalware / PolinRider dossier: https://github.com/OpenSourceMalware/PolinRider
+8. Trend Micro TRU -- Void Dokkaebi (Famous Chollima) campaign analysis (Apr 2026): https://www.trendmicro.com/en_us/research/26/d/void-dokkaebi-uses-fake-job-interview-lure-to-spread-malware-via-code-repositories.html
