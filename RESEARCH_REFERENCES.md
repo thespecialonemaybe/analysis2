@@ -149,3 +149,26 @@ keys, blockchain addresses) is confirmed shared with documented DEV#POPPER campa
   *Elastic's CI/CD abuse detection tool. Contains our XOR key1 in example malicious diff
   (`examples/malicious/backdated-config-trojan.diff`) -- confirms Elastic has catalogued this
   specific implant variant as a reference example.*
+
+## Community Detection & Tracking (added 2026-06-27)
+
+| Resource | Notes |
+|----------|-------|
+| [OpenSourceMalware/PolinRider](https://github.com/OpenSourceMalware/PolinRider) | Comprehensive campaign report (2026-03-07, updated 2026-04-11); documents 1,950+ infected repos, Neutralinojs supply chain spread, npm package vectors, full IOC list |
+| [charlie-goldenowl/polinrider-scanner.sh](https://github.com/charlie-goldenowl/polinrider-scanner.sh) | Community bash scanner for local repo scanning; confirms `temp_auto_push.bat` + `config.bat`, TRON wallets, Aptos addresses, npm package names |
+| [100DaysofYARA/2026 Day54](https://github.com/100DaysofYARA/2026) | YARA rules for `_$_1e42` and `_$_b229` variants |
+| [0xCryptoZen/malware-scan](https://github.com/0xCryptoZen/malware-scan) | Community IOC list including updated TRON wallet addresses |
+
+**Malicious npm packages (primary infection vector):**
+- `tailwind-mainanimation`
+- `tailwind-autoanimation`
+- Other PostCSS/Tailwind-adjacent packages (see OpenSourceMalware report for full list)
+
+**New IOCs not yet in public sources (discovered 2026-06-27):**
+- Cipher `_$_9f51` — seen in live W1 Stage 1 payload (updated 2026-06-23)
+- Cipher `_$_16d1` — seen in live W2 Stage 1 payload (updated 2026-06-20)
+- Guard key rotated from `_p_t` to `_t_t` in current Stage 1
+- `global["___dirname"]` / `global["___filename"]` capture (new Stage 1 feature)
+- `global._R` reporting callback (new Stage 1 C2 feature)
+- BSC TX `0x18a8420f727f2405f9d1805ad887b31029b584b2ff5a7ec0f57c72635183e99d` (W1, 2026-06-23)
+- BSC TX `0x7ffb4efddd96e20aec90724be2ac9a71c138a9af697b9fb8224bbf80ea4f22be` (W2, 2026-06-20)
