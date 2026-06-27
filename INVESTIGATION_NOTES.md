@@ -242,9 +242,12 @@ wave that followed. The `Cot%3t=shtP-sg` cipher (41 repos, avg 299 stars) shows 
 crypto/Web3 targeting — 11 of 41 are blockchain projects. `new-computers` org confirmed in
 OSM's bat-only list (6 repos). 236 OSM repos have `config.bat`/`temp_auto_push.bat` detected.
 
-**G. Scan for `_$_16d1` and `_$_9f51` in GitHub repos**
-Neither cipher is currently findable via GitHub code search. When infected repos appear, these
-will be the signatures to watch.
+**G. Scan for `_$_16d1` and `_$_9f51` in GitHub repos** — DONE
+Full analysis in `ANALYSIS_CIPHER_SCAN_G.md`. All four new ciphers (`_$_16d1`, `_$_9f51`,
+`_$_96c7`, `_$_4445`) return zero results on GitHub — not yet in any publicly indexed repo.
+Monitoring baseline established. Side discoveries: `Cot%3t=shtP` cipher confirmed live in 5
+repos (5471/3456 act/ret, new pair); `saif72437` mass infection — 30 repos all swept June 15.
+New tasks M/N/O added.
 
 **H. Investigate `config.bat`** — DONE
 Full analysis in `ANALYSIS_CONFIG_BAT.md`. `config.bat` is not an orchestrator — it is the
@@ -268,6 +271,22 @@ transaction history. They may contain historical dead-drop data.
 **J. TRON wallet W1 update cadence**
 W1 has been updated at: May 23, Jun 18, Jun 23. Next update expected late June / early July.
 W3 (Stage 2 wallet) has been updated every 3–6 days since June 2. Both worth monitoring.
+
+**M. Decode `Cot%3t=shtP` cipher from live samples** (new — added 2026-06-27)
+Encoded string recovered: `'Cot%3t=shtP)4k]os4@(\/1d189s6<m_0P](;T95'` (41 chars), act 5471/ret
+3456. Decode to extract full string table, TRON wallet, Aptos fallback, and confirm whether
+C2 wallets changed between `_$_1e42` and `Cot%3t=shtP`. Global key changed from `'!'` to
+`'_V'` between waves. Live samples available from herasoftlabs/ChainLab.
+
+**N. `saif72437` full infection sweep** (new — added 2026-06-27)
+30 repos all updated 2026-06-15 — actor ran `config.bat` across entire developer portfolio.
+One repo confirmed (`medium-clone`, tailwind.config.js, _$_1e42 act 2509/1358). Scan all 30
+for live payloads; extract campaign IDs to identify the C2 chain used for this victim.
+
+**O. `_$_1e42` 2509/1358 cluster C2 mapping** (new — added 2026-06-27)
+Multiple live repos (fahad-khan11, Iambilalfaisal, ArturSargsyan1995, Vladyslav0060, saif72437
+et al.) use undocumented activation 2509/return 1358. Decode one payload fully to extract TRON
+wallet — may reveal a third `_$_1e42`-era C2 chain distinct from OSM-tracked wallets.
 
 **K. Check remaining unconfirmed victim repos (TrustedSmartChain/tsc main repo)**
 The `tsc` (main chain software, updated 2026-06-09) may also be infected.
