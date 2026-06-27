@@ -27,7 +27,27 @@ The OpenCTI structured report and research references were produced at this stag
 
 ---
 
-### 2 — Campaign 5-2-319 (triggered re-analysis of the full series)
+### 2 — Campaign 5-3-298 (reinfection, ~3 weeks later)
+
+**Files:** `ANALYSIS_REPORT_5-3-298.md` · `artifacts_5-3-298.zip`
+
+Only 21 days after campaign 5-3-161 was cleaned, the actor returned. Commit `bd6cf2bae2`
+in `zurich-js/zurichjs-website` injected `postcss.config.mjs` on 2026-05-25 — this time
+using 2,700+ trailing spaces and a new cipher (`_$_913e`). Detected and remediated within
+**~21 hours** (2026-05-26), showing the team had improved monitoring after the first incident.
+
+This analysis went deeper into the payload chain: Stage 0–4 fully decoded, Stage 3 recovered
+as a full **RAT** — socket.io WebSocket C2, persistent injection into VS Code / Cursor /
+Discord / GitHub Desktop / NPM, remote shell, and clipboard capture. The C2 was observed
+live and updated during the analysis on 2026-06-05. A liveness recheck was performed on
+2026-06-18, recovering an updated Stage 4 build.
+
+The two Stage 4 builds from this campaign (`stage4_live_20260605.js`, `stage4_live_20260618.js`)
+are in the artifact zip alongside Stage 1–3 and all decoder scripts.
+
+---
+
+### 3 — Campaign 5-2-319 (third infection, 2026-06-26)
 
 **Files:** `ANALYSIS_REPORT_5-2-319.md` · `artifacts_5-2-319.zip`
 
@@ -52,7 +72,7 @@ The `decode_stage4_strings.py` script and `stage4_v3_strings.txt` were produced 
 *All findings below were made during the 5-2-319 analysis and are documented in
 `ANALYSIS_REPORT_5-2-319.md`.*
 
-#### 3a — PR #177 in zurichjs-conf (campaign 5-3-298)
+#### 3a — PR #177 in zurichjs-conf (campaign 5-3-298, previously undocumented)
 
 Querying the commit history of `postcss.config.mjs` in `zurichjs-conf` surfaced commit
 `4b46f2e197` — PR #177 ("Make flight form fields nullable"), force-pushed at
@@ -103,6 +123,8 @@ of analysis. New campaign IDs found: `5-3-225`, `5-3-252`, `5-3-296`, `5-3-341`,
 | `OPENCTI_REPORT_5-3-161.md` | 5-3-161 | Structured OpenCTI threat-intel report |
 | `RESEARCH_REFERENCES.md` | all | External references, CVEs, Trend Micro write-up links |
 | `artifacts_5-3-161.zip` | 5-3-161 | Malware samples — password: `infected` |
+| `ANALYSIS_REPORT_5-3-298.md` | 5-3-298 | Full analysis — second campaign (reinfection) |
+| `artifacts_5-3-298.zip` | 5-3-298 | Stage 0–4 samples, Stage 3 ELF, two Stage 4 builds, decoder scripts — password: `infected` |
 | `ANALYSIS_REPORT_5-2-319.md` | 5-2-319 + all | Full analysis of third campaign; retroactive coverage of all five injections and external victims |
 | `artifacts_5-2-319.zip` | 5-2-319 | Stage 0/1/4 samples + string table + decoder — password: `infected` |
 | `decode_stage4_strings.py` | 5-2-319 | Static base91 decoder for the Stage 4 string table |
