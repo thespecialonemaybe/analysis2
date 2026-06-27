@@ -129,6 +129,10 @@ of analysis. New campaign IDs found: `5-3-225`, `5-3-252`, `5-3-296`, `5-3-341`,
 | `artifacts_5-2-319.zip` | 5-2-319 | Stage 0/1/4 samples + string table + decoder — password: `infected` |
 | `decode_stage4_strings.py` | 5-2-319 | Static base91 decoder for the Stage 4 string table |
 | `stage4_v3_strings.txt` | 5-2-319 | Decoded `ePVaOH6` string table (170 entries) |
+| `ANALYSIS_VICTIM_5-3-225_cleaner55555.md` | 5-3-225 | cleaner55555 victim analysis (3 repos, 7-minute wave) |
+| `ANALYSIS_VICTIM_5-3-252_TypeTerrors.md` | 5-3-252 | TypeTerrors/Stable-Diffuser-UI victim analysis |
+| `ANALYSIS_VICTIM_5-3-296_transcribe_needle.md` | 5-3-296 | artzkaizen/transcribe + Lu-Yanru/42_Needle_Hackathon — eval(atob) injection vector, collateral spread via collaborator repos |
+| `artifacts_5-3-296.zip` | 5-3-296 | Infected TypeScript entry points (4 files, 2 repos) — password: `infected` |
 
 ---
 
