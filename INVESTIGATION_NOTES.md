@@ -32,11 +32,21 @@ any public threat report:
 |---------|--------|
 | Cipher `_$_16d1` (seen in live W2 Stage 1) | **Not publicly documented** |
 | Cipher `_$_9f51` (seen in live W1 Stage 1) | **Not publicly documented** |
+| Cipher `_$_96c7` (embedded in W1 Stage 1 atob block) | **Not publicly documented** |
 | Guard key rotation `_p_t` → `_t_t` | **Not publicly documented** |
 | `global["___dirname"]` + `global["___filename"]` capture in Stage 1 | **Not publicly documented** |
 | `global._R` reporting callback in Stage 1 | **Not publicly documented** |
+| `global["_t_c"]` (Stage 1 source stored for Stage 2 introspection) | **Not publicly documented** |
+| `global["_t_0"]` (secondary cipher code blob passed to Stage 2) | **Not publicly documented** |
 | W1 dead-drop updated 2026-06-23 (BSC TX `0x18a842...`) | **New, live** |
 | W2 dead-drop updated 2026-06-20 (BSC TX `0x7ffb4e...`) | **New, live** |
+| Direct C2 IP `166.88.134.62:443` (admin mode) | **Not publicly documented** |
+| Direct C2 IP `198.105.127.210:443` (production victims) | **Not publicly documented** |
+| Direct C2 IP `23.27.202.27:443 / 27017` (MongoDB backend) | **Not publicly documented** |
+| TRON wallet W3 `TA48dct6rFW8BXsiLAtjFaVFoSuryMjD3v` (Stage 1 → Stage 2) | **Not publicly documented** |
+| Stage 2 BSC TX `0x533b2dbcaeff...` (hardcoded fallback) | **Not publicly documented** |
+| Stage 2 live BSC TX `0xb6c72589...` (from W3 TRON, Jun 8 2026) | **New, live** |
+| Stage 2 payload (77,279 chars, LZString + compressed Beavertail RAT) | **Retrieved live** |
 | Aptos fallback addresses `0xbe037400...` / `0x3f0e5781...` | **In scanner IOC list but not in research reports** |
 
 ---
@@ -71,9 +81,10 @@ The actor has shipped at least 5 distinct cipher variants, each a response to de
 | `_$_4445` | 2026-06-26 | 5-2-319 (zurichjs) | Cleaned ~6h after injection |
 | `_$_16d1` | Seen in live W2 Stage 1 (delivered Jun 20) | Unknown — not yet found in any infected repo | **New — not publicly documented** |
 | `_$_9f51` | Seen in live W1 Stage 1 (delivered Jun 23) | Unknown | **New — not publicly documented** |
+| `_$_96c7` | Embedded in W1 Stage 1 atob block | Sub-cipher for Stage 2 bootstrap | **New — not publicly documented** |
 
 The `_$_1e42` → `_$_b229` rotation is confirmed by OpenSourceMalware as an evasion response.
-`_$_16d1` and `_$_9f51` are the next generation, apparently already deployed in the live C2
+`_$_16d1`, `_$_9f51`, and `_$_96c7` are the next generation, apparently already deployed in the live C2
 chain but not yet found in infected repositories.
 
 ---
@@ -97,9 +108,18 @@ Both `_$_b229` campaign wallets are active and were updated within the past 4 da
 | `3a2b5067...` | **2026-06-20T13:37Z** | `0x7ffb4efddd96e20aec90724be2ac9a71c138a9af697b9fb8224bbf80ea4f22be` |
 | `fc005f15...` | 2026-03-26T15:13Z | `0xa896af4f2876df59af1e705fb75031630ebd37fa89659a9896be4d3da8c87f02` |
 
-Current live Stage 1 payloads successfully retrieved (June 27):
-- **W1 Stage 1** (5,849 chars): Guard key changed to `global["_t_t"]`; captures `__dirname`/`__filename`; uses new cipher `_$_9f51` internally; references `global._R` reporting callback
-- **W2 Stage 1** (3,524 chars): Delivers new cipher `_$_16d1`; similar multi-layer structure to `_$_b229`
+**W3 (Stage 2): `TA48dct6rFW8BXsiLAtjFaVFoSuryMjD3v`**
+
+| TRON TX | Date (approx) | Points to BSC TX |
+|---------|------|-----------------|
+| `08685820...` | ~2026-06-08 | `0xb6c725890be6890fd2c735eedc47e24b85a350301f6c19a3864e43c35e470968` |
+| `f16931ee...` | ~2026-06-04 | `0x23fea476d18039a65bd438a4a071c2feb1530592b96ddf15c6ffb93acc03cd3f` |
+| `8b2c39c6...` | ~2026-06-02 | `0x54b8bde10ea26d9ae0702e6e590f0af3e500cb14fda876e908620760ac32b76c` |
+
+Current live payloads successfully retrieved (2026-06-27):
+- **W1 Stage 1** (5,849 chars): Guard key `_t_t`; captures `__dirname`/`__filename`; `_$_9f51` routing table (3 C2 IP pools); new W3 TRON wallet for Stage 2; `_$_96c7` secondary cipher
+- **W2 Stage 1** (3,524 chars): Delivers new cipher `_$_16d1`; activation code 8063; return 8223
+- **Stage 2** (77,279 chars): LZString decompressor + compressed Beavertail RAT; retrieved from W3 → BSC `0xb6c72589...`
 
 **The C2 infrastructure is fully operational and was updated 4 days ago.**
 
@@ -143,6 +163,7 @@ The payload delivery chain (TRON wallet → BSC TX → XOR decrypt) means:
 - The actor can update the Stage 1 payload by making a new TRON transaction (cheap, fast)
 - Historical transactions remain accessible — old infected systems can still reach the C2
 - The actor has been updating W1 every 5–14 days, suggesting active payload development
+- A third wallet (W3) routes Stage 2 separately, adding another immutable link in the chain
 
 **3. The merge-commit injection evades PR review.**
 
@@ -165,32 +186,35 @@ A blockchain signing CLI infected by a DPRK actor means potential private key ex
 If Stage 3 achieved persistence on that developer's machine, the entire TSC chain's signing
 infrastructure may be compromised. No notification appears to have been sent.
 
+**6. Stage 1 reveals direct C2 IP infrastructure — not in any public report.**
+
+The three IP addresses (`166.88.134.62`, `198.105.127.210`, `23.27.202.27`) are hidden inside
+the `_$_9f51` cipher in Stage 1 and were never visible in Stage 0 or infected repo files. Port
+27017 on `23.27.202.27` confirms the actor's backend is MongoDB. The three-pool routing by
+campaign ID suggests the actor is segmenting victims across multiple C2 servers at scale.
+
 ---
 
 ## Follow-Up Investigation Leads
 
-### High priority
+### Completed
 
-**A. Full analysis of live W1 Stage 1 (`_$_9f51` cipher)**
-The current W1 Stage 1 (5,849 chars, June 23) uses `_$_9f51` — not publicly documented.
-Decode the cipher, extract the full string table, identify what's new vs previous campaigns.
-The `global._R` reporting callback and `__dirname`/`__filename` capture are new features worth
-understanding.
+**A. Full analysis of live W1 Stage 1 (`_$_9f51` cipher)** — DONE
+Full analysis in `ANALYSIS_STAGE1_b229_live.md`. Decoded `_$_9f51` (17-entry routing table),
+`_$_96c7` (4-entry Stage 2 bootstrap cipher), NVu inner cipher. Identified 3 direct C2 IP pools,
+new TRON wallet W3, new BSC TX dead-drops. YARA rules written.
+
+**C. Retrieve live Stage 2 from the current chain** — DONE (as side effect of Task A)
+Stage 2 retrieved 2026-06-27 from W3 TRON wallet → BSC `0xb6c72589...`. Size: 77,279 chars.
+Structure: `Function("oTNBm2c", LZString_decompressor)` + compressed Beavertail RAT.
+Saved to `artifacts_live_stage2.zip`.
+
+### High priority (pending)
 
 **B. Decode `_$_16d1` from W2 Stage 1**
-W2 Stage 1 (June 20) delivers `_$_16d1` with activation code `8063` (vs `1632` in `_$_b229`).
-Extract the full encoded string table and seed, decode the string table, compare to `_$_b229`
-and `_$_913e` IOC sets. Check whether the TRON/Aptos addresses changed again.
-
-**C. Retrieve live Stage 2 from the current chain**
-W1 Stage 1 ends with `_$_9f51` setting up Stage 2 fetch. If the live dead-drop is accessible,
-the current Stage 2 (Beavertail RAT) is retrievable — may have new features vs the June 18
-build we have from the `_$_913e` campaign.
-
-**D. npm package analysis: `tailwind-mainanimation` / `tailwind-autoanimation`**
-These are the primary infection vectors. Check npm registry for current status (pulled or live),
-download history, postinstall scripts, author accounts. This is where the initial compromise
-begins for most victims.
+W2 Stage 1 (June 20) delivers `_$_16d1` with activation code `8063` (return `8223`).
+Extract the full encoded string table and seed, decode the string table, compare to W1 IOC set.
+Check whether direct C2 IPs and W3 TRON wallet appear here too.
 
 **E. TrustedSmartChain notification**
 The `tsc-signer` infection (5-3-341, May 19) is a high-severity finding. The developer's
@@ -199,32 +223,31 @@ org does not appear to have been notified. This warrants direct disclosure.
 
 ### Medium priority
 
+**D. npm package analysis: `tailwind-mainanimation` / `tailwind-autoanimation`**
+These are the primary infection vectors. Check npm registry for current status (pulled or live),
+download history, postinstall scripts, author accounts.
+
 **F. Cross-reference our victims with OpenSourceMalware's repo list**
 Their 1,950+ repo list may contain our 9 external victims or link them to the npm infection
-vector. Cross-referencing could confirm whether the victims were hit via npm package or via
-direct git manipulation.
+vector.
 
 **G. Scan for `_$_16d1` and `_$_9f51` in GitHub repos**
-Neither cipher is currently findable via GitHub code search. When infected repos appear (if the
-actor is still actively injecting), these will be the signatures to watch.
+Neither cipher is currently findable via GitHub code search. When infected repos appear, these
+will be the signatures to watch.
 
 **H. Investigate `config.bat`**
 The charlie-goldenowl scanner lists `config.bat` as an orchestrator alongside `temp_auto_push.bat`.
-We've only documented `temp_auto_push.bat`. What does `config.bat` do? Is it the component that
-scans local repos and selects targets for injection?
+We've only documented `temp_auto_push.bat`. What does `config.bat` do?
 
 **I. Aptos address activity**
 The two Aptos fallback addresses (`0xbe037400...`, `0x3f0e5781...`) haven't been queried for
-transaction history. They may contain historical dead-drop data showing when this wallet pair
-was first activated.
+transaction history. They may contain historical dead-drop data.
 
 ### Lower priority / passive monitoring
 
 **J. TRON wallet W1 update cadence**
-W1 has been updated at: May 23, Jun 18, Jun 23. If the pattern holds (~5–14 day intervals),
-the next update will be late June / early July. Monitoring `TMfKQEd7...` for new transactions
-gives early warning of a new payload push.
+W1 has been updated at: May 23, Jun 18, Jun 23. Next update expected late June / early July.
+W3 (Stage 2 wallet) has been updated every 3–6 days since June 2. Both worth monitoring.
 
 **K. Check remaining unconfirmed victim repos (TrustedSmartChain/tsc main repo)**
-The `tsc` (main chain software, updated 2026-06-09) may also be infected. The infected
-`tsc-signer` commit was May 19; any infections in `tsc` after that date warrant inspection.
+The `tsc` (main chain software, updated 2026-06-09) may also be infected.
