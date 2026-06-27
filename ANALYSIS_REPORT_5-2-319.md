@@ -402,6 +402,52 @@ Detection times are shortening: 71 days → 33 days → 21h → 20 min → 6h16m
 
 ---
 
+## Broader Campaign Victims (GitHub Code Search)
+
+A code search for cipher variable names and XOR key confirmed this actor is running a large
+parallel campaign across many unrelated repositories. The following **live, unpatched**
+infections were found via GitHub code search for `_$_913e`, `_$_b229`, and `global.i='5-`:
+
+| Repo | Campaign | Cipher | Infected file | Injection date |
+|------|----------|--------|---------------|----------------|
+| `cleaner55555/reflection-business-erp` | 5-3-225 | `_$_913e` | postcss.config.mjs | 2026-05-20T02:30Z |
+| `cleaner55555/brandspark-ai-studio` | 5-3-225 | `_$_913e` | postcss.config.mjs | 2026-05-20T02:23Z |
+| `TypeTerrors/Stable-Diffuser-UI` | 5-3-252 | `_$_913e` | fe/postcss.config.mjs | 2026-05-20T08:04Z |
+| `TrustedSmartChain/tsc-signer` | 5-3-341 | (unknown) | src/index.ts | 2026-05-19T19:25Z |
+| `kinyichukwu/val-ai` | 5-2-328 | (unknown) | tailwind.config.ts | 2026-05-13T18:57Z |
+| `artzkaizen/transcribe` | 5-3-296 | (unknown) | src/index.ts | 2026-05-25T17:02Z |
+| `Lu-Yanru/42_Needle_Hackathon` | 5-3-296 | (unknown) | apps/server/src/index.ts | 2026-05-25T15:55Z |
+| `Lu-Yanru/42_Needle_Hackathon` | 5-3-296 | (unknown) | apps/agent/src/main.ts | 2026-05-25T15:55Z |
+| `madgrv/intelli-app-store` | 5-167 | `_$_b229` | scripts/sync-design-system.js | 2026-06-03T14:12Z |
+| `yadolahabbasnia/PostNia` | 5-4-39 | `_$_b229` | server.js | 2026-06-04T18:46Z |
+
+All infections share the same timestamp-gap commit-rewrite fingerprint. Every victim repo had a
+legitimate commit from days, weeks, or months prior force-pushed with the payload appended as
+trailing whitespace.
+
+**New campaign IDs discovered:** `5-3-225`, `5-3-252`, `5-3-296`, `5-3-341`, `5-2-328`,
+`5-4-39`, `5-167`. The `5-167` format (no third digit) may indicate a different tool version.
+
+**New cipher discovered:** `_$_b229` — used in the June 2026 wave (`5-4-39`, `5-167`),
+distinct from `_$_913e` (May 2026) and `_$_46e0` (February–March 2026).
+
+**Injection waves identified:**
+- 2026-05-13: `kinyichukwu/val-ai`
+- 2026-05-19: `TrustedSmartChain/tsc-signer`
+- 2026-05-20: `cleaner55555` ×2, `TypeTerrors/Stable-Diffuser-UI`
+- 2026-05-25: `artzkaizen/transcribe`, `Lu-Yanru/42_Needle_Hackathon`, and zurichjs ×2 (PR #177, bd6cf2bae2)
+- 2026-06-03–04: `madgrv/intelli-app-store`, `yadolahabbasnia/PostNia`
+- 2026-06-26: zurichjs-conf PR #199 (this report)
+
+The 2026-05-25 wave is the most active, with at least 4 repos injected across multiple
+organisations within a single day. The zurichjs injections at 18:31–18:32Z came after the
+`artzkaizen` (17:02Z) and `Lu-Yanru` (15:55Z) injections — all the same automation run.
+
+**These repos appear to still be infected at the time of this analysis.** Owners have not been
+notified as this report is TLP:WHITE for coordinated disclosure.
+
+---
+
 ## New Technique: Merge Commit Injection
 
 This campaign introduces a technique not documented in the previous two campaigns: the injection
