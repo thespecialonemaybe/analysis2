@@ -272,12 +272,11 @@ W3 (Stage 2 wallet) has been updated every 3–6 days since June 2. Both worth m
 **K. Check remaining unconfirmed victim repos (TrustedSmartChain/tsc main repo)**
 The `tsc` (main chain software, updated 2026-06-09) may also be infected.
 
-**L. Investigate bat-file victim repos** (new — added 2026-06-27)
-8 repos have `config.bat` accidentally committed; 102 repos have `temp_interactive_push.bat`
-committed. Check whether these repos still have live JS payloads in their config files.
-Notable clusters: `new-computers` org (6 repos in OSM list), `saif72437` user (5+ repos).
-config.bat repos: one-project-one-month/Easy-Trip-Python, farahos/Point-of-sale-management-system,
-Sohaib909/E-comm-Backend, Saarcasmic/BulkEmailCampaignManager, fahad-khan11/auth-app-with-nestjs-api,
-fahad-khan11/image-generate-SaaS_App-using-Next-Mern-, srushtibhilare/women, HUZAIFASAJJAD012/Job_protal
-temp_interactive_push.bat (102 total): new-computers/seeder, new-computers/arena-toolkit,
-new-computers/workshops, Reactongraph/digital-signature-pad, devhub324/React_VideoPlayer
+**L. Investigate bat-file victim repos** — DONE
+Full analysis in `ANALYSIS_BAT_VICTIMS.md`. 29 repos scanned (8 config.bat + 21 temp_interactive).
+7 live infections found, all `_$_1e42` cipher with NEW activation/return pair **2509/1358**
+(previously undocumented). Hit rate ~24% (7/29 sampled). Extrapolated ~22 live infections
+across all 110 bat-file repos. Notable: `cto-varun` (CTO-level developer),
+`dryhurstdigital/invoice-my-clients-cursor-plugin` (Cursor IDE plugin with bat file, no JS
+payload in standard paths — unconventional target). All 7 payloads YARA-detectable via OSM's
+existing `rmcej_otb_payload` rule but unpatched months later.
