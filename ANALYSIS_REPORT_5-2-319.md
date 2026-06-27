@@ -6,7 +6,8 @@
 **Confidence:** High
 **Related to:**
 - Campaign 5-3-298 (zurichjs-website, 2026-05-25 to 2026-05-26) — [see analysis2 repository]
-- Campaign 5-3-161 (zurichjs-website, 2026-02-19 to 2026-05-04)
+- Campaign 5-3-161 (zurichjs-website `556dba47ce`, next.config.mjs, 2026-02-22 to 2026-05-04)
+- Campaign 5-3-161 (zurichjs-conf PR #77 `a035927600`, postcss.config.mjs, 2026-03-31 to 2026-05-03) — **newly discovered**
 
 ---
 
@@ -162,6 +163,53 @@ configuration, which differed from the June 2026 run that used `Faris Aziz`.
 
 **Discovery path:** `GET /repos/zurich-js/zurichjs-website/commits?since=2026-05-24...` showing
 the author/committer timestamp gap of 4+ days on a commit with an otherwise mundane message.
+
+---
+
+## Newly Discovered: zurichjs-conf Campaign 5-3-161 Injection — PR #77 (2026-03-31)
+
+A previously completely undocumented injection into `zurich-js/zurichjs-conf` was found during
+a systematic config-file commit history scan. Campaign 5-3-161 targeted **both** ZurichJS
+repositories, not just `zurichjs-website` as previously believed.
+
+| Field | Value |
+|-------|-------|
+| Repository | zurich-js/zurichjs-conf |
+| PR | #77 "Ticket invoices" (`ticket-invoices` branch — NOT a claude/ branch) |
+| PR created | 2026-03-30T17:03:51Z |
+| PR merged (clean) | 2026-03-30T17:41:22Z |
+| Original clean merge SHA | `2332c75a2734880b2e33ebe2c16b8d7280368032` (GitHub-created) |
+| **Infected merge SHA** | `a035927600993beeb56d35e24016545bdf346741` (force-pushed replacement) |
+| Author timestamp | 2026-03-30T17:41:22Z (preserved from original merge) |
+| Committer timestamp | 2026-03-31T14:19:55Z (**+20h 38m gap** — commit rewrite signature) |
+| Committer name | `Faris` (not "Faris Aziz") |
+| Infected file | `postcss.config.mjs` (7,629-char patch) |
+| Campaign ID | `global.i='5-3-161'` |
+| Payload cipher | `_$_46e0` — identical to zurichjs-website 5-3-161 injection (`556dba47ce`) |
+| Cipher parameters | shuffle seeds 224/22828/222/38027, modulus 3080816 |
+| Remediation commit | `e6d6fed2ce` — "remove junk" by Faris Aziz, 2026-05-03T10:51:56Z |
+| Infection window | **~33 days** (2026-03-31 to 2026-05-03) |
+
+**Branch name is different:** PR #77 used a descriptive branch `ticket-invoices`, not the
+`claude/<adjective>-<noun>-<hash>` pattern seen in PRs #177 and #199. This means the
+`claude/` naming fingerprint alone is insufficient — all merge commits with timestamp gaps
+must be inspected regardless of branch name.
+
+**Legitimate PR, poisoned merge:** The PR branch contains 15 legitimate files (TypeScript
+components, Supabase migrations, PDF generation logic for ticket invoices). None of these
+touch `postcss.config.mjs`. The injection exists solely in the force-pushed merge commit —
+the same merge-commit-poisoning technique used in all subsequent campaigns.
+
+**Payload byte-for-byte identical to zurichjs-website 5-3-161:** The `_$_46e0` cipher with
+shuffle parameters `(c+224)*(i%22828)` and `(c+222)*(i%38027)` mod `3080816` is the exact
+same obfuscation in both repos. The actor used one compiled payload artifact for both targets.
+
+**Near-simultaneous remediation:** The zurichjs-conf payload was cleaned on 2026-05-03 and
+the zurichjs-website payload on 2026-05-04 — within 24 hours, suggesting the team discovered
+one and immediately swept the other repo.
+
+**Discovery path:** Systematic scan of all zurich-js repos for config file commits with
+author/committer timestamp gap > 60 seconds. Commit `a035927600` flagged with +20h38m gap.
 
 ---
 
@@ -334,17 +382,23 @@ Full decoded table saved to `exports/stage4_v3_strings.txt`.
 
 ## Campaign Timeline (full ZurichJS series)
 
-| # | Campaign | Repository | File | Injected | Remediated | Window |
-|---|----------|------------|------|----------|------------|--------|
-| 1 | 5-3-161 | zurichjs-website | next.config.mjs | 2026-02-19 | 2026-05-04 | **74 days** |
-| 2 | 5-3-298 | zurichjs-conf | postcss.config.mjs | 2026-05-25T18:31 | 2026-05-25T18:51 | ~20 min |
-| 3 | 5-3-298 | zurichjs-website | postcss.config.mjs | 2026-05-25T18:32 | 2026-05-26T15:46 | ~21h |
-| 4 | 5-2-319 | zurichjs-conf | postcss.config.mjs | 2026-06-26T04:55 | 2026-06-26T11:11 | **6h16m** |
+| # | Campaign | Cipher | Repository | File | Infected commit | Injected | Remediated | Window |
+|---|----------|--------|------------|------|-----------------|----------|------------|--------|
+| 1 | 5-3-161 | `_$_46e0` | zurichjs-website | next.config.mjs | `556dba47ce` | 2026-02-22T09:06 | 2026-05-04 | **~71 days** |
+| 2 | 5-3-161 | `_$_46e0` | zurichjs-conf | postcss.config.mjs | `a035927600` | 2026-03-31T14:19 | 2026-05-03T10:51 | **~33 days** |
+| 3 | 5-3-298 | `_$_913e` | zurichjs-conf | postcss.config.mjs | `4b46f2e197` | 2026-05-25T18:31 | 2026-05-25T18:51 | ~20 min |
+| 4 | 5-3-298 | `_$_913e` | zurichjs-website | postcss.config.mjs | `bd6cf2bae2` | 2026-05-25T18:32 | 2026-05-26T15:46 | ~21h |
+| 5 | 5-2-319 | `_$_4445` | zurichjs-conf | postcss.config.mjs | `e7b90585dc` | 2026-06-26T04:55 | 2026-06-26T11:11 | **6h16m** |
 
-Rows 2 and 3 share campaign ID `5-3-298` — confirmed from the payload `global.i='5-3-298'` in
-both infected files. Both were injected by the same automation run on 2026-05-25; the committer
-timestamps are 42 seconds apart (18:31:28Z → 18:32:10Z). Detection times are shortening
-significantly: 74 days → 21 hours → 6 hours.
+**Campaign 5-3-161** targeted both ZurichJS repos simultaneously — within about 5 weeks of each
+other. The zurichjs-website injection (`556dba47ce`, "fix tshirt") sat undetected for ~71 days;
+the zurichjs-conf injection (`a035927600`, PR #77 "Ticket invoices") for ~33 days. Both were
+remediated within 24 hours of each other (2026-05-03 / 2026-05-04). Both use the identical
+`_$_46e0` cipher with the same shuffle parameters (seeds: 224/22828/222/38027, modulus 3080816).
+
+**Campaign 5-3-298** hit both repos 42 seconds apart on 2026-05-25 — single automation run.
+
+Detection times are shortening: 71 days → 33 days → 21h → 20 min → 6h16m.
 
 ---
 
