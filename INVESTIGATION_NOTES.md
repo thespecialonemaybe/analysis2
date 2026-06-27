@@ -284,10 +284,15 @@ backend operating continuously since at least January 2026. Global marker transi
 The 53-entry string table reveals the complete C2 chain: TRON → reversed hex → BSC
 `eth_getTransactionByHash` → split `?.?` → XOR decrypt → eval.
 
-**N. `saif72437` full infection sweep** (new — added 2026-06-27)
-30 repos all updated 2026-06-15 — actor ran `config.bat` across entire developer portfolio.
-One repo confirmed (`medium-clone`, tailwind.config.js, _$_1e42 act 2509/1358). Scan all 30
-for live payloads; extract campaign IDs to identify the C2 chain used for this victim.
+**N. `saif72437` full infection sweep** — DONE
+Full analysis in `ANALYSIS_SAIF72437.md`. 57 of 64 repos swept on 2026-06-15 in an **18-minute
+window** (08:25–08:43 UTC). 9 repos have live JS payload infections (all `_$_1e42`, act 2509/ret
+1358); 24 repos have `temp_auto_push.bat` committed as bat artifact (no injectable JS config).
+Campaign IDs extracted: `global['!']='8-765'` (outer routing key) / `global['!']='11-#'`
+(inner Stage 2 override). Inner cipher `sfL`: seed=2667686, off1=228, mod1=50332, off2=128,
+mod2=52119, modulus=4289487 — distinct from Cot%3t=shtP MDy parameters. All 9 payload tails
+are identical (single batch deployment). Developer is a Pakistani web dev educator; bat swept
+all repos regardless of stack (even Java/Dart repos got the bat, JS injection failed on those).
 
 **O. `_$_1e42` 2509/1358 cluster C2 mapping** (new — added 2026-06-27)
 Multiple live repos (fahad-khan11, Iambilalfaisal, ArturSargsyan1995, Vladyslav0060, saif72437
