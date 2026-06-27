@@ -133,6 +133,8 @@ of analysis. New campaign IDs found: `5-3-225`, `5-3-252`, `5-3-296`, `5-3-341`,
 | `ANALYSIS_VICTIM_5-3-252_TypeTerrors.md` | 5-3-252 | TypeTerrors/Stable-Diffuser-UI victim analysis |
 | `ANALYSIS_VICTIM_5-3-296_transcribe_needle.md` | 5-3-296 | artzkaizen/transcribe + Lu-Yanru/42_Needle_Hackathon — eval(atob) injection vector, collateral spread via collaborator repos |
 | `artifacts_5-3-296.zip` | 5-3-296 | Infected TypeScript entry points (4 files, 2 repos) — password: `infected` |
+| `ANALYSIS_VICTIM_5-3-341_5-2-328.md` | 5-3-341 · 5-2-328 | TrustedSmartChain/tsc-signer (blockchain signing CLI) + kinyichukwu/val-ai (AI avatar app); earliest external victim (2026-05-13); 453-day gap |
+| `artifacts_5-3-341_5-2-328.zip` | 5-3-341 · 5-2-328 | Infected files from both repos (6 files) — password: `infected` |
 
 ---
 
