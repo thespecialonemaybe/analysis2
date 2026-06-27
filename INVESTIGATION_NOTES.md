@@ -233,9 +233,14 @@ zurichjs PR#199 merge; `postcss-minify-selector*` pair published 5 seconds apart
 The postcss pair uses AES-GCM + `new Function("require", ...)` rather than XOR+blockchain —
 attribution to PolinRider plausible but unconfirmed. IOCs + Amazon Inspector hashes documented.
 
-**F. Cross-reference our victims with OpenSourceMalware's repo list**
-Their 1,950+ repo list may contain our 9 external victims or link them to the npm infection
-vector.
+**F. Cross-reference our victims with OpenSourceMalware's repo list** — DONE
+Full analysis in `ANALYSIS_OSM_CROSSREF.md`. No overlap — expected: our 9 victims were all
+infected in May–June 2026; OSM's master CSV is dated April 11, 2026. The two datasets cover
+complementary windows of the same campaign. OSM documented 1,950 repos (1,807 still live) from
+the `_$_1e42` / `Cot%3t=shtP` wave; our work documents the `_$_913e` / `_$_b229` / `_$_4445`
+wave that followed. The `Cot%3t=shtP-sg` cipher (41 repos, avg 299 stars) shows strong
+crypto/Web3 targeting — 11 of 41 are blockchain projects. `new-computers` org confirmed in
+OSM's bat-only list (6 repos). 236 OSM repos have `config.bat`/`temp_auto_push.bat` detected.
 
 **G. Scan for `_$_16d1` and `_$_9f51` in GitHub repos**
 Neither cipher is currently findable via GitHub code search. When infected repos appear, these
@@ -266,3 +271,13 @@ W3 (Stage 2 wallet) has been updated every 3–6 days since June 2. Both worth m
 
 **K. Check remaining unconfirmed victim repos (TrustedSmartChain/tsc main repo)**
 The `tsc` (main chain software, updated 2026-06-09) may also be infected.
+
+**L. Investigate bat-file victim repos** (new — added 2026-06-27)
+8 repos have `config.bat` accidentally committed; 102 repos have `temp_interactive_push.bat`
+committed. Check whether these repos still have live JS payloads in their config files.
+Notable clusters: `new-computers` org (6 repos in OSM list), `saif72437` user (5+ repos).
+config.bat repos: one-project-one-month/Easy-Trip-Python, farahos/Point-of-sale-management-system,
+Sohaib909/E-comm-Backend, Saarcasmic/BulkEmailCampaignManager, fahad-khan11/auth-app-with-nestjs-api,
+fahad-khan11/image-generate-SaaS_App-using-Next-Mern-, srushtibhilare/women, HUZAIFASAJJAD012/Job_protal
+temp_interactive_push.bat (102 total): new-computers/seeder, new-computers/arena-toolkit,
+new-computers/workshops, Reactongraph/digital-signature-pad, devhub324/React_VideoPlayer
