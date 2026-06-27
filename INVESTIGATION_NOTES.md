@@ -272,11 +272,17 @@ transaction history. They may contain historical dead-drop data.
 W1 has been updated at: May 23, Jun 18, Jun 23. Next update expected late June / early July.
 W3 (Stage 2 wallet) has been updated every 3–6 days since June 2. Both worth monitoring.
 
-**M. Decode `Cot%3t=shtP` cipher from live samples** (new — added 2026-06-27)
-Encoded string recovered: `'Cot%3t=shtP)4k]os4@(\/1d189s6<m_0P](;T95'` (41 chars), act 5471/ret
-3456. Decode to extract full string table, TRON wallet, Aptos fallback, and confirm whether
-C2 wallets changed between `_$_1e42` and `Cot%3t=shtP`. Global key changed from `'!'` to
-`'_V'` between waves. Live samples available from herasoftlabs/ChainLab.
+**M. Decode `Cot%3t=shtP` cipher from live samples** — DONE
+Full analysis in `ANALYSIS_COT_CIPHER.md`. Stage 2 fully decoded from `herasoftlabs/ChainLab`.
+The `Cot%3t=shtP` wave (Mar–Apr 2026) uses **identical C2 infrastructure** to the current wave:
+same TRON wallets (`TMfKQEd7...` / `TXfxHUet...`), same Aptos fallbacks (`0xbe037400...` /
+`0x3f0e5781...`), same BSC nodes (`bsc-dataseed.binance.org`), same `?.?` payload separator.
+Campaign XOR keys decoded: `"2[gWfGj;<:-93Z^C"` (W1) and `"m6:tTh^D)cBz?NM]"` (W2) —
+**these are the same XOR keys found in all other waves**, confirming a single persistent C2
+backend operating continuously since at least January 2026. Global marker transition confirmed:
+`global['!']` (require in `_$_1e42`) → `global['r']` + `global['_V']` (Cot wave onward).
+The 53-entry string table reveals the complete C2 chain: TRON → reversed hex → BSC
+`eth_getTransactionByHash` → split `?.?` → XOR decrypt → eval.
 
 **N. `saif72437` full infection sweep** (new — added 2026-06-27)
 30 repos all updated 2026-06-15 — actor ran `config.bat` across entire developer portfolio.
