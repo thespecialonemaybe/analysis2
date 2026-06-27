@@ -150,6 +150,7 @@ YARA detection rules for all three tiers (repo, decoded payload, memory) are in
 | `INVESTIGATION_NOTES.md` | all | Cross-campaign synthesis, live C2 status (Jun 27), undocumented ciphers, public sources, follow-up leads |
 | `artifacts_live_stage1_b229.zip` | _$_b229 | Live Stage 1 payloads retrieved 2026-06-27 (new `_$_9f51` + `_$_16d1` ciphers) — password: `infected` |
 | `ANALYSIS_STAGE1_b229_live.md` | _$_b229 W1 | **Task A:** Full Stage 1 W1 analysis — `_$_9f51` and `_$_96c7` ciphers decoded; 3 C2 IP pools; new Stage 2 dead-drop chain; live Stage 2 (77 KB) retrieved; YARA rules |
+| `ANALYSIS_STAGE1_b229_w2.md` | _$_b229 W2 | **Task B:** Full Stage 1 W2 analysis — `_$_16d1` cipher (2-entry bootstrap); `Wrm` inner cipher; comparison vs W1 Stage 1; complete cipher parameter registry; YARA rules |
 | `artifacts_live_stage2.zip` | _$_b229 W1 | Live Stage 2 payload (77 KB compressed Beavertail RAT, Jun 8 2026) + Stage 1 W1/W2 sources — password: `infected` |
 | `decode_stage4_strings.py` | 5-2-319 | Static base91 decoder for the Stage 4 string table |
 | `stage4_v3_strings.txt` | 5-2-319 | Decoded `ePVaOH6` string table (170 entries) |
