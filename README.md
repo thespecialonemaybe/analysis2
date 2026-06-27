@@ -127,6 +127,8 @@ of analysis. New campaign IDs found: `5-3-225`, `5-3-252`, `5-3-296`, `5-3-341`,
 | `artifacts_5-3-298.zip` | 5-3-298 | Stage 0–4 samples, Stage 3 ELF, two Stage 4 builds, decoder scripts — password: `infected` |
 | `ANALYSIS_REPORT_5-2-319.md` | 5-2-319 + all | Full analysis of third campaign; retroactive coverage of all five injections and external victims |
 | `artifacts_5-2-319.zip` | 5-2-319 | Stage 0/1/4 samples + string table + decoder — password: `infected` |
+| `INVESTIGATION_NOTES.md` | all | Cross-campaign synthesis, live C2 status (Jun 27), undocumented ciphers (_$_9f51, _$_16d1), public sources, follow-up leads |
+| `artifacts_live_stage1_b229.zip` | _$_b229 | Live Stage 1 payloads retrieved 2026-06-27 (new _$_9f51 + _$_16d1 ciphers) — password: `infected` |
 | `decode_stage4_strings.py` | 5-2-319 | Static base91 decoder for the Stage 4 string table |
 | `stage4_v3_strings.txt` | 5-2-319 | Decoded `ePVaOH6` string table (170 entries) |
 | `ANALYSIS_VICTIM_5-3-225_cleaner55555.md` | 5-3-225 | cleaner55555 victim analysis (3 repos, 7-minute wave) |
@@ -141,6 +143,10 @@ of analysis. New campaign IDs found: `5-3-225`, `5-3-252`, `5-3-296`, `5-3-341`,
 ---
 
 ## Key IOCs (summary)
+
+> **See also:** `INVESTIGATION_NOTES.md` for overall assessment, live C2 status, and follow-up leads.
+
+
 
 ```
 # C2 server
