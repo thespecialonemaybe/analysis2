@@ -135,6 +135,8 @@ of analysis. New campaign IDs found: `5-3-225`, `5-3-252`, `5-3-296`, `5-3-341`,
 | `artifacts_5-3-296.zip` | 5-3-296 | Infected TypeScript entry points (4 files, 2 repos) — password: `infected` |
 | `ANALYSIS_VICTIM_5-3-341_5-2-328.md` | 5-3-341 · 5-2-328 | TrustedSmartChain/tsc-signer (blockchain signing CLI) + kinyichukwu/val-ai (AI avatar app); earliest external victim (2026-05-13); 453-day gap |
 | `artifacts_5-3-341_5-2-328.zip` | 5-3-341 · 5-2-328 | Infected files from both repos (6 files) — password: `infected` |
+| `ANALYSIS_VICTIM_5-4-39_5-167.md` | 5-4-39 · 5-167 | PostNia (JWT backend) + intelli-app-store (take-home project); first `_$_b229` cipher; new TRON wallets + Aptos fallback; dual-injection technique |
+| `artifacts_5-4-39_5-167.zip` | 5-4-39 · 5-167 | Infected files (4 files) incl. decoded Stage 0 plaintext — password: `infected` |
 
 ---
 
