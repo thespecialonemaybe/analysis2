@@ -127,6 +127,42 @@ automation run on 2026-05-25.
 The committer name regression (`Faris` vs `Faris Aziz`) between campaigns may reflect a
 configuration change in `temp_auto_push.bat`'s git config spoofing between May and June 2026.
 
+### Companion: zurichjs-website Campaign 5-3-298 Injection (bd6cf2bae2)
+
+The simultaneous zurichjs-website injection used a different hiding strategy: a legitimate
+commit from **4 days prior** was rewritten rather than a same-session merge commit.
+
+| Field | Value |
+|-------|-------|
+| Repository | zurich-js/zurichjs-website |
+| Commit SHA | `bd6cf2bae2c628b9d6f7f3477669ada1d0c5e2e3` |
+| Commit message | `fix twint` (original legitimate message preserved) |
+| Parent | `3bdb84f460` |
+| Author timestamp | 2026-05-21T16:57:11Z (legitimate commit — **4 days before injection**) |
+| Committer timestamp | 2026-05-25T18:32:10Z (**+4d01h34m59s gap** — force-push signature) |
+| Author name/email | `Faris Aziz <53216647+farisaziz12@users.noreply.github.com>` |
+| Committer name/email | `Faris <53216647+farisaziz12@users.noreply.github.com>` |
+| Infected file | `postcss.config.mjs` (4,924-char patch for a ~200-byte file) |
+| Campaign ID | `global.i='5-3-298'` |
+| Payload cipher | `_$_913e` XOR cipher, same as all prior campaigns |
+
+**Payload prefix (plaintext additions):**
+```javascript
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+```
+These two lines are the same ESM shim added in campaign 5-2-319, and were not present in the
+original `postcss.config.mjs`. They enable `require()` in ES module context for the injected
+Node.js payload that follows, hidden after 3,643 trailing ASCII spaces on the `export default
+config;` line.
+
+**Committer name drift:** The committer field is `Faris` (not `Faris Aziz`), consistent with
+PR #177's injected commit — suggesting both were produced by the same `temp_auto_push.bat`
+configuration, which differed from the June 2026 run that used `Faris Aziz`.
+
+**Discovery path:** `GET /repos/zurich-js/zurichjs-website/commits?since=2026-05-24...` showing
+the author/committer timestamp gap of 4+ days on a commit with an otherwise mundane message.
+
 ---
 
 ## Stage 0 Analysis: postcss.config.mjs Implant
@@ -301,12 +337,14 @@ Full decoded table saved to `exports/stage4_v3_strings.txt`.
 | # | Campaign | Repository | File | Injected | Remediated | Window |
 |---|----------|------------|------|----------|------------|--------|
 | 1 | 5-3-161 | zurichjs-website | next.config.mjs | 2026-02-19 | 2026-05-04 | **74 days** |
-| 2 | (unknown) | zurichjs-conf | postcss.config.mjs | 2026-05-25T13:01 | 2026-05-25T18:51 | ~5h50m |
+| 2 | 5-3-298 | zurichjs-conf | postcss.config.mjs | 2026-05-25T18:31 | 2026-05-25T18:51 | ~20 min |
 | 3 | 5-3-298 | zurichjs-website | postcss.config.mjs | 2026-05-25T18:32 | 2026-05-26T15:46 | ~21h |
 | 4 | 5-2-319 | zurichjs-conf | postcss.config.mjs | 2026-06-26T04:55 | 2026-06-26T11:11 | **6h16m** |
 
-Campaigns 2 and 3 were simultaneous — the actor targeted both repos on the same day (2026-05-25).
-Detection times are shortening significantly: 74 days → 21 hours → 6 hours.
+Rows 2 and 3 share campaign ID `5-3-298` — confirmed from the payload `global.i='5-3-298'` in
+both infected files. Both were injected by the same automation run on 2026-05-25; the committer
+timestamps are 42 seconds apart (18:31:28Z → 18:32:10Z). Detection times are shortening
+significantly: 74 days → 21 hours → 6 hours.
 
 ---
 
