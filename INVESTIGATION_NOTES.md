@@ -294,10 +294,17 @@ mod2=52119, modulus=4289487 — distinct from Cot%3t=shtP MDy parameters. All 9 
 are identical (single batch deployment). Developer is a Pakistani web dev educator; bat swept
 all repos regardless of stack (even Java/Dart repos got the bat, JS injection failed on those).
 
-**O. `_$_1e42` 2509/1358 cluster C2 mapping** (new — added 2026-06-27)
-Multiple live repos (fahad-khan11, Iambilalfaisal, ArturSargsyan1995, Vladyslav0060, saif72437
-et al.) use undocumented activation 2509/return 1358. Decode one payload fully to extract TRON
-wallet — may reveal a third `_$_1e42`-era C2 chain distinct from OSM-tracked wallets.
+**O. `_$_1e42` 2509/1358 cluster C2 mapping** — DONE
+Full analysis in `ANALYSIS_1E42_C2.md`. Stage 2 fully decoded from saif72437/medium-clone.
+Two-layer payload: outer atob shell sets `global['!']='8-765'`; inner atob layer (4,781b)
+contains `sfL` bootstrap cipher (seed 2667686) that decompresses Stage 2 body (3,858b).
+Stage 2 cipher `_$af163278` (seed 1812138, off1=139, off2=473, mod1=20044, mod2=41543,
+modulus=5446973) decodes 58-entry string table. **All C2 infrastructure is IDENTICAL to
+every other wave:** TRON W1 `TMfKQEd7...`, W2 `TXfxHUet...`, both Aptos fallbacks, both
+BSC nodes, same `?.?` separator, same XOR keys `2[gWfGj;<:-93Z^C`/`m6:tTh^D)cBz?NM]`.
+New findings: Stage 2 reads `global['!']` and sets `global['_V'] = "A" + global['!']`
+(→ `"A8-765"`); adds infection timestamp tracking via `global['_p_t'] = new Date().getTime()`.
+**Final confirmation: single C2 backend in continuous operation Jan–Jun 2026.**
 
 **K. Check remaining unconfirmed victim repos (TrustedSmartChain/tsc main repo)**
 The `tsc` (main chain software, updated 2026-06-09) may also be infected.
