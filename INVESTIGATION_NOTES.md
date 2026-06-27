@@ -241,9 +241,18 @@ vector.
 Neither cipher is currently findable via GitHub code search. When infected repos appear, these
 will be the signatures to watch.
 
-**H. Investigate `config.bat`**
-The charlie-goldenowl scanner lists `config.bat` as an orchestrator alongside `temp_auto_push.bat`.
-We've only documented `temp_auto_push.bat`. What does `config.bat` do?
+**H. Investigate `config.bat`** — DONE
+Full analysis in `ANALYSIS_CONFIG_BAT.md`. `config.bat` is not an orchestrator — it is the
+**timestamp-forgery commit amender**. It reads the victim's last commit metadata, changes the
+system clock to match, runs `git add . && git commit --amend --no-verify`, restores the clock,
+and force-pushes. Effect: committer timestamp = author timestamp → no detectable gap.
+Two versions exist (V1 basic, V2 with full credential suppression). Three naming variants:
+`config.bat`, `temp_auto_push.bat`, `temp_interactive_push.bat` (adds `pause`). Live samples
+recovered from 8 victim repos where actor failed to gitignore the file.
+**Critical implication:** The timestamp-gap detection that found all zurichjs injections works
+ONLY for the direct-injection path (actor's machine). npm-vector infections run `config.bat`
+on the victim's machine → matching timestamps → our detection signal is absent. The 1,950+
+OSM victims were hit via the undetectable path.
 
 **I. Aptos address activity**
 The two Aptos fallback addresses (`0xbe037400...`, `0x3f0e5781...`) haven't been queried for
