@@ -223,9 +223,15 @@ org does not appear to have been notified. This warrants direct disclosure.
 
 ### Medium priority
 
-**D. npm package analysis: `tailwind-mainanimation` / `tailwind-autoanimation`**
-These are the primary infection vectors. Check npm registry for current status (pulled or live),
-download history, postinstall scripts, author accounts.
+**D. npm package analysis** — DONE
+Full analysis in `ANALYSIS_NPM_PACKAGES.md`. Six packages identified: 2 confirmed PolinRider
+(`tailwind-mainanimation`, `tailwind-autoanimation`), 4 suspected June 2026 wave
+(`tailwind-textform-fill`, `tw-style-utils`, `postcss-minify-selector`,
+`postcss-minify-selector-parser`). Key findings: `tw-style-utils` published 22 min after
+zurichjs PR#199 merge; `postcss-minify-selector*` pair published 5 seconds apart (same batch);
+`tailwind-mainanimation` taken down same day as OpenSourceMalware YARA publication (Mar 13).
+The postcss pair uses AES-GCM + `new Function("require", ...)` rather than XOR+blockchain —
+attribution to PolinRider plausible but unconfirmed. IOCs + Amazon Inspector hashes documented.
 
 **F. Cross-reference our victims with OpenSourceMalware's repo list**
 Their 1,950+ repo list may contain our 9 external victims or link them to the npm infection
