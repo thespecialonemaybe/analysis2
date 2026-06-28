@@ -379,10 +379,20 @@ Stage 3 or future capability.
 Activation/return codes changed: `8063`/`8223` (Jun 20) → `1218`/`2021` (Jun 25).
 Stage 3 XOR key `ThZG+0jfXE6VAGOJ` unchanged.
 
-**S. Re-query TRON W2 for Jun 23/25 updates**
-A2 Aptos has Jun 23 and Jun 25 pushes with no matching TRON W2 TXs in our data. Query
-`TXfxHUet9pJVU1BgVkBAbrES4YUc1nGzcG` fresh — if TRON was also updated, we need those TXs
-for completeness. If not, confirms Aptos-only update path exists.
+**S. Re-query TRON W2 for Jun 23/25 updates** — DONE
+Full analysis in `ANALYSIS_TRON_WALLETS_FULL.md`. Complete W1 (37 TXs) and W2 (11 TXs) tables
+retrieved and mapped. Key findings:
+
+- **Jun 23/25 Aptos A2 updates confirmed Aptos-only** — TRON W2 has no TXs on those dates
+- **True operation start: June 6, 2025** — "Mxy custom memo text" test TXs (7 days before go-live)
+- **Jun 11 2025 binary memo experiments** — actor tested raw binary data field encoding (failed);
+  corrected to hex-encoded UTF-8 on Jun 13 (go-live day)
+- **No-memo TXs are cashout transactions**, not dead-drops — actor moving TRX/TRC-10 to secondary wallets
+- **Two actor cashout wallets identified (new IOCs)**:
+  - W1 cashout: `41803f5d3cc635e5ac3c96c86a6cbe98c9eda82e66`
+  - W2 cashout: `41ee0f692be2f1e405b35b027260ba696de90a43dd`
+- New W2 Jun 13 2025 BSC TX `0x1a323149...` found — pruned from BSC archive, unrecoverable
+- Aptos vs TRON update synchronization table cross-referenced across all dates
 
 **L. Investigate bat-file victim repos** — DONE
 Full analysis in `ANALYSIS_BAT_VICTIMS.md`. 29 repos scanned (8 config.bat + 21 temp_interactive).
