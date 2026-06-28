@@ -716,6 +716,39 @@ Side-effect: Full decode of astro.config.mjs Stage 1 (`pYd`) revealed:
   are NOT currently being exfiltrated to a live C2
 - `"?.?"` anti-debug check is dead code (function === string always false — obfuscation only)
 
+**AI. astro.config.mjs cluster — full campaign ID map + infection dates** — DONE (2026-06-28)
+
+See `ANALYSIS_ASTRO_CLUSTER_AI.md` for full detail.
+
+Key findings:
+- **27 of 29 repos confirmed** (2 had astro.config.mjs in non-root paths)
+- **Highest campaign ID: `9-7226`** (FieteLab, May 2026) → 7,226+ victims in series 9 alone
+- **Combined scale: 11,000+ tracked victims** across series 8 (4,081+) and 9 (7,226+)
+- **Sleeper pre-positioning**: 7 repos have pre-June-2025 commit dates (earliest: `iSebasC/Astro`
+  Jan 2023). All contain IDENTICAL Stage 1 body pointing to TRON W1/W2 wallets inactive until
+  June 2025. Actor pre-seeded dormant infections for 2+ years before activating C2.
+  **True operation start: at least January 2023** (not June 2025 as previously estimated).
+- **Copy-paste propagation**: `Focus158/school-landing` has byte-for-byte identical payload to
+  `iSebasC/Astro` (same campaign ID `8-1821-1`) — developer unknowingly copied infected template.
+  `DanteIturri` 3 repos all share `8-3336`.
+- **Double infections**: `rajat22999/noa-feed` (IDs `9-1435-7` + `8-2895`) and
+  `JudeTejada/jude-portfolio-v3` (IDs `9-1330-1` + `8`) each have 2 stacked IIFEs — infected twice.
+- **Oldest ID format**: bare `10` (sudais-khan12, ~2022-2023) and bare `8` (JudeTejada second
+  IIFE) predate `X-NNNN[-Y]` scheme — pre-2023 test era numbering.
+- **No same-repo multi-vector**: tasks.json and astro infections always in different repos.
+- Spawned Task AK: `Rafijohari18/astro-speed` (13,696B single IIFE) anomaly investigation.
+
+**AJ. Decode `JudeTejada/jude-portfolio-v3` astro payload (11,715 bytes)** — SUPERSEDED BY AI
+The double-IIFE structure explains the size: two stacked infections (IDs `9-1330-1` + `8`).
+The bare `8` ID is the pre-2023 era format — second infection from an old template source.
+No additional analysis needed beyond what Task AI found.
+
+**AK. `Rafijohari18/astro-speed` deep dive — 13,696-byte single-IIFE anomaly**
+Task AI found this repo has 13,696 bytes but only ONE IIFE and ONE campaign ID (`8-4081`).
+This is 2.4× the standard astro payload (5,500 bytes) with no obvious structural explanation.
+Decode the pYd to determine: (1) what extra code is present — inline Stage 2? Additional C2
+fallbacks? (2) Whether the payload architecture differs from the standard 58-entry _$_ccfc template.
+
 **AF. Campaign ID `10-010` — routing and operator identification**
 `madeeldev/flutter-vpn` has `global['!']='10-010'` — a numeric-with-hyphen campaign ID that
 doesn't match the `5-X-Y` or `A-...` patterns of known campaigns. The Stage 2 routing in
