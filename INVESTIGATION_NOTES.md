@@ -47,6 +47,9 @@ any public threat report:
 | Stage 2 BSC TX `0x533b2dbcaeff...` (hardcoded fallback) | **Not publicly documented** |
 | Stage 2 live BSC TX `0xb6c72589...` (from W3 TRON, Jun 8 2026) | **New, live** |
 | Stage 2 payload (77,279 chars, LZString + compressed Beavertail RAT) | **Retrieved live** |
+| W3 historical XOR key `cA]2!+37v,-szeU}` (used Nov 2025 – Feb 25 18:05) | **Not publicly documented** |
+| W3 key rotation event (Feb 25, 18:05→18:07) — same payload, two keys, 2 min apart | **Not publicly documented** |
+| Stage 2 payload size jump: 92K→70K within Feb 11 2026 session (major payload redesign) | **Not publicly documented** |
 | Aptos fallback addresses `0xbe037400...` / `0x3f0e5781...` | **In scanner IOC list but not in research reports** |
 
 ---
@@ -487,15 +490,23 @@ Check `tailwindcss-merge`, `sass-format`, `tailwindcss-animates-kit`, `sass-form
 ecosystem from the CSS tooling packages. Cross-check against known PolinRider publisher
 accounts.
 
-**X. W3 Feb 25 batch decode — historical Stage 2**
-W3 had its largest single-day batch on Feb 25, 2026 (12 TXs, 18:01–21:07 UTC).
-Retrieve and decode these BSC TXs to understand what Stage 2 looked like before:
-- The Function() UMD wrapper (added May 21)
-- The outer cipher wrappers on Stage 1 (added Mar 2026)
-- The OSM YARA publication (Mar 7)
-These payloads are pre-wrapper (~65KB range) and should be easier to decode than the
-current 77KB blob (Task T). Will establish the Stage 2 evolution baseline.
-Also retrieve the Nov 2025 payloads (W3 true start) if BSC archive permits.
+**X. W3 Feb 25 batch decode — historical Stage 2** — DONE
+Full analysis in `ANALYSIS_W3_HISTORICAL_X.md`. Key findings:
+
+- **W3 XOR key rotation discovered:** Feb 25, 2026 was not a routine update — it was a live
+  key rotation from `cA]2!+37v,-szeU}` → `2[gWfGj;<:-93Z^C`. The last old-key TX (18:05) and
+  first new-key TX (18:07) decrypt to **identical plaintext** — same payload re-deployed 2 min apart.
+- **Historical key recovered:** `cA]2!+37v,-szeU}` was in use from W3 genesis (Nov 13, 2025)
+  through Feb 25 18:05. Enables decryption of all W3 payloads from that period.
+- **Why 12 TXs on Feb 25:** 2 old-key TXs + 10 new-key TXs = rotation re-push of all variants.
+  Same pattern as May 21 (6 TXs for UMD wrapper introduction).
+- **Payload format confirmed:** All pre-May-21 W3 payloads are plain WJS shuffle cipher IIFE
+  (no LZString, no Function() wrapper). Two variants: array form (`function a0c(){const hc=[...`)
+  and object form (`(function(a,b){const a0d6={...`).
+- **Phase 1→2 transition:** Within the Feb 11 session, payload shrank from ~92K to ~70K (25%
+  reduction). The 92K phase (Nov 2025 – Feb 11 14:22) was replaced with the slimmer 70K phase
+  within a single day — likely a code optimization or dead-code removal pass.
+- Nov 2025 BSC TXs not recoverable (BSC archive pruned; TRON API pagination gap).
 
 **Y. `lambda-platform/lambda` Go package — live payload check**
 One of Nextron's 16 infected Go packages, but with versions from May 26 and Jun 19 2026 —
