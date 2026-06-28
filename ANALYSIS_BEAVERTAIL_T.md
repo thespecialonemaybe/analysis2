@@ -13,6 +13,48 @@ a 337-entry string table and a 65KB JavaScript RAT that performs IDE/tool persis
 socket.io C2 beaconing, clipboard theft, file upload, and arbitrary command execution. A Python
 stage launcher is embedded for escalation to Stages 4–5.
 
+---
+
+## Capability Overview
+
+### Persistence — injects itself into:
+- **VSCode, Cursor, Antigravity** via `@vscode/deviceid/dist/index.js` — runs every time the IDE opens
+- **Discord** via `discord_desktop_core/index.js` — runs inside the chat client
+- **GitHub Desktop** via `main.js` — runs inside the git GUI
+- **npm CLI** via `node_modules/npm/lib/cli.js` — **runs on every `npm install` and `npm publish`
+  by the victim**. This is the supply chain propagation vector: packages the victim publishes
+  going forward silently carry the implant to downstream users.
+
+All targets covered on Windows, macOS, and Linux.
+
+### Exfiltration — immediately on first connection:
+- Clipboard contents (PowerShell / pbpaste / xclip / xsel — all platforms)
+- Full system profile: OS, hostname, username, Node/VS Code paths, campaign ID, startup time
+- IP address + ISP + geolocation via `http://ip-api.com/json`
+- Any file or directory on demand (`ss_upf` / `ss_upd` → POST to `/u/f`)
+
+### Remote control — operator commands over socket.io:
+- **Arbitrary shell execution** — any unrecognized command is run as a shell command and output returned
+- **Arbitrary in-process JavaScript eval** (`ss_eval`, `ss_eval64`) — no process spawn required
+- Directory browsing and `cd` (`ss_dir`, `ss_fcd`, `cd <path>`)
+- C2 redirect mid-session — operator can point the implant at a new server (`ss_connect:<ip>`)
+- Re-inject into any IDE or arbitrary file path on command (`ss_inz:<app>`, `ss_inzx:<path>`)
+- Kill the process (`ss_exit` graceful, `ss_exit_f` forced)
+
+### Escalation:
+- Spawns Stage 4 (Python bootstrapper) which installs a private Python runtime at
+  `%LOCALAPPDATA%\Programs\Python\Python3127` (Windows) then executes Stage 5 — a full infostealer
+  targeting browsers, 30+ crypto wallet extensions, password managers, and GitHub/VS Code credentials.
+
+### The npm injection compound effect:
+Once injected into the global npm CLI, the implant runs silently inside every future npm operation
+on the victim's machine. If the developer publishes packages, the injected code can intercept and
+modify those packages before they reach the registry — turning one compromised developer into an
+unwitting supply chain attack vector against their own users, with no further action required from
+the actor.
+
+---
+
 String table decompressed: 337 entries, 4,896 chars (UTF-16 LZString compressed to 1,708 chars /
 ~3,416 raw bytes). Full table at `/tmp/stage2_string_table.json`.
 
