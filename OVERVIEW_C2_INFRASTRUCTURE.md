@@ -17,7 +17,7 @@
 | F | DONE | Cross-reference with OpenSourceMalware repo list |
 | G | DONE | GitHub scan for new ciphers (`_$_16d1`, `_$_9f51`, `_$_96c7`, `_$_4445` — all zero-result) |
 | H | DONE | `config.bat` analysis (timestamp-forgery commit amender) |
-| I | pending | Aptos address tx history query |
+| I | **DONE** | Aptos address tx history — mechanism confirmed, op dates to Jun 2025, new cipher `_$_f5f0` |
 | J | pending | TRON W1 update cadence monitoring |
 | K | pending | TrustedSmartChain/tsc main repo infection check |
 | L | DONE | Bat-file victim repos sweep (29 repos, 7 live infections) |
@@ -136,6 +136,8 @@ through `_$_b229`. The cryptographic layer never rotated — only the JS obfusca
 | `_$_16d1` | W2 Stage 1 (Jun 20) | Not yet found in repos | Direct HTTP | New — not publicly documented |
 | `_$_9f51` | W1 Stage 1 (Jun 23) | Not yet found in repos | TRON→BSC chain | New — not publicly documented |
 | `_$_96c7` | Embedded in W1 Stage 1 atob | Sub-cipher for Stage 2 bootstrap | — | New — not publicly documented |
+| `_$_f5f0` | W2 Stage 1 (Jun 23 + Jun 25) | Not yet found in repos | Direct HTTP | New — adds `global['m']=module` |
+| (none/raw IIFE) | W1 Stage 1 (Aug 2025, cipher `RVj`) | Oldest known variant | TRON→BSC | No outer wrapper — earliest form |
 
 ---
 

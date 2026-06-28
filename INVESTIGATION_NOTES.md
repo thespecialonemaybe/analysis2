@@ -82,6 +82,8 @@ The actor has shipped at least 5 distinct cipher variants, each a response to de
 | `_$_16d1` | Seen in live W2 Stage 1 (delivered Jun 20) | Unknown — not yet found in any infected repo | **New — not publicly documented** |
 | `_$_9f51` | Seen in live W1 Stage 1 (delivered Jun 23) | Unknown | **New — not publicly documented** |
 | `_$_96c7` | Embedded in W1 Stage 1 atob block | Sub-cipher for Stage 2 bootstrap | **New — not publicly documented** |
+| `_$_f5f0` | W2 Stage 1, deployed Jun 23 + Jun 25 (via Aptos A2) | Unknown — not yet in any repo | **New — adds `global['m']=module` capture** |
+| (none / raw IIFE) | Aug 2025 W1 Stage 1 (`RVj` cipher) | Oldest known variant | Pre-dates outer cipher wrapper |
 
 The `_$_1e42` → `_$_b229` rotation is confirmed by OpenSourceMalware as an evasion response.
 `_$_16d1`, `_$_9f51`, and `_$_96c7` are the next generation, apparently already deployed in the live C2
@@ -281,9 +283,23 @@ ONLY for the direct-injection path (actor's machine). npm-vector infections run 
 on the victim's machine → matching timestamps → our detection signal is absent. The 1,950+
 OSM victims were hit via the undetectable path.
 
-**I. Aptos address activity**
-The two Aptos fallback addresses (`0xbe037400...`, `0x3f0e5781...`) haven't been queried for
-transaction history. They may contain historical dead-drop data.
+**I. Aptos address activity** — DONE
+Full analysis in `ANALYSIS_APTOS_WALLETS.md`. Dead-drop mechanism confirmed: all Aptos TXs are
+zero-value transfers where the recipient address IS the BSC TX hash. A1 = W1 channel fallback,
+A2 = W2 channel fallback (proven by cross-matching with known TRON→BSC pairs).
+
+**Operation timeline extended: active since at least 2025-06-13** (12+ months). A1 has 22 TXs,
+A2 has 10 TXs, going back to June 2025.
+
+**NEW cipher `_$_f5f0` discovered** (Jun 23 + Jun 25 via A2 Aptos) — fourth new undocumented
+cipher not in any public report, not yet seen in any infected repo. New capability: captures
+`global['m'] = module` (CommonJS module object) in addition to `global['r'] = require`.
+Two deployments: Jun 23 (`SgH` inner cipher, seed=570964) and Jun 25 (`cdi` inner cipher,
+seed=1787286).
+
+**Historical Stage 1 from Aug 2025 recovered** (`RVj` cipher, seed=2078320) — earliest known
+variant, predates the outer `_$_xxx` cipher wrapper. Guard key `_t_t` confirmed in March 2026
+payload. 10 additional BSC TXs from 2025 remain unanalyzed (see ANALYSIS_APTOS_WALLETS.md).
 
 ### Lower priority / passive monitoring
 
