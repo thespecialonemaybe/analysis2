@@ -364,10 +364,20 @@ Full analysis in `ANALYSIS_HISTORICAL_STAGE1.md`. All 10 A1 + 6 A2 historical BS
 - `_$_3333` (Mar 4 2026) = first outer cipher on W2 channel; `_$_ec7c` replaced it Mar 26 2026
 - Outer cipher obfuscation was absent from ALL payloads before March 2026 on both channels
 
-**R. Decode `_$_f5f0` Stage 2 body**
-The Jun 23 and Jun 25 W2 Stage 1s use the direct HTTP C2 architecture (same as `_$_16d1` Task B).
-Decompress Stage 2 from one of these payloads: does the routing table, C2 IPs, or Stage 3 XOR
-key differ from the Jun 20 `_$_a478` decode? Specifically check whether `global['m']` is used.
+**R. Decode `_$_f5f0` Stage 2 body** — DONE
+Full analysis in `ANALYSIS_F5F0_STAGE2.md`. Stage 2 cipher `_$_d6e0` (seed=565583, 33 entries).
+
+**Actor is pruning the victim pool.** Two IPs removed, routing simplified:
+- `'A...'` prefix victims → **silent drop** (was: beacon to `23.27.13.43`)
+- Mixed `'5-3-...'` victims → **silent drop** (was: beacon to `198.105.127.210`)
+- Numeric victims → `198.105.127.210/$/boot` (unchanged)
+- `23.27.13.43` and `23.27.202.27:27017` both removed from string table entirely
+
+`global['m']` (module object) captured in Stage 1 but NOT used in Stage 2 — reserved for
+Stage 3 or future capability.
+
+Activation/return codes changed: `8063`/`8223` (Jun 20) → `1218`/`2021` (Jun 25).
+Stage 3 XOR key `ThZG+0jfXE6VAGOJ` unchanged.
 
 **S. Re-query TRON W2 for Jun 23/25 updates**
 A2 Aptos has Jun 23 and Jun 25 pushes with no matching TRON W2 TXs in our data. Query
