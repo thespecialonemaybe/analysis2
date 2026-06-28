@@ -434,6 +434,25 @@ retrieved and mapped. Key findings:
 - New W2 Jun 13 2025 BSC TX `0x1a323149...` found — pruned from BSC archive, unrecoverable
 - Aptos vs TRON update synchronization table cross-referenced across all dates
 
+**T. Decode W1 Stage 2 — Beavertail RAT internals**
+Blob retrieved in Task C: `/tmp/b229_stage2_live.js` (77,279 chars, SHA-256
+`f9dcca3ea7d32189ff2bc69e46abff78447f7538952e6b7efc511ffa0bfdde4b`).
+Structure: `Function("oTNBm2c", <LZString_decompressor + obfuscated_payload>)(moduleProxy)`.
+The `oTNBm2c` parameter is a UMD module proxy (AMD/CommonJS/Angular intercept), not the
+compressed data — payload is self-contained inside the Function body.
+
+Tasks:
+1. Decompress the internal LZString payload to get the actual JS source
+2. Identify cipher/string-table structure and decode it
+3. Confirm or refute Beavertail attribution — compare behavior to JFrog's Stage 3/4/5 description
+4. Extract any new IOCs: C2 paths, socket.io connection target, Python stage URL, exfil endpoints
+5. Check whether the blob differs from the VSCode-vector Stage 2 (JFrog path) or is identical
+6. Record hash against public threat intel (hash is zero-result as of 2026-06-28)
+
+Known context from JFrog (VSCode vector Stage 3+): socket.io backdoor on `ws://166.88.54.158:443`,
+Python bootstrapper exfils env to `/snv`, Python infostealer stages at `/tmp/.npm`. If W1 Stage 2
+contains the SAME logic, it confirms the two delivery tracks converge on identical Stage 3+.
+
 **L. Investigate bat-file victim repos** — DONE
 Full analysis in `ANALYSIS_BAT_VICTIMS.md`. 29 repos scanned (8 config.bat + 21 temp_interactive).
 7 live infections found, all `_$_1e42` cipher with NEW activation/return pair **2509/1358**
