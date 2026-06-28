@@ -467,6 +467,46 @@ Known context from JFrog (VSCode vector Stage 3+): socket.io backdoor on `ws://1
 Python bootstrapper exfils env to `/snv`, Python infostealer stages at `/tmp/.npm`. If W1 Stage 2
 contains the SAME logic, it confirms the two delivery tracks converge on identical Stage 3+.
 
+**U. C2 liveness check**
+Check which C2 servers are still responding. Scan `166.88.54.158`, `166.88.134.62`,
+`198.105.127.210`, `23.27.202.27`, `23.27.13.43` for open ports and live HTTP endpoints.
+`23.27.13.43` was removed from Jun 25 Stage 2 — confirm dead or just disconnected.
+Check known paths: `/$/boot`, `/upload`, `/snv`, `/u/e`, `/u/f`, `/verify-human/test`.
+
+**V. VSCode `folderOpen` task pattern scan on GitHub**
+JFrog's delivery leaves `.vscode/tasks.json` with `runOn: "folderOpen"` + font file exec.
+Search GitHub for this pattern to find infected packages/repos the npm reports missed.
+Also scan for `lib/lib.min.js` (Dragon-Lady's alternative Stage 0 filename indicator).
+And `fa-solid-400.woff2` in non-font contexts (JS payload disguised as font).
+
+**W. Dragon-Lady npm packages — registry check**
+Check `tailwindcss-merge`, `sass-format`, `tailwindcss-animates-kit`, `sass-formats`,
+`clsx-tailwind`, `tailwindcss-animatics`, `typeorm-encrypt`, `rate-limits-flexible`,
+`rate-limit-flexible` on the npm registry: still live? publish date? publisher account?
+`typeorm-encrypt` is highest priority — targets NestJS/Express backends, different
+ecosystem from the CSS tooling packages. Cross-check against known PolinRider publisher
+accounts.
+
+**X. W3 Feb 25 batch decode — historical Stage 2**
+W3 had its largest single-day batch on Feb 25, 2026 (12 TXs, 18:01–21:07 UTC).
+Retrieve and decode these BSC TXs to understand what Stage 2 looked like before:
+- The Function() UMD wrapper (added May 21)
+- The outer cipher wrappers on Stage 1 (added Mar 2026)
+- The OSM YARA publication (Mar 7)
+These payloads are pre-wrapper (~65KB range) and should be easier to decode than the
+current 77KB blob (Task T). Will establish the Stage 2 evolution baseline.
+Also retrieve the Nov 2025 payloads (W3 true start) if BSC archive permits.
+
+**Y. `lambda-platform/lambda` Go package — live payload check**
+One of Nextron's 16 infected Go packages, but with versions from May 26 and Jun 19 2026 —
+the most recently injected. Check if the payload is still live in the Go module proxy,
+decode it, and confirm whether it matches the npm vector or uses a different Stage 0.
+
+**Z. Dragon-Lady `sources.md` review**
+18KB sources document in Dragon-Lady/linux-supply-chain-guard. Likely references additional
+public reports, IOC feeds, or attributed campaigns we haven't cross-referenced. Quick read
+to extract any new intel on ChainVeil/PolinRider not already in our analysis.
+
 **L. Investigate bat-file victim repos** — DONE
 Full analysis in `ANALYSIS_BAT_VICTIMS.md`. 29 repos scanned (8 config.bat + 21 temp_interactive).
 7 live infections found, all `_$_1e42` cipher with NEW activation/return pair **2509/1358**
