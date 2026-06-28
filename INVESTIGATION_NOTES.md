@@ -60,6 +60,9 @@ any public threat report:
 | 100DaysofYARA/2026 Day54 | github.com/100DaysofYARA/2026 | YARA rules for `_$_1e42` / `_$_b229` variants |
 | 0xCryptoZen/malware-scan | github.com/0xCryptoZen/malware-scan | IOC list including new TRON wallets |
 | Trend Micro / DEV#POPPER | Unit 42 write-up on the campaign | Attribution, Beavertail RAT documentation |
+| JFrog (Korolevski + Benamou) | github.com/jfrog/research — post/hijacked-npm-vscode-tasks-blockchain.md | **Jun 24 2026** — full 5-stage chain; VSCode folderOpen delivery; Stages 3-5 (socket.io backdoor, Python bootstrapper, Python infostealer); 16 Go packages (Nextron Research update Jun 25) |
+| Dragon-Lady/linux-supply-chain-guard | github.com/Dragon-Lady/linux-supply-chain-guard | **"ChainVeil"** campaign name; IP `166.88.54.158` (socket.io WS C2); 9 additional npm packages incl. `typeorm-encrypt`; `A6-` campaign IDs; Aptos A3 confirmed; actor org `successkeyteck` (suspended) |
+| Nextron Research | via JFrog post update Jun 25 2026 | 16 infected Go packages containing same fa-solid-400.woff2 payload |
 
 **npm infection vectors (publicly documented):**
 - `tailwind-mainanimation`
