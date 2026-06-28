@@ -346,8 +346,21 @@ New findings: Stage 2 reads `global['!']` and sets `global['_V'] = "A" + global[
 (→ `"A8-765"`); adds infection timestamp tracking via `global['_p_t'] = new Date().getTime()`.
 **Final confirmation: single C2 backend in continuous operation Jan–Jun 2026.**
 
-**K. Check remaining unconfirmed victim repos (TrustedSmartChain/tsc main repo)**
-The `tsc` (main chain software, updated 2026-06-09) may also be infected.
+**K. Check remaining unconfirmed victim repos (TrustedSmartChain/tsc main repo)** — DONE
+**tsc main repo is NOT infected.** Checked 2026-06-28.
+
+The `TrustedSmartChain/tsc` repo (pushed 2026-06-24) has 7 commits with author/committer
+timestamp gaps (authored Apr 6–28, committed Jun 3). These are a **legitimate git rebase**
+from the `feature/licenses` branch, not PolinRider injection — all modified files are
+`.go`, `go.mod`, `go.sum`, `Makefile`, and `.sh`. No JS config files exist in the repo
+(it is a Go blockchain project), so there is no PolinRider injection surface.
+
+Full IOC scan of `swagger-ui-bundle.js` (1,078,281 chars, the only large JS file):
+no TRON wallets, no Aptos addresses, no XOR keys, no cipher identifiers, no bat files,
+no woff2 disguised payloads.
+
+The `tsc-signer` infection (Task 5-3-341, May 19 2026) remains the only confirmed
+TrustedSmartChain compromise.
 
 ### New tasks (added 2026-06-28)
 
