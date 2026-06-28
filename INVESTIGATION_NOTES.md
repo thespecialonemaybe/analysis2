@@ -525,13 +525,18 @@ Key findings:
 - **New npm package IOC**: `jsonwebauth` (pub. 2026-01-08, 326KB payload in `lib/lserver.js`)
 - Scale estimate: 200–400+ victim repos total across all delivery variants
 
-**W. Dragon-Lady npm packages — registry check**
-Check `tailwindcss-merge`, `sass-format`, `tailwindcss-animates-kit`, `sass-formats`,
-`clsx-tailwind`, `tailwindcss-animatics`, `typeorm-encrypt`, `rate-limits-flexible`,
-`rate-limit-flexible` on the npm registry: still live? publish date? publisher account?
-`typeorm-encrypt` is highest priority — targets NestJS/Express backends, different
-ecosystem from the CSS tooling packages. Cross-check against known PolinRider publisher
-accounts.
+**W. Dragon-Lady npm packages — registry check** — DONE (2026-06-28)
+
+All 9 packages replaced with npm security holding packages on 2026-06-11. See `ANALYSIS_NPM_PACKAGES_W.md`.
+
+Key findings:
+- **All revoked same day (2026-06-11)**: coordinated npm security action, 9 GHSA advisories filed simultaneously
+- **Two injection waves**: May 19 (animates-kit, animatics — likely test run) and June 7 (main batch: 5 packages with rapid multi-version deploys) + June 10 stragglers
+- **~3,100+ combined downloads** = ~3,100 potentially compromised developer machines
+- **`tailwindcss-merge` pre-2026 history**: v0.0.1/v0.0.2 published 2024-01-17 — possibly pre-positioned name squatting (2.5 years before weaponization), or hijacked legitimate account. Tarball purged, cannot confirm.
+- **Publisher identity unknown**: npm cleared all maintainer metadata; tarballs purged from CDN
+- **`typeorm-encrypt` + `rate-limit-flexible`** highest impact: target NestJS/Express backend devs with database/infrastructure access — more privileged than frontend CSS tooling victims
+- GHSA IDs: GHSA-f7h6-4xj8-8qh7 (typeorm-encrypt), GHSA-m2xh-rw7p-69rx (tailwindcss-merge), GHSA-v7vx-48xw-jwm8 (rate-limit-flexible), GHSA-v4xp-qgj3-gphm (animates-kit), +5 others
 
 **X. W3 Feb 25 batch decode — historical Stage 2** — DONE
 Full analysis in `ANALYSIS_W3_HISTORICAL_X.md`. Key findings:
