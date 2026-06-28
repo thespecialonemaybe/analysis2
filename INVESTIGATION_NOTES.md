@@ -519,6 +519,14 @@ Full analysis in `ANALYSIS_W3_HISTORICAL_X.md`. Key findings:
   within a single day — likely a code optimization or dead-code removal pass.
 - Nov 2025 BSC TXs not recoverable (BSC archive pruned; TRON API pagination gap).
 
+**AA. Reverse MD5 `9a47bb48b7b8ca41fc138fd3372e8cc0` — sandbox process name**
+Stage 2 runs `tasklist /FO CSV /NH` on Windows, MD5-hashes each process name, and aborts if
+it sees this hash. Reversing it reveals which specific sandbox/analysis tool the actor is
+evading. Try: common VM guest agents (vmtoolsd, vboxservice, vmsrvc, prl_tools), sandbox
+runners (cuckoo, sandboxie), AV scanners, and any other analysis environment processes.
+Method: check known candidates via `echo -n <name> | md5sum`, try public rainbow tables,
+grep threat intel feeds for this exact hash string.
+
 **Y. `lambda-platform/lambda` Go package — live payload check**
 One of Nextron's 16 infected Go packages, but with versions from May 26 and Jun 19 2026 —
 the most recently injected. Check if the payload is still live in the Go module proxy,
