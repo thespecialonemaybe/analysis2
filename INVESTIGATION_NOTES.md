@@ -743,11 +743,23 @@ The double-IIFE structure explains the size: two stacked infections (IDs `9-1330
 The bare `8` ID is the pre-2023 era format — second infection from an old template source.
 No additional analysis needed beyond what Task AI found.
 
-**AK. `Rafijohari18/astro-speed` deep dive — 13,696-byte single-IIFE anomaly**
-Task AI found this repo has 13,696 bytes but only ONE IIFE and ONE campaign ID (`8-4081`).
-This is 2.4× the standard astro payload (5,500 bytes) with no obvious structural explanation.
-Decode the pYd to determine: (1) what extra code is present — inline Stage 2? Additional C2
-fallbacks? (2) Whether the payload architecture differs from the standard 58-entry _$_ccfc template.
+**AK. `Rafijohari18/astro-speed` deep dive — 13,696-byte anomaly** — DONE (2026-06-28)
+
+See `ANALYSIS_AK_RAFI.md` for full detail.
+
+Key findings:
+- **Not extreme whitespace — double infection.** Task AI's initial count of "one IIFE" missed
+  a second payload hidden 1,689 bytes after the first IIFE end marker.
+- **File structure**: 832B Astro config + 4,782B IIFE-1 (sfL, `8-4081`) + 1,689B whitespace gap
+  + 6,393B `eval(atob('...'))` IIFE-2 (`11-#`) = 13,696B total.
+- **IIFE-2 uses `eval(atob(...))` encoding** — base64 wrapping of the same sfL IIFE structure.
+  This is harder to detect (base64 blob invisible in static scan). Same technique as saif72437.
+- **`11-#` is a canonical template ID** — same `11-#` seen in Task N (saif72437 inner atob layer).
+  Rafijohari IIFE-2 decoded size (4,781B) exactly matches saif72437 inner layer. Identical pYd_enc.
+  `11-#` is NOT a victim-specific ID — it's embedded permanently in the atob dropper variant.
+- **Victim real ID is `8-4081`** (IIFE-1); both channels route to dead/silent C2.
+- **Third double-infected repo** in the cluster (after rajat22999 and JudeTejada from Task AI),
+  but the only one using the atob dropper variant alongside a standard sfL IIFE.
 
 **AF. Campaign ID `10-010` — routing and operator identification**
 `madeeldev/flutter-vpn` has `global['!']='10-010'` — a numeric-with-hyphen campaign ID that
