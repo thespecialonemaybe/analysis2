@@ -188,10 +188,11 @@ infrastructure may be compromised. No notification appears to have been sent.
 
 **6. Stage 1 reveals direct C2 IP infrastructure — not in any public report.**
 
-The three IP addresses (`166.88.134.62`, `198.105.127.210`, `23.27.202.27`) are hidden inside
-the `_$_9f51` cipher in Stage 1 and were never visible in Stage 0 or infected repo files. Port
-27017 on `23.27.202.27` confirms the actor's backend is MongoDB. The three-pool routing by
-campaign ID suggests the actor is segmenting victims across multiple C2 servers at scale.
+The four IP addresses (`166.88.134.62`, `198.105.127.210`, `23.27.202.27`, `23.27.13.43`) are
+hidden inside Stage 1 ciphers and were never visible in Stage 0 or infected repo files. Port
+27017 on `23.27.202.27` confirms the actor's backend is MongoDB. `23.27.13.43` (new, W2 Stage 2
+only) receives the old `_$_1e42` batch victims. The victim-routing logic by campaign ID prefix
+(`'A'` / numeric / mixed) segments victims across dedicated C2 servers.
 
 ---
 
@@ -211,10 +212,28 @@ Saved to `artifacts_live_stage2.zip`.
 
 ### High priority (pending)
 
-**B. Decode `_$_16d1` from W2 Stage 1**
-W2 Stage 1 (June 20) delivers `_$_16d1` with activation code `8063` (return `8223`).
-Extract the full encoded string table and seed, decode the string table, compare to W1 IOC set.
-Check whether direct C2 IPs and W3 TRON wallet appear here too.
+**B. Decode `_$_16d1` from W2 Stage 1** — DONE
+Full analysis in `ANALYSIS_W2_STAGE1.md`. `_$_16d1` is a minimal 2-entry cipher
+(`['function', 'r']`) — just the `typeof require` check and `global['r'] = require` store.
+The main payload is the W2 Stage 2 body (1,958 chars) decoded via `Wrm` inner cipher
+(seed=2296496) + LZ decompressor (`ptU` 890 chars) + Stage 2 cipher `_$_a478` (seed=6463369,
+35-entry table).
+
+**Key finding: W2 Stage 2 uses DIRECT HTTP, not blockchain dead-drops.**
+Stage 2 beacons to actor infrastructure at `/$/boot` with `Sec-V: <campaign_id>` header
+and XOR-decrypts the Stage 3 response with a NEW key `"ThZG+0jfXE6VAGOJ"`.
+
+**New C2 IP discovered: `23.27.13.43`** (W2 `_$_a478[3]`). This IP is not in any public
+report and does not appear in W1 Stage 1. It receives victims with campaign IDs starting
+with `'A'` (i.e., old `_$_1e42` batch victims like `'A8-765'`).
+
+Routing table revealed by W2 Stage 2:
+- `_V` starts with `'A'` → `global['_H2'] = 'http://23.27.13.43'`
+- `_V` is numeric → `global['_H2'] = 'http://198.105.127.210'`
+- `_V` is mixed (e.g. `'5-3-161'`) → `global['_H'] = 'http://198.105.127.210'` + `_H2 = 23.27.202.27:27017` (fallback)
+
+W1 vs W2 architecture confirmed divergent: W1 = blockchain dead-drop → 77,279-char RAT;
+W2 = direct HTTP beacon → Stage 3 fetched live from actor server.
 
 **E. TrustedSmartChain notification**
 The `tsc-signer` infection (5-3-341, May 19) is a high-severity finding. The developer's
