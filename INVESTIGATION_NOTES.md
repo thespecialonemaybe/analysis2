@@ -71,6 +71,13 @@ any public threat report:
 | JFrog (Korolevski + Benamou) | github.com/jfrog/research — post/hijacked-npm-vscode-tasks-blockchain.md | **Jun 24 2026** — full 5-stage chain; VSCode folderOpen delivery; Stages 3-5 (socket.io backdoor, Python bootstrapper, Python infostealer); 16 Go packages (Nextron Research update Jun 25) |
 | Dragon-Lady/linux-supply-chain-guard | github.com/Dragon-Lady/linux-supply-chain-guard | **"ChainVeil"** campaign name; IP `166.88.54.158` (socket.io WS C2); 9 additional npm packages incl. `typeorm-encrypt`; `A6-` campaign IDs; Aptos A3 confirmed; actor org `successkeyteck` (suspended) |
 | Nextron Research | via JFrog post update Jun 25 2026 | 16 infected Go packages containing same fa-solid-400.woff2 payload |
+| orangemaster674 (Medium) | medium.com/@orangemaster674/attacking-any-run-for-sandbox-detection-development-747c1a8aa4fd | ANY.RUN sandbox detection: driver `A3E64E55_fl_x64.sys`, device `\\.\A3E64E55_fl`, path `C:\Program Files\KernelLogger`; relevant to Stage 2 O-filter Task AA |
+| Mandiant CAPA rules | github.com/mandiant/capa-rules/blob/master/anti-analysis/anti-vm/vm-detection/check-for-windows-sandbox-via-process-name.yml | Windows Sandbox detection via `CExecSvc.exe`; references wsb-detect (LloydLabs); relevant to Stage 2 sandbox evasion |
+| Talos Intelligence | blog.talosintelligence.com — "BeaverTail and OtterCookie evolve with a new Javascript module" | Covers BeaverTail RAT evolution and OtterCookie infostealer; confirms DPRK Contagious Interview cluster attribution |
+| Microsoft Security Blog (Mar 2026) | microsoft.com/security/blog — "Contagious Interview: Malware delivered through fake developer job interviews" | March 2026 update; fake interview lure TTP documentation; confirms operational merger with TasksJacker cluster |
+| Socket.dev | socket.dev/blog — "Famous Chollima Targets PHP Developers Through Compromised Packagist Package" | Extension to PHP/Packagist ecosystem; actor pivots beyond npm; confirms Famous Chollima attribution |
+| Bleeping Computer | bleepingcomputer.com — "Malware adds online sandbox detection to evade analysis" | Documents sandbox evasion via `tasklist` process-name MD5 checks; may reference the specific O-process Stage 2 is targeting |
+| CyberDefenders | cyberdefenders.org — "Famous Chollima" lab challenge | Blue-team CTF lab based on the campaign; useful for corroborating IOCs |
 
 **npm infection vectors (publicly documented):**
 - `tailwind-mainanimation`
@@ -519,13 +526,31 @@ Full analysis in `ANALYSIS_W3_HISTORICAL_X.md`. Key findings:
   within a single day — likely a code optimization or dead-code removal pass.
 - Nov 2025 BSC TXs not recoverable (BSC archive pruned; TRON API pagination gap).
 
-**AA. Reverse MD5 `9a47bb48b7b8ca41fc138fd3372e8cc0` — sandbox process name**
-Stage 2 runs `tasklist /FO CSV /NH` on Windows, MD5-hashes each process name, and aborts if
-it sees this hash. Reversing it reveals which specific sandbox/analysis tool the actor is
-evading. Try: common VM guest agents (vmtoolsd, vboxservice, vmsrvc, prl_tools), sandbox
-runners (cuckoo, sandboxie), AV scanners, and any other analysis environment processes.
-Method: check known candidates via `echo -n <name> | md5sum`, try public rainbow tables,
-grep threat intel feeds for this exact hash string.
+**AA. Reverse MD5 `9a47bb48b7b8ca41fc138fd3372e8cc0` — sandbox process name** — INVESTIGATED, UNRESOLVED
+
+The exact Windows sandbox check code (from decoded Stage 2):
+- Runs `tasklist /FO CSV /NH`, strips quotes from first CSV field per line
+- **Only processes process names whose first character is uppercase `O`** (all others skipped with embedded anti-debug)
+- MD5-hashes qualifying names; if match → silent abort (no C2 report)
+
+Exhaustive search (2026-06-28):
+- Brute-forced all `O*.exe` names 2–5 chars (covers ~30M candidates) → no match
+- 300+ specific named Windows processes tested: OllyDbg, Online Armor (OAcat/OAUI/OAnet), Outpost FW, OfficeScan, OPSWAT, Okta (OktaVerify), Orbital/Cisco, Dynatrace OneAgent, Ollama, Obsidian, OmniSharp, OmniPeek, Observer Analyzer, Orbit/Fleet, OSSEC (ossec-agent), OpenVPN, Opera, OBS, OmniGraffle, etc.
+- Public rainbow tables (CrackStation, hashes.com, md5decrypt.net) → no match
+- Security process databases (websec/Security-Software-Process-and-Driver-Names, Mandiant CAPA rules, Checkpoint Evasions encyclopedia) → no O* match for this hash
+
+**Conclusion:** The target process name is NOT in any public database. Most likely candidates:
+1. A proprietary analysis-platform agent not publicly documented (ANY.RUN, Hatching Triage, VMRay, or vendor-internal sandbox)
+2. An internal DPRK development-environment tool the actor avoids infecting
+3. An obscure enterprise security product not in public AV/EDR process databases
+
+**Key structural finding:** The `O`-only filter means this check is near-zero overhead on real developer machines (very few O* processes) while precisely targeting one known analysis environment. The actor added this after encountering that specific process.
+
+**Next step:** Send `9a47bb48b7b8ca41fc138fd3372e8cc0` to ANY.RUN/Mandiant/ESET threat intel teams — they may be able to reverse it from internal sandbox behavioral data.
+
+Related research: 
+- ANY.RUN sandbox detection methods: https://medium.com/@orangemaster674/attacking-any-run-for-sandbox-detection-development-747c1a8aa4fd
+- Mandiant CAPA rule for Windows Sandbox via `CExecSvc.exe`: github.com/mandiant/capa-rules/blob/master/anti-analysis/anti-vm/vm-detection/check-for-windows-sandbox-via-process-name.yml
 
 **Y. `lambda-platform/lambda` Go package — live payload check**
 One of Nextron's 16 infected Go packages, but with versions from May 26 and Jun 19 2026 —

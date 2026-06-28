@@ -231,10 +231,44 @@ Multi-layer evasion checked before injection:
 - Username: `root` → abort
 
 **Windows process check:**
-- Runs `tasklist /FO CSV /NH`, extracts process names
-- MD5-hashes each process name, checks for `9a47bb48b7b8ca41fc138fd3372e8cc0`
-  - This is the MD5 of a specific sandbox monitoring process name (not yet identified — reverse the hash)
-- If found: silently exits
+- Runs `tasklist /FO CSV /NH`, extracts first CSV field per line, strips double-quotes
+- **Skips all process names whose first character ≠ uppercase `O`** (with embedded anti-debug on each skipped entry to slow analysis)
+- For names starting with `O`: MD5-hashes the process name, compares against `9a47bb48b7b8ca41fc138fd3372e8cc0`
+- If matched: silently exits (does NOT report to C2)
+
+```javascript
+// Exact code (after string-table decoding):
+const ywO2Dmw = await exec('tasklist /FO CSV /NH', {windowsHide: true});
+const lines = ywO2Dmw.trim().split("\n");
+for (const line of lines) {
+    const name = line.split(",")[0].replace(/"/g, "");
+    if (name[0] != "O") continue;   // ← only O* process names are checked
+    const h = crypto.createHash('MD5').update(name).digest('hex');
+    if (h == '9a47bb48b7b8ca41fc138fd3372e8cc0') return;  // abort silently
+}
+```
+
+**MD5 reverse status — UNRESOLVED:**  
+Exhaustive search (Jun 28, 2026): brute-forced all `O*.exe` names 2–5 chars long
+(covers ~30M candidates), tested 300+ specific named Windows processes across: VM guest
+agents, debuggers (OllyDbg), network analyzers (OmniPeek), security products (Online Armor,
+OfficeScan, Outpost, OPSWAT, Okta, Orbital/Cisco), enterprise monitoring (Dynatrace OneAgent),
+developer tools (Ollama, Obsidian, OmniSharp, Orbit/Fleet), public rainbow tables (CrackStation,
+hashes.com, md5decrypt.net), security process databases (websec/Security-Software-Process-and-Driver-Names) — **no match found**.
+
+The hash does **not** appear in any public database. The target process is most likely one of:
+1. A proprietary analysis-platform agent not publicly documented (e.g. ANY.RUN user-mode agent,
+   Hatching Triage, VMRay, or a vendor-internal sandbox tool)
+2. An internal DPRK development-environment tool the actor wants to avoid  
+3. An obscure enterprise security product not in public AV/EDR process name databases
+
+The `O*`-only filter is itself a significant finding: only **one** process hash is checked, and
+the filtering is designed so that this single check runs at virtually zero cost on real developer
+machines (very few processes start with capital O), while an analysis environment with this
+specific process triggers the evasion.
+
+**Next step:** submit the hash to Mandiant/CrowdStrike/ESET/ANY.RUN threat intel teams — they
+may be able to reverse it from internal sandboxing data.
 
 ---
 
