@@ -308,9 +308,23 @@ payload. 10 additional BSC TXs from 2025 remain unanalyzed (see ANALYSIS_APTOS_W
 
 ### Lower priority / passive monitoring
 
-**J. TRON wallet W1 update cadence**
-W1 has been updated at: May 23, Jun 18, Jun 23. Next update expected late June / early July.
-W3 (Stage 2 wallet) has been updated every 3–6 days since June 2. Both worth monitoring.
+**J. TRON wallet W1 update cadence** — DONE (snapshot 2026-06-28)
+Full analysis in `ANALYSIS_CADENCE_J.md`. No new updates since last check.
+
+Status: W1/A1 last Jun 23 (5d ago), W2/A2 last Jun 25 (3d ago), W3/A3 last Jun 8 (20d ago).
+
+**W3 true history discovered:** 69 TXs back to Nov 13, 2025 (not Jun 2025). W3 added the Stage 2
+blockchain dead-drop layer in Nov 2025, 5 months after W1/W2 went live. Pre-Nov Stage 2 was
+served directly from C2.
+
+**Stage 2 payload evolution:** Function wrapper introduced May 21 mid-session; payload grew
+~65KB → 77KB (May 20 → Jun 8). Jun 8 payload stable for 20 days — longest W3 quiet period.
+
+**16 new W3 BSC TXs catalogued** (May 20 – Jun 2). Pre-Function-wrapper payloads (~65KB) from
+May 20 may be easier entry point for Task T (Beavertail decode).
+
+**W3 20-day silence** is anomalous given <3 day avg cadence over 7.5 months — may signal
+actor preparing a new Stage 2 variant or transitioning delivery mechanism.
 
 **M. Decode `Cot%3t=shtP` cipher from live samples** — DONE
 Full analysis in `ANALYSIS_COT_CIPHER.md`. Stage 2 fully decoded from `herasoftlabs/ChainLab`.
