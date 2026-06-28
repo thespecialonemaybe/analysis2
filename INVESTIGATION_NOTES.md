@@ -488,11 +488,24 @@ Full analysis in `ANALYSIS_BEAVERTAIL_T.md`. 337-entry string table extracted an
 
 **zurichjs connection:** Stage 0 (infected config files) → Stage 1 (blockchain loader) → this Stage 2 executed on each victim's machine. The zurichjs developers who opened infected repos in VSCode had this exact payload run.
 
-**U. C2 liveness check**
-Check which C2 servers are still responding. Scan `166.88.54.158`, `166.88.134.62`,
-`198.105.127.210`, `23.27.202.27`, `23.27.13.43` for open ports and live HTTP endpoints.
-`23.27.13.43` was removed from Jun 25 Stage 2 — confirm dead or just disconnected.
-Check known paths: `/$/boot`, `/upload`, `/snv`, `/u/e`, `/u/f`, `/verify-human/test`.
+**U. C2 liveness check** — DONE (2026-06-28)
+
+Port scan + HTTP probe of all five C2 IPs. See `ANALYSIS_C2_LIVENESS_U.md` for full detail.
+
+| IP | Status | Notes |
+|----|--------|-------|
+| `166.88.54.158` | **DEAD** | Socket.io WS C2 (Dragon-Lady ref) — all ports closed |
+| `166.88.134.62:443` | **LIVE** | Admin/testing Express server; `/0x/js` 200, socket.io active |
+| `198.105.127.210:443` | **LIVE** | Prod Express server + MongoDB on :27017; `/0x/js` 200, socket.io active |
+| `23.27.202.27:27017` | **DEAD** | MongoDB backend offline; likely migrated to 198.105.127.210 |
+| `23.27.13.43` | **DEAD** | Confirmed offline — consistent with removal from Jun 25 Stage 2 |
+
+Key new findings:
+- Both live servers serve a **new Stage 2 format** tagged `/*RS260605*/` (build ~Jun 5, 2026): generator-function obfuscation (`function*` + `while`+`switch`+`with`), NOT the `Function("oTNBm2c", LZString)` wrapper seen in the blockchain copy
+- `/0x/js` is the confirmed boot/payload endpoint (200 OK); `/$/boot` returns 404 (JFrog's documented path is retired)
+- socket.io fully operational on both servers — Stage 3 backdoor infrastructure intact
+- `198.105.127.210:27017` (MongoDB) is open — victim data store co-located with C2
+- New IOC: `/*RS260605*/` Stage 2 build tag
 
 **V. VSCode `folderOpen` task pattern scan on GitHub**
 JFrog's delivery leaves `.vscode/tasks.json` with `runOn: "folderOpen"` + font file exec.
