@@ -37,7 +37,9 @@
 | `0xbe037400670fbf1c32364f762975908dc43eeb38759263e7dfcdabc76380811e` | Aptos (A1) | Blockchain fallback dead-drop | ALL waves — in `_$_9f51`; stored as `global['_t_2']` in W2 Stage 2 |
 | `0x3f0e5781d0855fb460661ac63257376db1941b2bb522499e4757ecb3ebd5dce3` | Aptos (A2) | Blockchain fallback dead-drop | ALL waves — in `_$_9f51` |
 
-**Key observation:** TRON W1 and W2 are present in every cipher variant analyzed — the wallets never rotated. Only the JS obfuscation wrapper (cipher family) changed in response to detection. This places the C2 backend in continuous operation since at least January 2026.
+**Key observation:** TRON W1 and W2 are present in every cipher variant analyzed — the wallets never rotated. Only the JS obfuscation wrapper (cipher family) changed in response to detection.
+
+**Pre-positioning started at least as early as January 2023.** Task AI confirmed 7 `astro.config.mjs` infections with commit dates before June 2025, the earliest being `iSebasC/Astro` (campaign ID `8-1821-1`) committed in January 2023. These payloads contain the same W1/W2 wallet addresses and blockchain dead-drop logic — but those wallets had no transactions until June 2025. The actor planted infections 2+ years before activating C2, maintaining the same infrastructure throughout. This places the C2 *design* in operation by 2023 and *activation* in June 2025.
 
 ### TRON Wallet Transaction History (known dead-drops)
 
@@ -127,6 +129,7 @@ through `_$_b229`. The cryptographic layer never rotated — only the JS obfusca
 
 | Cipher | First seen | Campaigns / repos | Delivery | Status |
 |--------|-----------|-------------------|----------|--------|
+| `sfL` raw IIFE (no outer cipher) | **≥2023-01** | `astro.config.mjs` cluster (29+ repos, IDs `8-xxxx`/`9-xxxx`) | W1+W2 TRON→BSC | Dormant until June 2025 activation; **still undetected in most repos** |
 | `_$_1e42` / `MDy` | ≥2026-01 | saif72437 (Jun 15, 57 repos), bat-file cluster (OSM Apr list) | W1+W2 TRON→BSC | Detected — OSM YARA `rmcej_otb_payload` (Mar 7) |
 | `Cot%3t=shtP` | ≥2026-01 | herasoftlabs/ChainLab + 5 live repos | W1+W2 TRON→BSC | Still live in ≥5 repos |
 | `_$_46e0` | 2026-02-22 | 5-3-161 (zurichjs) | W1+W2 TRON→BSC | Cleaned May 2026 |
