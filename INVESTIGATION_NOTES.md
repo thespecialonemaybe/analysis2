@@ -78,6 +78,9 @@ any public threat report:
 | Socket.dev | socket.dev/blog — "Famous Chollima Targets PHP Developers Through Compromised Packagist Package" | Extension to PHP/Packagist ecosystem; actor pivots beyond npm; confirms Famous Chollima attribution |
 | Bleeping Computer | bleepingcomputer.com — "Malware adds online sandbox detection to evade analysis" | Documents sandbox evasion via `tasklist` process-name MD5 checks; may reference the specific O-process Stage 2 is targeting |
 | CyberDefenders | cyberdefenders.org — "Famous Chollima" lab challenge | Blue-team CTF lab based on the campaign; useful for corroborating IOCs |
+| Checkmarx ChainVeil | checkmarx.com/zero-post/chainveil-a-malicious-npm-supply-chain-attack-by-successkey/ | Confirms `successkeyteck` npm publisher; full package list + 3,293 downloads; A6- campaign IDs; `ThZG+0jfXE6VAGOJ` key referenced |
+| SafeDep Astro C2 | safedep.io/astro-config-blockchain-c2-supply-chain/ | `astro.config.mjs` delivery vector; `Egonex-AI` PR attack; `ThZG+0jfXE6VAGOJ` HTTP C2 key; identical blockchain infra confirmed |
+| OX Security DPRK RAT | ox.security/blog/north-korean-npm-infostealer-rat/ | Separate DPRK npm RAT campaign: `terminal-logger-utils`, `ts-logger-pack`; `/api/validate/keyboard-events` C2; Telegram Bot exfil |
 | Abstract Security | abstract.security/blog/contagious-interview-tracking-the-vs-code-tasks-infection-vector | Documents 9+ infected repos, new C2 domains `regioncheck.xyz` / `vscodeconfig.com` / `vscode-load.onrender.com`; Vercel CDN delivery variant; `jsonwebauth` npm package IOC |
 | Microsoft VSCode issue #309406 | github.com/microsoft/vscode/issues/309406 | Security disclosure on `runOn: "folderOpen"` enabling silent code execution from cloned repos; actor-exploited VSCode feature |
 | OpenSourceMalware blog | opensourcemalware.com/blog/how-malware-abuses-npm-lifecycle-scripts-and-vs-code-tasks | Documents VSCode task + npm lifecycle delivery mechanics; cross-references PolinRider campaign |
@@ -587,10 +590,18 @@ One of Nextron's 16 infected Go packages, but with versions from May 26 and Jun 
 the most recently injected. Check if the payload is still live in the Go module proxy,
 decode it, and confirm whether it matches the npm vector or uses a different Stage 0.
 
-**Z. Dragon-Lady `sources.md` review**
-18KB sources document in Dragon-Lady/linux-supply-chain-guard. Likely references additional
-public reports, IOC feeds, or attributed campaigns we haven't cross-referenced. Quick read
-to extract any new intel on ChainVeil/PolinRider not already in our analysis.
+**Z. Dragon-Lady `sources.md` review** — DONE (2026-06-28)
+
+Read `docs/sources.md` (18KB) and `docs/advisory.md` (25KB). See `ANALYSIS_SOURCES_Z.md`.
+
+Key new findings:
+- **npm publisher confirmed: `successkeyteck`** — resolves Task W's unknown publisher; account now suspended
+- **New XOR key `ThZG+0jfXE6VAGOJ`** — HTTP C2 response decryption (4th campaign key); found in SafeDep report on `astro.config.mjs` variant
+- **Malicious PR attack on `Egonex-AI/Understand-Anything`** (57K+ stars) — actor account `AsimRaza10` submitted PRs #198, #206, #261 with payload in `homepage/astro.config.mjs`; same PolinRider infra; first documented PR-based delivery
+- **Two additional hijacked packages**: `html-to-gutenberg@4.2.11` and `fetch-page-assets@1.2.9` (both pub 2026-05-25, removed); hijacked legitimate packages with established userbases
+- **Stage 4/5 Linux persistence paths**: `/tmp/transformers.pyz`, `gh-token-monitor.service`, `pgsql-monitor.service`, `~/.local/bin/pgmonitor.py` — credential-theft service names designed to blend with developer tools
+- **Separate DPRK RAT track** (OX Security): `terminal-logger-utils`, `ts-logger-pack` — different C2 (`/api/validate/keyboard-events`, Telegram Bot), not PolinRider blockchain-based
+- Spawned tasks AG and AH
 
 **AB. Deobfuscate `/*RS260605*/` Stage 2 — new generator-function format**
 Task U found that both live C2 servers (`166.88.134.62`, `198.105.127.210`) serve a Stage 2
@@ -650,6 +661,26 @@ Goals:
 2. Is this the same actor as PolinRider (shared infra, shared TTP) or a copycat?
 3. Check the `ta3pks` repo for additional stages — the command continues `nohup node .vsc...`
 4. Enumerate additional repos in this cluster via GitHub search for `regioncheck.xyz` in tasks.json
+
+**AG. `Egonex-AI/Understand-Anything` PR attack — exposure assessment**
+Task Z (SafeDep report) revealed that actor account `AsimRaza10` (now suspended) submitted
+malicious PRs #198, #206, #261 to `Egonex-AI/Understand-Anything` (57,000+ stars). The payload
+was embedded in `homepage/astro.config.mjs` using identical PolinRider blockchain infrastructure.
+Goals:
+1. Check if any of the PRs were merged — if merged, the payload reached downstream users of the repo
+2. Check git history for the `astro.config.mjs` file — was the malicious commit ever in main?
+3. Search GitHub for other PRs by `AsimRaza10` across other repos (may have targeted more projects)
+4. Check if `AsimRaza10` or similar accounts submitted PRs to other large open-source repos
+
+**AH. Decode `ThZG+0jfXE6VAGOJ` key usage — identify Stage 1 variant**
+Task Z (SafeDep) documented a fourth XOR key `ThZG+0jfXE6VAGOJ` used to decrypt the HTTP C2
+response in one Stage 1 variant. Our known Stage 1 variants (W1 `_$_9f51`, W2 `_$_16d1`) use
+`2[gWfGj;<:-93Z^C` and `m6:tTh^D)cBz?NM]` for blockchain decryption, but no HTTP response
+decryption layer was observed in those. Goals:
+1. Find the Stage 1 variant that uses `ThZG+0jfXE6VAGOJ` — check historical Stage 1 samples
+   (the `astro.config.mjs` payload from `Egonex-AI`) for this key
+2. Determine which endpoint/response this key decrypts — is it the `/0x/js` body, or a different path?
+3. Check whether the `/*RS260605*/` Stage 2 bodies from Task U contain data encrypted with this key
 
 **AF. Campaign ID `10-010` — routing and operator identification**
 `madeeldev/flutter-vpn` has `global['!']='10-010'` — a numeric-with-hyphen campaign ID that
