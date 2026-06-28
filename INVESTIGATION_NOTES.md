@@ -78,6 +78,9 @@ any public threat report:
 | Socket.dev | socket.dev/blog — "Famous Chollima Targets PHP Developers Through Compromised Packagist Package" | Extension to PHP/Packagist ecosystem; actor pivots beyond npm; confirms Famous Chollima attribution |
 | Bleeping Computer | bleepingcomputer.com — "Malware adds online sandbox detection to evade analysis" | Documents sandbox evasion via `tasklist` process-name MD5 checks; may reference the specific O-process Stage 2 is targeting |
 | CyberDefenders | cyberdefenders.org — "Famous Chollima" lab challenge | Blue-team CTF lab based on the campaign; useful for corroborating IOCs |
+| Abstract Security | abstract.security/blog/contagious-interview-tracking-the-vs-code-tasks-infection-vector | Documents 9+ infected repos, new C2 domains `regioncheck.xyz` / `vscodeconfig.com` / `vscode-load.onrender.com`; Vercel CDN delivery variant; `jsonwebauth` npm package IOC |
+| Microsoft VSCode issue #309406 | github.com/microsoft/vscode/issues/309406 | Security disclosure on `runOn: "folderOpen"` enabling silent code execution from cloned repos; actor-exploited VSCode feature |
+| OpenSourceMalware blog | opensourcemalware.com/blog/how-malware-abuses-npm-lifecycle-scripts-and-vs-code-tasks | Documents VSCode task + npm lifecycle delivery mechanics; cross-references PolinRider campaign |
 
 **npm infection vectors (publicly documented):**
 - `tailwind-mainanimation`
@@ -507,11 +510,20 @@ Key new findings:
 - `198.105.127.210:27017` (MongoDB) is open — victim data store co-located with C2
 - New IOC: `/*RS260605*/` Stage 2 build tag
 
-**V. VSCode `folderOpen` task pattern scan on GitHub**
-JFrog's delivery leaves `.vscode/tasks.json` with `runOn: "folderOpen"` + font file exec.
-Search GitHub for this pattern to find infected packages/repos the npm reports missed.
-Also scan for `lib/lib.min.js` (Dragon-Lady's alternative Stage 0 filename indicator).
-And `fa-solid-400.woff2` in non-font contexts (JS payload disguised as font).
+**V. VSCode `folderOpen` task pattern scan on GitHub** — DONE (2026-06-28)
+
+GitHub code search (`folderOpen node woff2 filename:tasks.json`) returned **143 total repos**.
+After filtering defenders/fixtures: ~130 confirmed victim repos. See `ANALYSIS_VSCODE_SCAN_V.md`.
+
+Key findings:
+- Confirmed infected repos span multiple developer communities: HNG Nigeria hackathon (`hngx-org`/`hngi`/`DSC-Unilag`), Pakistan mobile devs (`SajidAfridi`, `abubakarmunir712`), Android devs (`Letalandroid` 10+ repos), etc.
+- **New payload filenames**: `fa-brands-regular.woff2`, `RNSSanz-Black-2.woff2`, `globals_light.css`, `spellright.dict`
+- **Actor-controlled staging repos**: BestCity cluster (`technoknol/bestcity`, `fullstackragab/bestcity`, `BestCity-v1/Demo-v1`, `AbstractFruitFactory/bestcity-demo`) — 55K+ payloads, fake company repos used as interview material
+- **New campaign ID**: `10-010` (from `madeeldev/flutter-vpn`) — doesn't match `5-X-Y` format
+- **lib.min.js**: 0 hits on GitHub (Dragon-Lady indicator not found via code search)
+- **Related non-PolinRider clusters** sharing `folderOpen` vector: `regioncheck.xyz` (curl-to-bash), `codeviewer-three.vercel.app` (Vercel CDN) — different actor(s), different C2
+- **New npm package IOC**: `jsonwebauth` (pub. 2026-01-08, 326KB payload in `lib/lserver.js`)
+- Scale estimate: 200–400+ victim repos total across all delivery variants
 
 **W. Dragon-Lady npm packages — registry check**
 Check `tailwindcss-merge`, `sass-format`, `tailwindcss-animates-kit`, `sass-formats`,
