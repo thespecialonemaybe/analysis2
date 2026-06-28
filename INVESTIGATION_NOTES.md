@@ -662,15 +662,34 @@ Goals:
 3. Check the `ta3pks` repo for additional stages — the command continues `nohup node .vsc...`
 4. Enumerate additional repos in this cluster via GitHub search for `regioncheck.xyz` in tasks.json
 
-**AG. `Egonex-AI/Understand-Anything` PR attack — exposure assessment**
-Task Z (SafeDep report) revealed that actor account `AsimRaza10` (now suspended) submitted
-malicious PRs #198, #206, #261 to `Egonex-AI/Understand-Anything` (57,000+ stars). The payload
-was embedded in `homepage/astro.config.mjs` using identical PolinRider blockchain infrastructure.
-Goals:
-1. Check if any of the PRs were merged — if merged, the payload reached downstream users of the repo
-2. Check git history for the `astro.config.mjs` file — was the malicious commit ever in main?
-3. Search GitHub for other PRs by `AsimRaza10` across other repos (may have targeted more projects)
-4. Check if `AsimRaza10` or similar accounts submitted PRs to other large open-source repos
+**AG. `Egonex-AI/Understand-Anything` PR attack — exposure assessment** — DONE (2026-06-28)
+
+See `ANALYSIS_VSCODE_AG_EGONEX.md` for full detail.
+
+Key findings:
+- **PRs not merged — Egonex-AI users safe.** PRs #198, #206, #261 all rejected; main branch clean.
+  No AsimRaza10 commits in `homepage/` history. 57K-star project not compromised.
+- **`AsimRaza10` cannot be enumerated** — suspended account hides all PRs from GitHub API.
+  Only the three Egonex-AI PRs are publicly documented (via SafeDep report).
+- **29-repo `astro.config.mjs` infection cluster discovered** — entirely new vector, not in any
+  public report. All use `_$_1e42` cipher, seed `2857687`, unique per-victim campaign IDs
+  (`8-xxxx` or `9-xxxx` series).
+- **Delivery mechanism confirmed**: malicious code appended after `defineConfig()` closing `});`,
+  hidden by ~200 whitespace chars. `createRequire(import.meta.url)` bridges ESM→CJS for require().
+  Executes on ANY Astro operation (`npm run dev`, `npm run build`, `npx astro check`).
+- **Lateral spread confirmed**: `devlopersabbir` and `Letalandroid` appear in BOTH Task V
+  (tasks.json) and Task AG (astro.config.mjs) in DIFFERENT repos — Stage 2 malware propagates
+  from compromised machine to new Astro projects the developer creates.
+- **Campaign scale**: IDs up to `8-3336` and `9-1330` suggest thousands of tracked victims.
+- **New YARA anchor**: payload ending `Tgw(2509);return 1358})()` is shared across ≥3 astro payloads.
+
+New IOCs:
+- `_$_1e42` in `astro.config.mjs` (29 repos confirmed)
+- `createRequire(import.meta.url)` + `global[_$_1e42[0]] = require` pattern
+- Campaign series `8-xxxx`, `9-xxxx` (astro.config.mjs deliveries)
+- `drewroberts/website` (9-0264-2), `devlopersabbir/devlopersabbir.github.io` (8-342),
+  `Letalandroid/sociem-upao` (8-1422-2), `DanteIturri` (3 repos), `JudeTejada/jude-portfolio-v3` (9-1330-1, 11,715 bytes)
+- Payload ending `Tgw(2509);return 1358})()` — YARA anchor for astro variant
 
 **AH. Decode `ThZG+0jfXE6VAGOJ` key usage — identify Stage 1 variant**
 Task Z (SafeDep) documented a fourth XOR key `ThZG+0jfXE6VAGOJ` used to decrypt the HTTP C2
