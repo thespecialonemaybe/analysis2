@@ -82,8 +82,10 @@ The actor has shipped at least 5 distinct cipher variants, each a response to de
 | `_$_16d1` | Seen in live W2 Stage 1 (delivered Jun 20) | Unknown — not yet found in any infected repo | **New — not publicly documented** |
 | `_$_9f51` | Seen in live W1 Stage 1 (delivered Jun 23) | Unknown | **New — not publicly documented** |
 | `_$_96c7` | Embedded in W1 Stage 1 atob block | Sub-cipher for Stage 2 bootstrap | **New — not publicly documented** |
-| `_$_f5f0` | W2 Stage 1, deployed Jun 23 + Jun 25 (via Aptos A2) | Unknown — not yet in any repo | **New — adds `global['m']=module` capture** |
-| (none / raw IIFE) | Aug 2025 W1 Stage 1 (`RVj` cipher) | Oldest known variant | Pre-dates outer cipher wrapper |
+| `_$_f5f0` | W2 Stage 1, deployed Jun 23 + Jun 25 (via Aptos A2) | Unknown — not yet in any repo | **New — module capture restored** |
+| `_$_3333` | W2 Stage 1 (2026-03-04) | Unknown | **First outer cipher on W2 channel** |
+| `_$_ec7c` | W2 Stage 1 (2026-03-26) | Unknown | **Replaced `_$_3333` within 22 days** |
+| (none / raw IIFE) | All W1+W2 payloads before Mar 2026 | Many variants (BIY, uap, DML, AOv, GAR, AZL, utH, Gez, nBj, RZn, gOe) | Pre-dates outer cipher wrapper — plain `typeof` checks |
 
 The `_$_1e42` → `_$_b229` rotation is confirmed by OpenSourceMalware as an evasion response.
 `_$_16d1`, `_$_9f51`, and `_$_96c7` are the next generation, apparently already deployed in the live C2
@@ -343,6 +345,34 @@ New findings: Stage 2 reads `global['!']` and sets `global['_V'] = "A" + global[
 
 **K. Check remaining unconfirmed victim repos (TrustedSmartChain/tsc main repo)**
 The `tsc` (main chain software, updated 2026-06-09) may also be infected.
+
+### New tasks (added 2026-06-28)
+
+**P. Scan GitHub for `_$_f5f0`, `_$_3333`, `_$_ec7c`**
+Task G scanned for `_$_16d1`, `_$_9f51`, `_$_96c7`, `_$_4445` — all zero-result. Now that we
+have three more new outer ciphers (`_$_f5f0` Jun 23/25, `_$_3333` Mar 04, `_$_ec7c` Mar 26),
+check whether any have appeared in infected repos. Also scan inner cipher names `SgH`, `cdi`,
+`nBj`, `RZn`, `gOe` as secondary signals.
+
+**Q. Retrieve 2025 historical Stage 1 variants** — DONE
+Full analysis in `ANALYSIS_HISTORICAL_STAGE1.md`. All 10 A1 + 6 A2 historical BSC TXs retrieved.
+13 new cipher families documented (8 W1, 3 W2 inner + 2 W2 outer). Key findings:
+- 2 undecodable first TXs (Jun 13 2025) — likely used a pre-operational key at launch
+- `module` capture (`global['m']`) present from Jun 13 2025 in W2 plain-text phase; NOT new to `_$_f5f0`
+- `_global` var added to W2 from Jun 18 2025
+- Oct 1 2025: test TX `global['_V']='9-test'` found — campaign ID system existed by that date
+- `_$_3333` (Mar 4 2026) = first outer cipher on W2 channel; `_$_ec7c` replaced it Mar 26 2026
+- Outer cipher obfuscation was absent from ALL payloads before March 2026 on both channels
+
+**R. Decode `_$_f5f0` Stage 2 body**
+The Jun 23 and Jun 25 W2 Stage 1s use the direct HTTP C2 architecture (same as `_$_16d1` Task B).
+Decompress Stage 2 from one of these payloads: does the routing table, C2 IPs, or Stage 3 XOR
+key differ from the Jun 20 `_$_a478` decode? Specifically check whether `global['m']` is used.
+
+**S. Re-query TRON W2 for Jun 23/25 updates**
+A2 Aptos has Jun 23 and Jun 25 pushes with no matching TRON W2 TXs in our data. Query
+`TXfxHUet9pJVU1BgVkBAbrES4YUc1nGzcG` fresh — if TRON was also updated, we need those TXs
+for completeness. If not, confirms Aptos-only update path exists.
 
 **L. Investigate bat-file victim repos** — DONE
 Full analysis in `ANALYSIS_BAT_VICTIMS.md`. 29 repos scanned (8 config.bat + 21 temp_interactive).
