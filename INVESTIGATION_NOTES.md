@@ -585,10 +585,21 @@ Related research:
 - ANY.RUN sandbox detection methods: https://medium.com/@orangemaster674/attacking-any-run-for-sandbox-detection-development-747c1a8aa4fd
 - Mandiant CAPA rule for Windows Sandbox via `CExecSvc.exe`: github.com/mandiant/capa-rules/blob/master/anti-analysis/anti-vm/vm-detection/check-for-windows-sandbox-via-process-name.yml
 
-**Y. `lambda-platform/lambda` Go package — live payload check**
-One of Nextron's 16 infected Go packages, but with versions from May 26 and Jun 19 2026 —
-the most recently injected. Check if the payload is still live in the Go module proxy,
-decode it, and confirm whether it matches the npm vector or uses a different Stage 0.
+**Y. `lambda-platform/lambda` Go package — live payload check** — DONE, NOT INFECTED (2026-06-28)
+
+See `ANALYSIS_Y_LAMBDA_GO.md` for full detail.
+
+Key findings:
+- **NOT infected.** `lambda-platform/lambda` is a real Go web framework (DB/GraphQL/gRPC
+  scaffolding) with 400+ normal releases. The date correlation (v0.9.18 May 25, v0.9.19 Jun 19)
+  was coincidental.
+- All changes in v0.9.18 (the "injection" version): SQL injection whitelist fix, password field
+  JSON masking, debug print removal — all legitimate security improvements.
+- No `.vscode/tasks.json`, no `fa-solid-400.woff2`, no TRON wallets, no XOR cipher, no
+  blockchain API calls anywhere in the codebase.
+- **Nextron's 16 infected Go packages** are unknown — the JFrog post did not list them
+  individually. They are likely fake/typosquatted packages (same pattern as infected npm packages),
+  not established libraries. Cannot investigate without the specific package list.
 
 **Z. Dragon-Lady `sources.md` review** — DONE (2026-06-28)
 
