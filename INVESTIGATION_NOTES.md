@@ -614,28 +614,25 @@ Key new findings:
 - **Separate DPRK RAT track** (OX Security): `terminal-logger-utils`, `ts-logger-pack` — different C2 (`/api/validate/keyboard-events`, Telegram Bot), not PolinRider blockchain-based
 - Spawned tasks AG and AH
 
-**AB. Deobfuscate `/*RS260605*/` Stage 2 — new generator-function format**
-Task U found that both live C2 servers (`166.88.134.62`, `198.105.127.210`) serve a Stage 2
-format not seen in the blockchain copy. Samples saved at:
-- `/tmp/stage2_live_admin_67k.js` (67,583 bytes, from `166.88.134.62:443/0x/js`)
-- `/tmp/stage2_live_prod_70k.js` (69,972 bytes, from `198.105.127.210:443/0x/js`)
+**AB. Deobfuscate `/*RS260605*/` Stage 2 — new generator-function format** — DONE (2026-06-28)
 
-Outer wrapper uses generator functions (`function*`) + `while`+`switch`+`with` — a new
-obfuscation layer vs the `Function("oTNBm2c", LZString)` wrapper on the blockchain build.
-Strings are inline encrypted literals rather than a lookup table.
+See `ANALYSIS_AB_RS260605_STAGE2.md` for full detail.
 
-Goals:
-1. Decode the generator-function wrapper to recover the inner payload
-2. Compare inner payload to the Jun 8 blockchain Stage 2 — same code with new outer wrapper,
-   or genuinely new functionality?
-3. Check whether the `9a47bb48b7b8ca41fc138fd3372e8cc0` sandbox hash is still present
-   (encoded in the inline-encrypted strings)
-4. Extract any new C2 endpoints, campaign routing keys, or behavioral changes
-5. Determine whether the 67K (admin) and 70K (prod) builds differ functionally or are just
-   different WJS obfuscation seeds of the same source
-
-Method: Instrument the generator-function executor to trace its output; or statically reduce
-the `while`+`switch` dispatch loop to recover execution order, then extract string table.
+Key findings:
+- **RS260605 Stage 2 is a pure blockchain dead-drop UPDATER** — not a standalone RAT.
+  Exits silently if blockchain is empty; all RAT functionality is in Stage 3 (blockchain-delivered).
+- **Full dead-drop chain confirmed** via live async instrumentation:
+  1. TRON W1 `only_confirmed=true&only_from=true&limit=1` → `data[0].raw_data.contract[0].parameter.value.data` (hex BSC hash)
+  2. Aptos A1 fallback → `[0].payload.function` (hex BSC hash)
+  3. BSC primary: `bsc-dataseed.binance.org` / fallback: `bsc-rpc.publicnode.com` → `result.input`
+  4. XOR-decrypt with `ThZG+0jfXE6VAGOJ` → eval Stage 3
+- **TRON query changed**: Stage 1 used `only_to=true` (incoming); Stage 2 uses `only_from=true`
+  (outgoing). Actor pushes new payloads by sending TXs FROM W1, not receiving them.
+- **WJS format**: `function*vVL9lkD` generator + 401 case labels + dynamic case expressions.
+  String table: 194 entries in `yUvOUI[]`; sH1QHz shuffled 91-char alphabet, VLQ base-91.
+  Two accessors: `K1oFySu.DjXats` (outer, network code) + `HCRVhxw.HcqZTQp` (inner).
+  Confirmed decoded strings: `yUvOUI[116]="JSON"`, `yUvOUI[117]="parse"`.
+- **Build marker**: `RS260605` = June 5, 2026 (same as blockchain Beavertail build date in Task T).
 
 **AC. BestCity actor-staging cluster — deep dive**
 Task V found four repos (`technoknol/bestcity`, `fullstackragab/bestcity`, `BestCity-v1/Demo-v1`,
@@ -771,6 +768,24 @@ Key findings:
 - **Victim real ID is `8-4081`** (IIFE-1); both channels route to dead/silent C2.
 - **Third double-infected repo** in the cluster (after rajat22999 and JudeTejada from Task AI),
   but the only one using the atob dropper variant alongside a standard sfL IIFE.
+
+**AL. Deobfuscate 2023-era astro payload — human-readable malicious logic**
+The `astro.config.mjs` cluster (Task AI/AG) contains infections dating back to January 2023
+(`iSebasC/Astro`, campaign ID `8-1821-1`). These are the actor's earliest known pre-positioning
+artifacts — 2+ years dormant before activation.
+
+Goals:
+1. Take one of the 2023-era `8-xxxx` payloads (e.g., `iSebasC/Astro` or `Focus158/school-landing`)
+2. Run the sfL shuffle cipher decoder on the `pYd_enc` IIFE to recover the inner Stage 1 plaintext
+3. Produce a human-readable pseudocode or annotated deobfuscation of the 2023-era code
+4. Compare to the Jun 2025 Task AH decode (`drewroberts/website` 9-0264-2):
+   - Is the TRON wallet the same W1?
+   - Is the Aptos fallback already present in 2023?
+   - Were the XOR keys `2[gWfGj;<:-93Z^C` / `m6:tTh^D)cBz?NM]` used from day 1?
+   - Is the BSC dead-drop chain identical?
+5. Identify what was already in place in 2023 vs what was added in 2025 activation
+
+This documents the full 2-year timeline of the actor's pre-positioning operation.
 
 **AF. Campaign ID `10-010` — routing and operator identification**
 `madeeldev/flutter-vpn` has `global['!']='10-010'` — a numeric-with-hyphen campaign ID that
