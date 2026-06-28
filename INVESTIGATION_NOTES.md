@@ -691,15 +691,30 @@ New IOCs:
   `Letalandroid/sociem-upao` (8-1422-2), `DanteIturri` (3 repos), `JudeTejada/jude-portfolio-v3` (9-1330-1, 11,715 bytes)
 - Payload ending `Tgw(2509);return 1358})()` — YARA anchor for astro variant
 
-**AH. Decode `ThZG+0jfXE6VAGOJ` key usage — identify Stage 1 variant**
-Task Z (SafeDep) documented a fourth XOR key `ThZG+0jfXE6VAGOJ` used to decrypt the HTTP C2
-response in one Stage 1 variant. Our known Stage 1 variants (W1 `_$_9f51`, W2 `_$_16d1`) use
-`2[gWfGj;<:-93Z^C` and `m6:tTh^D)cBz?NM]` for blockchain decryption, but no HTTP response
-decryption layer was observed in those. Goals:
-1. Find the Stage 1 variant that uses `ThZG+0jfXE6VAGOJ` — check historical Stage 1 samples
-   (the `astro.config.mjs` payload from `Egonex-AI`) for this key
-2. Determine which endpoint/response this key decrypts — is it the `/0x/js` body, or a different path?
-3. Check whether the `/*RS260605*/` Stage 2 bodies from Task U contain data encrypted with this key
+**AH. Decode `ThZG+0jfXE6VAGOJ` key usage — identify Stage 1 variant** — DONE (2026-06-28)
+
+See `ANALYSIS_AH_THZG_KEY.md` for full detail.
+
+Key findings:
+- **`ThZG+0jfXE6VAGOJ` is NOT a Stage 1 key** — it is in **Stage 2** (W2 direct-HTTP channel)
+- **Location**: `_$_a478[29]` (W2 Stage 2 from Task B), `_$_9b39[29]` (5-3-161 report), `[27]`
+  in `_$_f5f0` Jun 25 Stage 2 (Task R) — same key across all W2 Stage 2 variants
+- **Function**: XOR-decrypts the HTTP response body from C2 at `/$/boot` to get Stage 3 (socket.io
+  backdoor). Stage 2 beacons with `Sec-V: <campaign_id>` header; response is XOR'd in transit.
+- **SafeDep terminology reconciled**: SafeDep's "Stage 1 variant using ThZG" = our Stage 2 (W2
+  direct-HTTP beacon). They described two XOR ops in "Stage 1": `2[gWfGj` (our Stage 1 → blockchain)
+  and `ThZG` (our Stage 2 → C2 HTTP). These are two different payloads, not one.
+- **NOT in astro Stage 1**: Full decode of `drewroberts/website` IIFE confirmed — only `2[gWfGj`
+  (W1) and `m6:tTh` (W2) present. No direct HTTP C2 step in astro Stage 1.
+- **Still in use**: Key present unchanged in Jun 25 W2 Stage 2 (`_$_f5f0`, Task R).
+
+Side-effect: Full decode of astro.config.mjs Stage 1 (`pYd`) revealed:
+- Same `_$af163278` cipher (seed 1812138) as Task O — infrastructure continuity confirmed
+- W1 Stage 2 eval()'d in-process; W2 Stage 2 spawned as detached windowless child (`node -e`)
+- `global['_V'] = 'A' + global['!']` prefix logic confirmed — e.g. 'A9-0264-2'
+- 'A8-xxxx'/'A9-xxxx' IDs route to dead C2 (`23.27.13.43`) or silent drop — astro victims
+  are NOT currently being exfiltrated to a live C2
+- `"?.?"` anti-debug check is dead code (function === string always false — obfuscation only)
 
 **AF. Campaign ID `10-010` — routing and operator identification**
 `madeeldev/flutter-vpn` has `global['!']='10-010'` — a numeric-with-hyphen campaign ID that
