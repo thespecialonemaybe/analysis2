@@ -47,6 +47,11 @@ any public threat report:
 | Stage 2 BSC TX `0x533b2dbcaeff...` (hardcoded fallback) | **Not publicly documented** |
 | Stage 2 live BSC TX `0xb6c72589...` (from W3 TRON, Jun 8 2026) | **New, live** |
 | Stage 2 payload (77,279 chars, LZString + compressed Beavertail RAT) | **Retrieved live** |
+| Stage 2 boot endpoint `/0x/js?_V=<id>&id=<uuid>` (not `/$/boot` as JFrog reported) | **Not publicly documented** |
+| Stage 2 injection target: **Antigravity** AI coding assistant (all platforms) | **Not publicly documented** |
+| Stage 2 injection target: **npm CLI** `node_modules/npm/lib/cli.js` (supply chain propagation) | **Not publicly documented** |
+| Stage 2 sandbox evasion: MD5 `9a47bb48b7b8ca41fc138fd3372e8cc0` + UUIDs `EV-CHQG3L42MMQ`/`EV-4A6OE6M0E2D` | **Not publicly documented** |
+| Stage 2 build date June 5, 2026; oldest injection module June 17, 2025 | **Not publicly documented** |
 | W3 historical XOR key `cA]2!+37v,-szeU}` (used Nov 2025 – Feb 25 18:05) | **Not publicly documented** |
 | W3 key rotation event (Feb 25, 18:05→18:07) — same payload, two keys, 2 min apart | **Not publicly documented** |
 | Stage 2 payload size jump: 92K→70K within Feb 11 2026 session (major payload redesign) | **Not publicly documented** |
@@ -451,24 +456,30 @@ retrieved and mapped. Key findings:
 - New W2 Jun 13 2025 BSC TX `0x1a323149...` found — pruned from BSC archive, unrecoverable
 - Aptos vs TRON update synchronization table cross-referenced across all dates
 
-**T. Decode W1 Stage 2 — Beavertail RAT internals**
-Blob retrieved in Task C: `/tmp/b229_stage2_live.js` (77,279 chars, SHA-256
-`f9dcca3ea7d32189ff2bc69e46abff78447f7538952e6b7efc511ffa0bfdde4b`).
-Structure: `Function("oTNBm2c", <LZString_decompressor + obfuscated_payload>)(moduleProxy)`.
-The `oTNBm2c` parameter is a UMD module proxy (AMD/CommonJS/Angular intercept), not the
-compressed data — payload is self-contained inside the Function body.
+**T. Decode W1 Stage 2 — Beavertail RAT internals** — DONE
+Full analysis in `ANALYSIS_BEAVERTAIL_T.md`. 337-entry string table extracted and decoded.
 
-Tasks:
-1. Decompress the internal LZString payload to get the actual JS source
-2. Identify cipher/string-table structure and decode it
-3. Confirm or refute Beavertail attribution — compare behavior to JFrog's Stage 3/4/5 description
-4. Extract any new IOCs: C2 paths, socket.io connection target, Python stage URL, exfil endpoints
-5. Check whether the blob differs from the VSCode-vector Stage 2 (JFrog path) or is identical
-6. Record hash against public threat intel (hash is zero-result as of 2026-06-28)
+**Stage 2 IS Beavertail** — not a loader but the complete implant. Key findings:
 
-Known context from JFrog (VSCode vector Stage 3+): socket.io backdoor on `ws://166.88.54.158:443`,
-Python bootstrapper exfils env to `/snv`, Python infostealer stages at `/tmp/.npm`. If W1 Stage 2
-contains the SAME logic, it confirms the two delivery tracks converge on identical Stage 3+.
+- **Build date:** June 5, 2026 (`260605` / `/*RS260605*/`). Oldest injection module dates June 17, 2025 (operation week 1).
+- **Boot beacon:** `GET _H2/0x/js?_V=<campaign_id>&id=<uuid>$<version>` (not `/$/boot` as JFrog described — different version or actor updated)
+- **Injection targets** (all cross-platform Win/Mac/Linux):
+  - VSCode `@vscode/deviceid/dist/index.js`
+  - Cursor `@vscode/deviceid/dist/index.js`
+  - **Antigravity** `@vscode/deviceid/dist/index.js` ← **NEW — not in any public report**
+  - Discord `discord_desktop_core/index.js`
+  - GitHub Desktop `main.js`
+  - **npm CLI** `node_modules/npm/lib/cli.js` ← **supply chain propagation vector**
+- **Socket.io C2** — same `_H2` URL as Stage 1; 14 `ss_*` commands including `ss_eval` (arbitrary JS exec), `ss_connect:<ip>` (C2 redirect), `ss_upf`/`ss_upd` (file exfil), `ss_cb` (clipboard), `ss_exit_f` (kill)
+- **Clipboard theft:** All platforms covered (PowerShell/pbpaste/xclip/xsel)
+- **Sandbox detection:** Process MD5 check (`9a47bb48b7b8ca41fc138fd3372e8cc0`), env var `jsbot`, UUIDs `EV-CHQG3L42MMQ`/`EV-4A6OE6M0E2D`, hostname checks (WSL2/buildbot/github-runner/cloudchamber/root)
+- **Python stage:** `Programs\Python\Python3127` on PATH before spawn (Windows); `~py`/`python3` command names trigger escalation
+- **File upload:** POST to `_H2/u/f` via axios multipart form-data
+- **Stage 2+3 unified:** JFrog described them as separate; in this blob they are one 77KB payload
+
+**New IOCs:** `/0x/js?_V=` endpoint, Antigravity target paths, `9a47bb48b7b8ca41fc138fd3372e8cc0` sandbox hash, `EV-CHQG3L42MMQ`/`EV-4A6OE6M0E2D` analysis environment UUIDs
+
+**zurichjs connection:** Stage 0 (infected config files) → Stage 1 (blockchain loader) → this Stage 2 executed on each victim's machine. The zurichjs developers who opened infected repos in VSCode had this exact payload run.
 
 **U. C2 liveness check**
 Check which C2 servers are still responding. Scan `166.88.54.158`, `166.88.134.62`,
