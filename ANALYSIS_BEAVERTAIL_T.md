@@ -365,6 +365,24 @@ ss_connect:<ip>   → binds new C2 to http://<ip>:443
 
 The socket.io session is set up by `lpVxjTQ()`, called once npm dependencies are installed.
 
+### What socket.io is
+
+socket.io is not a separate network or an alternative to the C2 IP — it is the **protocol**
+used to connect to it. Like HTTP is a protocol for web requests, socket.io is a WebSocket-based
+protocol for persistent bidirectional connections. The destination is still the actor's C2 IP.
+
+```
+socket.io-client  ──WebSocket──►  198.105.127.210:443
+   (library)                         (the IOC IP)
+```
+
+This means:
+- **C2 IP reachable** → socket.io connects, operator has full control
+- **C2 IP unreachable** → socket.io has nowhere to go; Beavertail loaded from blockchain but
+  sits idle, retrying every 5 seconds forever. IDE injection also fails (needs `/0x/js` from same IP).
+
+The IOC IP is the one server the actor actually owns and the single chokepoint for live control.
+
 ### Setup
 
 ```javascript
