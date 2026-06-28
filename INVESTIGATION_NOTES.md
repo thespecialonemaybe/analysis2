@@ -575,6 +575,29 @@ decode it, and confirm whether it matches the npm vector or uses a different Sta
 public reports, IOC feeds, or attributed campaigns we haven't cross-referenced. Quick read
 to extract any new intel on ChainVeil/PolinRider not already in our analysis.
 
+**AB. Deobfuscate `/*RS260605*/` Stage 2 — new generator-function format**
+Task U found that both live C2 servers (`166.88.134.62`, `198.105.127.210`) serve a Stage 2
+format not seen in the blockchain copy. Samples saved at:
+- `/tmp/stage2_live_admin_67k.js` (67,583 bytes, from `166.88.134.62:443/0x/js`)
+- `/tmp/stage2_live_prod_70k.js` (69,972 bytes, from `198.105.127.210:443/0x/js`)
+
+Outer wrapper uses generator functions (`function*`) + `while`+`switch`+`with` — a new
+obfuscation layer vs the `Function("oTNBm2c", LZString)` wrapper on the blockchain build.
+Strings are inline encrypted literals rather than a lookup table.
+
+Goals:
+1. Decode the generator-function wrapper to recover the inner payload
+2. Compare inner payload to the Jun 8 blockchain Stage 2 — same code with new outer wrapper,
+   or genuinely new functionality?
+3. Check whether the `9a47bb48b7b8ca41fc138fd3372e8cc0` sandbox hash is still present
+   (encoded in the inline-encrypted strings)
+4. Extract any new C2 endpoints, campaign routing keys, or behavioral changes
+5. Determine whether the 67K (admin) and 70K (prod) builds differ functionally or are just
+   different WJS obfuscation seeds of the same source
+
+Method: Instrument the generator-function executor to trace its output; or statically reduce
+the `while`+`switch` dispatch loop to recover execution order, then extract string table.
+
 **L. Investigate bat-file victim repos** — DONE
 Full analysis in `ANALYSIS_BAT_VICTIMS.md`. 29 repos scanned (8 config.bat + 21 temp_interactive).
 7 live infections found, all `_$_1e42` cipher with NEW activation/return pair **2509/1358**
