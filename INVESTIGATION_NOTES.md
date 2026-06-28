@@ -348,11 +348,35 @@ The `tsc` (main chain software, updated 2026-06-09) may also be infected.
 
 ### New tasks (added 2026-06-28)
 
-**P. Scan GitHub for `_$_f5f0`, `_$_3333`, `_$_ec7c`**
-Task G scanned for `_$_16d1`, `_$_9f51`, `_$_96c7`, `_$_4445` — all zero-result. Now that we
-have three more new outer ciphers (`_$_f5f0` Jun 23/25, `_$_3333` Mar 04, `_$_ec7c` Mar 26),
-check whether any have appeared in infected repos. Also scan inner cipher names `SgH`, `cdi`,
-`nBj`, `RZn`, `gOe` as secondary signals.
+**P. Scan GitHub for `_$_f5f0`, `_$_3333`, `_$_ec7c`** — DONE
+Full analysis in `ANALYSIS_CIPHER_SCAN_P.md`. All new outer ciphers, Stage 2 ciphers, and inner
+cipher names return zero results — the actor's blockchain delivery continues to keep payloads
+entirely off GitHub.
+
+**Secondary signal scan on `ThZG+0jfXE6VAGOJ` returned critical external intel:**
+
+**JFrog (Jun 24 2026):** First public report documenting Stages 3–5 of the chain. Key findings:
+- VSCode `folderOpen` task delivery via `.vscode/tasks.json` (label: `eslint-check`, executes
+  `public/fonts/fa-solid-400.woff2`, 752-space obfuscation, `hide: true`)
+- npm packages: `html-to-gutenberg@4.2.11`, `fetch-page-assets@1.2.9` (uploaded May 25 2026)
+- Stage 3 = socket.io backdoor (`ws://166.88.54.158:443`) — shell, file upload, arbitrary eval
+- Stage 4 = Python bootstrapper (env vars → `/snv`, Python installer from C2 `/d/` paths)
+- Stage 5 = Python infostealer — browsers, 30+ crypto wallet extensions, password managers,
+  GitHub/VS Code credentials, cloud storage metadata
+- Telegram exfil (token dynamic from `/u/e`): prefix `7870147428:AAGbYG...`, chat `7699029999`
+- 16 infected Go packages (Nextron Research update Jun 25)
+
+**Dragon-Lady/linux-supply-chain-guard** (created May 13, calls campaign "ChainVeil"):
+- New C2 IP `166.88.54.158` — socket.io WebSocket C2 (`ws://166.88.54.158:443`, `/upload`)
+- 9 additional npm packages including `typeorm-encrypt` (TypeORM ecosystem)
+- Campaign IDs: `A6-317`, `A6-318`, `A6-420`, `A6-420-#`, `A6-519-79`–`A6-519-85`
+- Actor GitHub org `successkeyteck` now 404'd (suspended post-JFrog)
+- Aptos A3 confirmed: `0x533b2dbc...` = W3 fallback (alongside A1=W1, A2=W2)
+- Stage 0 SHA-256: `53abf377...`, `13e9a3c4...`
+
+**Updated architecture** (5 stages now fully documented):
+Stage 0 (VSCode task) → Stage 1 (blockchain dead-drop) → Stage 2 (C2 beacon) →
+Stage 3 (socket.io backdoor) → Stage 4 (Python bootstrapper) → Stage 5 (Python infostealer)
 
 **Q. Retrieve 2025 historical Stage 1 variants** — DONE
 Full analysis in `ANALYSIS_HISTORICAL_STAGE1.md`. All 10 A1 + 6 A2 historical BSC TXs retrieved.
