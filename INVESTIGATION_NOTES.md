@@ -420,12 +420,23 @@ Key findings:
   denomination recurring — possible cultural marker.
 - Spawned Task AT.
 
-**AT. Enumerate all control wallets via operator cluster funding trace** — PENDING
-Operator Master (`TQdwohPCWqq...`) made ~50 total TXs; W3/W4/W5 Funder (`TGJ1YJJN...`) made 13
-outgoing TXs. Small enough to enumerate fully. Goal: for each non-null non-dead-drop recipient,
-check if it shows dead-drop TX pattern (all outgoing to null with memos) — find any W6+ wallets
-not yet identified. Also: use BSC archive access (Quicknode/Alchemy full archive node) to fetch
-W4 dead-drop payloads and identify W4 cipher variant and XOR key.
+**AT. Enumerate all control wallets via operator cluster funding trace** — DONE (2026-06-29)
+
+Full analysis in `ANALYSIS_AT_WALLET_ENUMERATION.md`.
+
+Key findings:
+- **No W6+ dead-drop wallets found.** All direct recipients of both operator wallets checked —
+  none show the dead-drop TX pattern (outgoing only to null address with BSC TX hash memos).
+- **Cluster is definitively W1–W5**, with W4 and W5 ciphers/XOR keys still unknown.
+- **W4 cipher unrecoverable without BSC archive node** — all public RPC endpoints and BSCScan
+  return null for all 23 W4 dead-drop BSC TXs (pruned). Quicknode/Alchemy required.
+- **Operator funding = P2P OTC TRX purchases**. No upstream actor wallet. 542 TRX arrived from
+  `TQSrBJjbzgTPKWQp49JtN84rxdiDTww8Za` in Jul 2025 (4 months before W3/W4/W5 activation).
+- **TRC-10 token initialization (Nov 5, 2024)**: 3 source wallets (`TETtEjAo...`, `TWqWMsHF...`,
+  `TMZC3Xyt...`) sent 8,888,880,000 units each of custom tokens to W3/W4/W5 funder — actor-created
+  tokens for internal accounting/signaling.
+- **TLmj13VL** (`TLmj13VL4p6NQ7jpxz8d9uYY6FUKCYatSe`) is the only wallet funded by both operator
+  wallets — 0 outgoing TXs, role unclear (inactive second-tier wallet or TRC-10 operations).
 
 **AN. Nextron's 16 infected Go packages** — PENDING
 JFrog Jun 25 update mentioned 16 infected Go packages but did not list them individually.
