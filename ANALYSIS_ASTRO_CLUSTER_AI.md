@@ -35,7 +35,7 @@ across series 8 and 9.
 | 13 | `Abdelkaderbzz/microservices` | — | — | — | astro.config.mjs not at root |
 | 14 | `iSebasC/Astro` | `8-1821-1` | 5,490 | **2023-01-05** | **Sleeper** — oldest infection |
 | 15 | `Focus158/school-landing` | `8-1821-1` | 5,593 | 2025-05-17 | **Copy-paste** from iSebasC |
-| 16 | `sudais-khan12/netlify-feature-tour` | `10` | 5,690 | 2021-09-28¹ | **Sleeper**, oldest ID format |
+| 16 | `sudais-khan12/netlify-feature-tour` | `10` | 5,690 | **~2025-01-08**¹ | Oldest ID format |
 | 17 | `SanjayaPrasadRajapaksha/Hotel_Booking-Blog` | `9-424` | 5,499 | 2025-09-06 | Standard |
 | 18 | `rajat22999/noa-feed` | `9-1435-7` + `8-2895` | 10,884 | 2025-09-19 | **DOUBLE INFECTION** |
 | 19 | `Rafijohari18/astro-speed` | `8-4081` | 13,696 | 2026-04-15 | Largest single payload |
@@ -50,8 +50,12 @@ across series 8 and 9.
 | 28 | `JudeTejada/jude-portfolio-v3` | `9-1330-1` + `8` | 11,715 | 2025-11-04 | **DOUBLE INFECTION** |
 | 29 | `Atx-3/Triverse-3.0-main` | `9-2518` | 5,604 | 2026-01-27 | Standard |
 
-¹ `sudais-khan12/netlify-feature-tour` last commit was 2023-03-07 (Netlify PR merge); 2021-09-28 is
-the oldest file commit from the original Netlify tutorial history.
+¹ `sudais-khan12/netlify-feature-tour` GitHub repo was created 2025-01-08 (API `created_at`). All
+visible commits are from the upstream `netlify/netlify-feature-tour` repo — the victim cloned it
+locally, got infected, and pushed without a separate infection commit. The HEAD commit SHA differs
+from the upstream (`8a7b20` vs `0879f9`), confirming the HEAD was amended to include the infected
+`astro.config.mjs` before the repo was created on GitHub. The 2021–2023 commit dates are upstream
+Netlify history, not the infection date. Corrected date: **≈2025-01-08**.
 
 ---
 
@@ -62,7 +66,7 @@ Seven repos have "first commit" dates that predate the TRON blockchain activatio
 | Repo | Pre-2025 Date | Campaign ID |
 |------|---------------|-------------|
 | `iSebasC/Astro` | **2023-01-05** | `8-1821-1` |
-| `sudais-khan12/netlify-feature-tour` | 2021–2023 | `10` |
+| `sudais-khan12/netlify-feature-tour` | ~~2021–2023~~ **≈2025-01-08** (corrected — see note) | `10` |
 | `DanteIturri/blog-tutorial` | **2024-01-14** | `8-3336` |
 | `DanteIturri/ecommerce-astro` | **2024-05-09** | `8-3336` |
 | `iSebasC/astro-card` | 2024-12-20 | `8-1821-1` |
@@ -88,10 +92,13 @@ This "sleeper" strategy means:
 
 ### `sudais-khan12/netlify-feature-tour` — Campaign ID `10`
 
-This Netlify tutorial fork has campaign ID `10` — a bare number with no dash-series format.
-This is the actor's **earliest documented campaign ID format**, predating the current `X-NNNN[-Y]`
-scheme. The repo's last commit was 2023-03-07, consistent with a 2022-2023 era infection. The
-actor was assigning single-digit campaign IDs before adopting the multi-part format.
+This repo has campaign ID `10` — a bare number with no dash-series format, the actor's earliest
+known ID format. **Corrected infection date: ≈2025-01-08** (repo created on GitHub that date).
+The victim cloned the official `netlify/netlify-feature-tour` repo locally while their machine
+was already infected; the actor's tool amended the upstream HEAD commit to embed the infected
+`astro.config.mjs` before the push. The 2021–2023 commit dates reflect the upstream Netlify
+history only, not when the infection occurred. This is NOT a pre-activation sleeper — it was
+infected after the campaign went active in June 2025 (or at activation time in early 2025).
 
 ---
 
@@ -183,7 +190,7 @@ series 9 alone.
 
 ### Pre-series IDs (earliest format)
 
-- `10` (`sudais-khan12`, ~2022-2023): bare number, oldest format
+- `10` (`sudais-khan12`, ≈2025-01-08): bare number, oldest format
 - `8` (`JudeTejada`, second IIFE): similarly bare — possibly the 8th actor-tracked target total
 
 ### Combined scale estimate
@@ -199,13 +206,14 @@ astro.config.mjs vector alone, not counting tasks.json, npm, or Go package infec
 2021-2022  │ actor registers TRON wallets W1/W2 (pre-deployment)
            │
 2022-2023  │ First sleeper infections deployed
-           │  • sudais-khan12/netlify-feature-tour (CID: 10) — Netlify tutorial fork
            │  • iSebasC/Astro (CID: 8-1821-1) — Jan 2023
            │  • DanteIturri/blog-tutorial (CID: 8-3336) — Jan 2024
            │
 2024       │  • DanteIturri/ecommerce-astro (CID: 8-3336) — May 2024
            │  • maxifjaved/maxifjaved (CID: 9-3890-1) — Nov 2024
            │  • iSebasC/astro-card (CID: 8-1821-1) — Dec 2024
+           │
+2025-01    │  • sudais-khan12/netlify-feature-tour (CID: 10) — ~2025-01-08 (corrected)
            │
 Early 2025 │  • MOAIZ-UL-ISLAM/Astro-Portfolio (CID: 9-0387-4) — Feb 2025
            │  • DanteIturri/astro-mockup-prestamo (CID: 8-3336) — Mar 2025
@@ -246,7 +254,7 @@ Jul-Dec    │  • AbdulwahidHusein/portfolio-1 (CID: 9-196-1) — Jul 2025
 | `8-1821-1` (×3 repos) | Campaign ID | Shared across iSebasC (2 repos) and Focus158 — copy-paste propagation |
 | `8-3336` (×3 repos) | Campaign ID | DanteIturri developer — all 3 repos shared ID |
 | `9-7226` | Campaign ID | Highest known ID in series 9 — at FieteLab/fietelab.github.io (2026-05-08) |
-| `10` (bare) | Campaign ID | Oldest ID format — sudais-khan12/netlify-feature-tour (~2022-2023) |
+| `10` (bare) | Campaign ID | Oldest ID format — sudais-khan12/netlify-feature-tour (≈2025-01-08, corrected) |
 | `8` (bare) | Campaign ID | Second oldest — JudeTejada second infection, same era as `10` |
 | `9-1435-7` + `8-2895` | Campaign IDs | Double infection in `rajat22999/noa-feed` |
 | `9-1330-1` + `8` | Campaign IDs | Double infection in `JudeTejada/jude-portfolio-v3` |
