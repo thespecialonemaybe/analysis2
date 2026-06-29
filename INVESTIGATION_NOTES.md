@@ -448,10 +448,54 @@ W3 (`TA48dct6rFW8BXsiLAtjFaVFoSuryMjD3v`) last updated 2026-06-08 — longest qu
 7.5 months of operation. Poll now; document whether Stage 2 variant changes or delivery shifts
 when silence breaks.
 
-**AP. `11-#` atob dropper scan** — PENDING
-Base64-wrapped atob dropper variant found in `Rafijohari18/astro-speed` (Task AK) and
-`saif72437` (Task N). Harder to detect than plain IIFE. Targeted GitHub code search for the
-atob pattern may surface additional victims using this variant.
+**AP. `11-#` atob dropper scan** — DONE (2026-06-29)
+
+Full analysis in `ANALYSIS_AP_ATOB_DROPPER.md`.
+
+Key findings:
+- **Atob dropper confirmed** (8080 bytes, SHA `81b3b0ab`): `eval(atob('...'))` outer wrapper
+  hides all PolinRider strings from GitHub code search. Inner payload (4781 bytes) uses campaign
+  `11-#` (hardcoded, not victim-specific) with seed 2857687. C2 routing: SILENT DROP.
+- **Victim 1: NikhilGupta777** (Indian developer) — 31 repos swept 2026-06-15T00:24–00:32 UTC.
+  All 31 repos byte-identical SHA `81b3b0ab`. Injection commit forged to each repo's last
+  legitimate commit date/message. FontAwesome cover set added alongside payload (more sophisticated
+  than earlier batches that used only "Update README.md").
+- **Victim 2: Rafijohari18** (Indonesian developer) — 3 repos: `birthday-imelda`, `learn-git`
+  (8080B woff2), and `astro-speed` (dual-payload `astro.config.mjs`).
+- **Dual-payload astro.config.mjs** in `Rafijohari18/astro-speed` (13696B): file starts with
+  legitimate Astro config, then appends two payloads at module scope — Payload 1 (byte 832):
+  `global['!']='8-4081'` (seed 2667686 plaintext); Payload 2 (byte 7303): `eval(atob('11-#'))`.
+  Both execute when Node.js processes the file (`astro build/dev` or any CI/CD pipeline). New
+  delivery surface not previously documented.
+- **saif72437 second sweep** (Jun 15): 64 repos re-swept with 5533-byte `8-**` template
+  (SHA `8e14837c`, seed 2857687) — actor returned to previously infected machine.
+- **temp_auto_push.bat leaked** (1036B) in ≥5 saif72437 repos (`Email-Layout-Builder`,
+  `cool-sketch`, `full-stack-medium-clone`, `saif72437`, `real-estate-app`). First documented
+  case of actor's infection tool accidentally committed to victim repos.
+- **5533-byte `8-**` cluster** (seed 2857687, literal `**` campaign): Nigerian HNG/DSC-Unilag
+  developer ecosystem — DSC-Unilag/*, hngx-org/*, hngi/*, devcareer/fiverly-flutter, KIHM-02/*,
+  devlopersabbir/*. Campaign `8-**` is victim-undifferentiated; all SILENT DROP.
+- **Payload size taxonomy** confirmed: 5102B (seed 2667686, specific campaign IDs 8-765/10-010),
+  5533B (seed 2857687, `8-**`), 8080B (atob dropper, `11-#`). Different seeds = different
+  cipher template variants.
+- Spawned Tasks AU, AV, AW.
+
+**AU. Retrieve and reverse temp_auto_push.bat from saif72437 repos** — PENDING
+The infection tool (1036 bytes) was accidentally committed to multiple saif72437 repos. Pull the
+file, decode it (likely batch script), document the sweep logic, target directory patterns, and
+any hardcoded infrastructure (C2 addresses, paths, git config).
+
+**AV. Scan for oversized astro.config.mjs files** — PENDING
+`Rafijohari18/astro-speed` shows astro.config.mjs as 13696B (normal is <500B). GitHub code
+search for `astro.config.mjs` files with `defineConfig` + oversized content may surface more
+victims using this injection vector. Prior astro.config.mjs investigation (Task K/L) focused
+on Contagious Interview/VSCode clusters — this is a distinct PolinRider astro vector.
+
+**AW. Correlate W4/W5 victims with atob dropper** — PENDING
+W4 (23 TXs, Nov 2025–May 2026) and W5 (3 TXs) have unknown ciphers. NikhilGupta777 and
+Rafijohari18 victims use seed 2857687 (same as the 5533B `8-**` template). If W4/W5 use
+seed 2857687, their dead-drop payloads would match the `8-**`/`11-#` family. Cross-reference
+W4/W5 TX dates against the `pushed_at` sweep dates of known 5533B victims.
 
 **AQ. `dryhurstdigital/invoice-my-clients-cursor-plugin` anomaly** — PENDING
 Task L flagged: bat file present but no woff2 payload in standard paths. It's a Cursor IDE
