@@ -397,6 +397,65 @@ no woff2 disguised payloads.
 The `tsc-signer` infection (Task 5-3-341, May 19 2026) remains the only confirmed
 TrustedSmartChain compromise.
 
+### New tasks (added 2026-06-29)
+
+**AM. Actor cashout wallet tracing** — DONE (2026-06-29)
+
+Full analysis in `ANALYSIS_AM_CASHOUT_WALLETS.md`.
+
+Key findings:
+- **ANALYSIS_TRON_WALLETS_FULL.md "cashout wallet" hex labels were a documentation error** — those
+  hex values decoded to the W1/W2 operational wallets themselves, not separate addresses.
+- **Two operator funding wallets identified** (both created Oct/Nov 2024 — 8 months before launch):
+  - Operator Master: `TQdwohPCWqqfCUaCispyV1NaUZ1HgiJPUy` (Oct 28, 2024) — funded W1 (Jun 6) + W2 (Jun 13)
+  - W3/W4/W5 Funder: `TGJ1YJJNkFYLZKU4ZGqJfS6dU2cvGac7pS` (Nov 2, 2024) — funded W3+W4+W5 simultaneously Nov 13 2025
+- **Two new dead-drop wallets confirmed**:
+  - W4: `TCqf6ZkaQD84vYsC2cuu1jRwB6JveTaRrF` — 23 TXs, Nov 2025–May 2026; 10-TX spike on Feb 25 2026
+    key-rotation day; W4 funded W1 with 15 TRX for fee replenishment (Mar 26 2026)
+  - W5: `TFMryB9m6d4kBMRjEVyFRbqKSV1cV2NcpH` — 3 TXs, Nov 2025–Feb 2026; likely test/low-deploy channel
+- **W4 cipher unknown** — all BSC dead-drop TXs pruned from archive; highest-priority gap.
+- **Cash-out pathway**: W1 → `TGg8q6dWKSNbCszZk6egLR8t8teZ411gkh` (Jun 10 2025, 70 TRX) →
+  DEX swaps (JustSwap/SunSwap) → USDT → `TTQydud22nZZGQy9Gnebs2168g6wukB4eC` (trading partner)
+- **TRC-10 custom token cluster**: Token IDs 1005026–1005141 held across operator wallets; 8888
+  denomination recurring — possible cultural marker.
+- Spawned Task AT.
+
+**AT. Enumerate all control wallets via operator cluster funding trace** — PENDING
+Operator Master (`TQdwohPCWqq...`) made ~50 total TXs; W3/W4/W5 Funder (`TGJ1YJJN...`) made 13
+outgoing TXs. Small enough to enumerate fully. Goal: for each non-null non-dead-drop recipient,
+check if it shows dead-drop TX pattern (all outgoing to null with memos) — find any W6+ wallets
+not yet identified. Also: use BSC archive access (Quicknode/Alchemy full archive node) to fetch
+W4 dead-drop payloads and identify W4 cipher variant and XOR key.
+
+**AN. Nextron's 16 infected Go packages** — PENDING
+JFrog Jun 25 update mentioned 16 infected Go packages but did not list them individually.
+Go is a new PolinRider delivery vector. Goals: identify the specific package names, pull payloads,
+confirm cipher variant and campaign IDs, determine if any are still live on pkg.go.dev.
+
+**AO. W3 21-day silence** — PENDING
+W3 (`TA48dct6rFW8BXsiLAtjFaVFoSuryMjD3v`) last updated 2026-06-08 — longest quiet period in
+7.5 months of operation. Poll now; document whether Stage 2 variant changes or delivery shifts
+when silence breaks.
+
+**AP. `11-#` atob dropper scan** — PENDING
+Base64-wrapped atob dropper variant found in `Rafijohari18/astro-speed` (Task AK) and
+`saif72437` (Task N). Harder to detect than plain IIFE. Targeted GitHub code search for the
+atob pattern may surface additional victims using this variant.
+
+**AQ. `dryhurstdigital/invoice-my-clients-cursor-plugin` anomaly** — PENDING
+Task L flagged: bat file present but no woff2 payload in standard paths. It's a Cursor IDE
+plugin — if actor targeted it for ambient AI-session write access, delivery mechanism may differ
+from standard `public/fonts/` path injection.
+
+**AR. Stage 5 persistence path scan** — PENDING
+Task Z documented persistence filenames: `gh-token-monitor.service`, `pgsql-monitor.service`,
+`~/.local/bin/pgmonitor.py`, `/tmp/transformers.pyz`. Search GitHub for these in developer
+dotfiles or `.github/workflows` — may identify victim machines that pushed code post-compromise.
+
+**AS. BestCity 147KB payload decode** — PENDING
+Task AC noted `BestCity-v1/Demo-v1` uses a 147KB obfuscator.io variant vs the 55KB WJS payload
+in the main BestCity cluster. Size gap suggests different or richer capabilities. Not yet decoded.
+
 ### New tasks (added 2026-06-28)
 
 **P. Scan GitHub for `_$_f5f0`, `_$_3333`, `_$_ec7c`** — DONE
