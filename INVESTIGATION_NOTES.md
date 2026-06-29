@@ -820,14 +820,28 @@ Key findings:
 - **Sleeper botnet pre-seeding**: actor infected repos 2+ years before activating. Single TRON tx
   from W1 or W2 simultaneously activates all dormant victims.
 
-**AF. Campaign ID `10-010` — routing and operator identification**
-`madeeldev/flutter-vpn` has `global['!']='10-010'` — a numeric-with-hyphen campaign ID that
-doesn't match the `5-X-Y` or `A-...` patterns of known campaigns. The Stage 2 routing in
-`_$_b229` sends numeric IDs to `198.105.127.210/$/boot`. Goals:
-1. Confirm how `10-010` routes in the current Stage 2 — does the `10` prefix match any routing
-   branch, or is it handled as a numeric ID?
-2. Search for other repos with `10-0` prefix campaign IDs — is this a separate operator batch?
-3. Check whether `madeeldev` is a single targeted developer or part of a larger cluster
+**AF. Campaign ID `10-010` — routing and operator identification** — DONE (2026-06-29)
+
+Full analysis in `ANALYSIS_AF_CAMPAIGN_10_010.md`.
+
+Key findings:
+- **PolinRider confirmed** — `_$_1e42` cipher, seed 2667686, activation codes `Tgw(2509)/1358` —
+  same as saif72437 `8-765` cluster (Task N). Byte-identical 5,102-byte payload across all infected repos.
+- **`10-010` routing**: `global['_V'] = 'A10-010'` → `'A...'` prefix → old routing: dead `23.27.13.43`;
+  current Jun 25 Stage 2: **silent drop**. These victims are not being actively exfiltrated.
+- **`10-` series significance**: First series-10 ID documented. Likely a new deployment batch beyond
+  `9-xxxx` (astro.config.mjs) series. Uses same `fa-solid-400.woff2` + VSCode task vector as Task B/V.
+  Zero other `10-xxx` repos found on GitHub code search.
+- **Batch infection confirmed**: 8 repos swept 2026-06-07T02:29–02:31Z UTC in a 2-minute window.
+  Victim: `madeeldev` — Pakistani Flutter/Dart developer, 30+ repos, compromised June 7 2026.
+- **5 live woff2 payloads**: `flutter-vpn`, `flutter-doctor-consultation-app`, `flutter-simple-login-signup`,
+  `Hacktoberfest-Flutter`, `madeeldev` (profile repo). All 5,102 bytes, byte-identical.
+- **1 partial injection**: `gatsby-portfolio-dev` got tasks.json but no woff2 (no `public/fonts/` dir).
+- **2 not infected**: `admin-dashboard`, `laravel-app-starter-pack` (PHP — injection script skipped).
+- **Timestamp forgery**: all commits forged to 2021–2024 dates; detection signal: `pushed_at` 2026-06-07
+  vs commit dates 2021–2024 (2–4 year gap). Commit message: `"Update README.md"`.
+- **Same operator**: No evidence of a different sub-team — cipher, template, and activation codes are
+  identical to the saif72437 Task N/O batch. `10-` series = new victim pool (mobile/Dart devs).
 
 **L. Investigate bat-file victim repos** — DONE
 Full analysis in `ANALYSIS_BAT_VICTIMS.md`. 29 repos scanned (8 config.bat + 21 temp_interactive).
