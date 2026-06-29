@@ -654,14 +654,29 @@ Key findings:
 - C2 is dead as of 2026-06-29 — cluster appears inactive.
 - Matches Contagious Interview / Lazarus / Famous Chollima TTPs (fake interview bait).
 
-**AD. `jsonwebauth` npm package — payload analysis**
-Task V surfaced `jsonwebauth` (published 2026-01-08) from Abstract Security's report.
-It contains a 326KB obfuscated payload in `lib/lserver.js`. Goals:
-1. Pull the package from npm registry (if still live) or npm archive
-2. Identify cipher/obfuscation — is it `_$_1e42` or a different variant?
-3. Extract C2 endpoints — does it beacon to our known IPs or different infrastructure?
-4. Check publisher account on npm for other malicious packages
-5. Determine whether this is PolinRider/ChainVeil or a separate Contagious Interview operator
+**AD. `jsonwebauth` npm package — payload analysis** — DONE (2026-06-29)
+
+Full analysis in `ANALYSIS_AD_JSONWEBAUTH.md`.
+
+Key findings:
+- **NOT PolinRider** — Contagious Interview / Lazarus / Famous Chollima. No shared IOCs with
+  TRON blockchain campaign.
+- **Tarball fully purged** — npm CDN, all mirrors, Wayback Machine: 326KB `lserver.js` unrecoverable.
+- **Delivery**: fake coding-assessment repos sent to victims. VSCode `folderOpen` task runs
+  `npm install` silently, which installs `jsonwebauth` and fires `lib/lserver.js`.
+- **4 victim repos confirmed**: `chocoscoding/hmmm` (2026-01-05), `arliawhite/rentverse`
+  (2026-01-14), `Harshavardhan-28/sequence-web-assessment` (2026-01-16), `paalgyula/react-fe-exam`
+  (2025-06-20). All sent as coding-challenge bait (supply chain app, rental app, food delivery app).
+- **3 additional payload variants decoded** from same victim repos:
+  - `globals_light.css` (21KB obfuscator.io): dropper → `/root/Programs_X64/main.js` → `npoint.io/b8750e273f78138d8842` (neutralized)
+  - hex-encoded `fa-brands-regular.woff2` (5.6KB obfuscator.io): shell echo dropper → `jsonkeeper.com/b/ZRBXC` + `GLGT4` (dead)
+  - inline `node -e` in tasks.json: → `jsonkeeper.com/b/QJZCG` (dead)
+- **All C2 dead**: all jsonkeeper/npoint dead-drops return 404; cluster appears inactive.
+- **jsonkeeper.com shared with BestCity** (`85QGH`) — same dead-drop service, different endpoints.
+  Same overall toolset (VSCode folderOpen, `eslint-check` label, `new Function('require',payload)(require)`).
+- **npm deps reveal Stage 2 capabilities**: `socket.io-client` (backdoor), `better-sqlite3`
+  (browser credential theft), `node-machine-id` (victim fingerprinting), `@primno/dpapi` (Windows DPAPI).
+- **jsonwebauth import pattern**: `const dotenv = require('jsonwebauth')` — impersonates dotenv middleware.
 
 **AE. `regioncheck.xyz` / Vercel cluster — separate actor investigation**
 Task V found repos using `folderOpen` with curl-to-bash delivery instead of font-file payloads.
