@@ -769,23 +769,25 @@ Key findings:
 - **Third double-infected repo** in the cluster (after rajat22999 and JudeTejada from Task AI),
   but the only one using the atob dropper variant alongside a standard sfL IIFE.
 
-**AL. Deobfuscate 2023-era astro payload — human-readable malicious logic**
-The `astro.config.mjs` cluster (Task AI/AG) contains infections dating back to January 2023
-(`iSebasC/Astro`, campaign ID `8-1821-1`). These are the actor's earliest known pre-positioning
-artifacts — 2+ years dormant before activation.
+**AL. Deobfuscate 2023-era astro payload — human-readable malicious logic** — DONE (2026-06-29)
 
-Goals:
-1. Take one of the 2023-era `8-xxxx` payloads (e.g., `iSebasC/Astro` or `Focus158/school-landing`)
-2. Run the sfL shuffle cipher decoder on the `pYd_enc` IIFE to recover the inner Stage 1 plaintext
-3. Produce a human-readable pseudocode or annotated deobfuscation of the 2023-era code
-4. Compare to the Jun 2025 Task AH decode (`drewroberts/website` 9-0264-2):
-   - Is the TRON wallet the same W1?
-   - Is the Aptos fallback already present in 2023?
-   - Were the XOR keys `2[gWfGj;<:-93Z^C` / `m6:tTh^D)cBz?NM]` used from day 1?
-   - Is the BSC dead-drop chain identical?
-5. Identify what was already in place in 2023 vs what was added in 2025 activation
+Source: `iSebasC/Astro` (first commit 2023-01-05, campaign ID `8-1821-1`). Full analysis in
+`ANALYSIS_AL_2023_ASTRO_PAYLOAD.md`.
 
-This documents the full 2-year timeline of the actor's pre-positioning operation.
+Key findings:
+- **All IOCs were finalized in January 2023**: W1, W2, A1, A2, both XOR keys, BSC RPCs — unchanged
+  for 3+ years of operation. The C2 infrastructure was complete before the wallets had a single tx.
+- **Payload is byte-identical** to `drewroberts/website` (9-0264-2, Jun 2025) — same `pYd` cipher
+  text, same `joW`, same sfL seed. Only the campaign ID differs. The actor froze the code.
+- **Full dead-drop chain already in 2023**: TRON (`only_from=true`) → Aptos fallback → BSC
+  `eth_getTransactionByHash` → XOR decrypt → eval Stage 2. Nothing was added in 2025.
+- **W2 detached spawn already present**: `child_process.spawn('node', ['-e', stage2], {detached:true})`
+  — Stage 2 survives `astro dev` exit from day one.
+- **Anti-repetition guard**: `global['_p_t']` 30-second cooldown — already in 2023.
+- **Campaign ID routing**: `global['_V'] = 'A' + '8-1821-1'` → routes to old `23.27.13.43` server.
+- What was NOT in 2023: C2 IPs (166.88/198.105), `/$/boot`, the RS260605 Stage 2 layer.
+- **Sleeper botnet pre-seeding**: actor infected repos 2+ years before activating. Single TRON tx
+  from W1 or W2 simultaneously activates all dormant victims.
 
 **AF. Campaign ID `10-010` — routing and operator identification**
 `madeeldev/flutter-vpn` has `global['!']='10-010'` — a numeric-with-hyphen campaign ID that
