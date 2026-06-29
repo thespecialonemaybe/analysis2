@@ -634,20 +634,25 @@ Key findings:
   Confirmed decoded strings: `yUvOUI[116]="JSON"`, `yUvOUI[117]="parse"`.
 - **Build marker**: `RS260605` = June 5, 2026 (same as blockchain Beavertail build date in Task T).
 
-**AC. BestCity actor-staging cluster — deep dive**
-Task V found four repos (`technoknol/bestcity`, `fullstackragab/bestcity`, `BestCity-v1/Demo-v1`,
-`AbstractFruitFactory/bestcity-demo`) that appear to be **actor-controlled fake-company repos**
-used as interview material. The `technoknol/bestcity` payload is 55,985 bytes — far larger than
-a typical Stage 0 (~5KB), suggesting an embedded full-stage payload rather than a blockchain
-fetcher. Goals:
-1. Decode the 55,985-byte WJS IIFE payload from `technoknol/bestcity` — what stage(s) is it?
-   Does it contain blockchain dead-drop logic, or serve Stage 2 directly?
-2. Profile the actor accounts: `technoknol`, `fullstackragab`, `BestCity-v1`, `AbstractFruitFactory`
-   — creation dates, other repos, linked identities, commit authorship
-3. Check if `bestcity` repos are still live and whether payload has been updated recently
-4. Determine whether `fa-brands-regular.woff2` and `fa-solid-400.woff2` in the bestcity cluster
-   are different campaign generations (the brands variant used simpler command syntax)
-5. Cross-reference any commit emails or author names to link actor accounts
+**AC. BestCity actor-staging cluster — deep dive** — DONE (2026-06-29)
+
+Full analysis in `ANALYSIS_AC_BESTCITY_CLUSTER.md`.
+
+Key findings:
+- **Different actor** from PolinRider/TRON — no shared IOCs. BestCity uses jsonkeeper.com dead-drop,
+  not TRON/BSC blockchain. C2: `https://www.jsonkeeper.com/b/85QGH` (now dead, 404).
+- **Three-layer WJS payload** (55,985 bytes): outer WJS IIFE → Layer 2 string-table setup (dnQo)
+  → Layer 3 dropper that writes `/tmp/programx64/main.js` + execSync to run it.
+- **main.js** installs axios silently via npm, fetches jsonkeeper dead-drop, evals `res.data.model`.
+  Sets `process.title='Node.js JavaScript Runtime'` as evasion.
+- `technoknol/bestcity` and `AbstractFruitFactory/bestcity-demo` payload is byte-identical.
+- `fullstackragab/bestcity` (9KB) and `BestCity-v1/Demo-v1` (147KB) use obfuscator.io format —
+  older `fa-brands-regular.woff2` variants with simpler command syntax.
+- Fabricated 100-commit git history shared across repos using 4 fake personas:
+  nicolasmelo12, myselfmail0301, Fiddlekins, sbegaa.
+- `BestCity-v1` account created 2025-12-22 with 0 followers — confirmed actor-controlled.
+- C2 is dead as of 2026-06-29 — cluster appears inactive.
+- Matches Contagious Interview / Lazarus / Famous Chollima TTPs (fake interview bait).
 
 **AD. `jsonwebauth` npm package — payload analysis**
 Task V surfaced `jsonwebauth` (published 2026-01-08) from Abstract Security's report.
