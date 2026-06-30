@@ -1,19 +1,27 @@
 # Task J: TRON/Aptos Channel Update Cadence Snapshot
 
-**Date:** 2026-06-28  
+**Date:** 2026-06-30 (updated)  
 **Task:** Monitor W1/W2/W3 update cadence; check for new payloads since last scan
 
 ---
 
-## Status Snapshot (as of 2026-06-28)
+## Status Snapshot (as of 2026-06-30)
 
 | Channel | Last update | Days since | BSC TX |
 |---------|------------|-----------|--------|
-| W1 / A1 | 2026-06-23 | **5 days** | `0x18a8420f727f2405f9...` |
-| W2 / A2 | 2026-06-25 | **3 days** | `0x622bcfd4538f7e6877...` |
-| W3 / A3 | 2026-06-08 | **20 days** | `0xb6c725890be6890fd2...` |
+| W1 / A1 | 2026-06-23 | **7 days** | `0x18a8420f727f2405f9...` |
+| W2 / A2 | 2026-06-25 | **5 days** | `0x622bcfd4538f7e6877...` |
+| W3 / A3 | 2026-06-08 | **22 days** | `0xb6c725890be6890fd2...` |
 
-No new updates on any channel. W3 is in its longest quiet period on record.
+No new updates on any channel since the Jun 28 snapshot.
+
+### Previous snapshot (2026-06-28)
+
+| Channel | Last update | Days since | BSC TX |
+|---------|------------|-----------|--------|
+| W1 / A1 | 2026-06-23 | 5 days | `0x18a8420f727f2405f9...` |
+| W2 / A2 | 2026-06-25 | 3 days | `0x622bcfd4538f7e6877...` |
+| W3 / A3 | 2026-06-08 | 20 days | `0xb6c725890be6890fd2...` |
 
 ---
 
@@ -152,13 +160,54 @@ The pre-Function-wrapper payloads (~65KB, no UMD shim) may be easier to decode f
 
 ## Monitoring Recommendation
 
+---
+
+## Jun 23 A2 Payload Decoded (2026-06-30)
+
+The Jun 23 Aptos A2 TX (seq=8) points to BSC `0x76a7ae331269603bd690d2d9d810393b42d0c324acf1eacdf5a5258dfd3a6761`.
+This was previously undecoded; the Jun 25 payload (seq=9) was decoded in Task R as `_$_f5f0`.
+
+### Jun 23 A2 payload details
+
+| Field | Value |
+|-------|-------|
+| Outer cipher | `_$_f5f0`, string `"mctjncr%uioonf%et%b"`, seed `1003076` |
+| Outer table | `['function','r','object','m']` — same 4-entry table as Jun 25 |
+| Inner cipher | `SgH`, seed `570964` |
+| `Hvn` | `'constructor'` (11-char prefix of decoded string) |
+| Activation code | **`5842`** |
+| Return code | **`8711`** |
+
+### Activation/return code progression (_$_f5f0 W2 channel)
+
+| Date | Deployment | Activation | Return | Source |
+|------|-----------|-----------|--------|--------|
+| 2026-06-20 | W2 TRON direct | `8063` | `8223` | Task B |
+| 2026-06-23 | A2 Aptos | **`5842`** | **`8711`** | This check |
+| 2026-06-25 | A2 Aptos | `1218` | `2021` | Task R |
+
+The activation and return codes change with every deployment. These values are likely
+session/version identifiers used to verify Stage 2 → C2 handshake integrity.
+
+---
+
+## Monitoring Recommendation
+
 | Channel | Next expected update | Action |
 |---------|---------------------|--------|
-| W1 | Late Jun / early Jul (5–14 day cadence) | Monitor — likely imminent |
-| W2 | Jul (10–30 day cadence) | Monitor |
-| W3 | Unknown — 20+ day quiet, longest ever | Check weekly; may signal transition |
+| W1 | Overdue (7d; avg 5-14d cadence) | **Check now — may have updated** |
+| W2 | 5d; normal | Monitor |
+| W3 | 22d quiet — approaching prior 2-month gap | Check weekly; may signal transition |
+
+**W3 hypothesis (as of Jun 30):** The 22-day silence mirrors the Mar 19 – May 16 gap
+(59 days). During that gap, Stage 2 was served directly from C2 rather than via blockchain
+dead-drop. Task AB confirmed the C2 servers now deliver `RS260605` Stage 2 format
+(generator-function obfuscated, XOR key `ThZG+0jfXE6VAGOJ`) instead of the LZString Beavertail
+blob. If W3 remains silent indefinitely, the actor may have permanently transitioned Stage 2
+delivery to the RS260605 C2-direct model — the blockchain dead-drop W3 link is no longer needed.
+
+W1/W2 (Stage 1 loaders) continue updating normally — the dead-drop loader chain is unchanged.
+Only Stage 2 delivery mode may be shifting.
 
 The W3 silence is the most notable: with 69 TXs over 7.5 months the average cadence was
-<3 days between updates. A 20-day gap suggests the actor has either frozen Stage 2 development
-or is preparing a significant new variant. If W1 updates before W3, the new Stage 1 may
-reference a new W3 payload — worth checking both simultaneously.
+<3 days between updates. A 22-day gap is the longest on record and warrants continued monitoring.

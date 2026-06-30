@@ -329,23 +329,27 @@ payload. 10 additional BSC TXs from 2025 remain unanalyzed (see ANALYSIS_APTOS_W
 
 ### Lower priority / passive monitoring
 
-**J. TRON wallet W1 update cadence** — DONE (snapshot 2026-06-28)
-Full analysis in `ANALYSIS_CADENCE_J.md`. No new updates since last check.
+**J. TRON wallet W1 update cadence** — ONGOING (snapshots 2026-06-28, 2026-06-30)
+Full analysis in `ANALYSIS_CADENCE_J.md`. No new updates since Jun 28 snapshot.
 
-Status: W1/A1 last Jun 23 (5d ago), W2/A2 last Jun 25 (3d ago), W3/A3 last Jun 8 (20d ago).
+Status (2026-06-30): W1/A1 last Jun 23 (7d ago), W2/A2 last Jun 25 (5d ago), W3/A3 last Jun 8 (22d ago).
 
 **W3 true history discovered:** 69 TXs back to Nov 13, 2025 (not Jun 2025). W3 added the Stage 2
 blockchain dead-drop layer in Nov 2025, 5 months after W1/W2 went live. Pre-Nov Stage 2 was
 served directly from C2.
 
 **Stage 2 payload evolution:** Function wrapper introduced May 21 mid-session; payload grew
-~65KB → 77KB (May 20 → Jun 8). Jun 8 payload stable for 20 days — longest W3 quiet period.
+~65KB → 77KB (May 20 → Jun 8). Jun 8 payload stable for 22 days — longest W3 quiet period on record.
 
 **16 new W3 BSC TXs catalogued** (May 20 – Jun 2). Pre-Function-wrapper payloads (~65KB) from
 May 20 may be easier entry point for Task T (Beavertail decode).
 
-**W3 20-day silence** is anomalous given <3 day avg cadence over 7.5 months — may signal
-actor preparing a new Stage 2 variant or transitioning delivery mechanism.
+**Jun 23 A2 payload newly decoded (Jun 30):** `_$_f5f0`, seed `570964`, activation `5842`,
+return `8711`. Fills the gap between Jun 20 (`8063`/`8223`) and Jun 25 (`1218`/`2021`) — codes
+change with every deployment, likely session/version identifiers.
+
+**W3 22-day silence** hypothesis: actor may have permanently transitioned Stage 2 to C2-direct
+RS260605 format (Task AB), making W3 dead-drop obsolete. W1/W2 still updating normally.
 
 **M. Decode `Cot%3t=shtP` cipher from live samples** — DONE
 Full analysis in `ANALYSIS_COT_CIPHER.md`. Stage 2 fully decoded from `herasoftlabs/ChainLab`.
