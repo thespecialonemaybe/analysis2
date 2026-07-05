@@ -484,10 +484,31 @@ Key findings:
   cipher template variants.
 - Spawned Tasks AU, AV, AW.
 
-**AU. Retrieve and reverse temp_auto_push.bat from saif72437 repos** — PENDING
-The infection tool (1036 bytes) was accidentally committed to multiple saif72437 repos. Pull the
-file, decode it (likely batch script), document the sweep logic, target directory patterns, and
-any hardcoded infrastructure (C2 addresses, paths, git config).
+**AU. Retrieve and reverse temp_auto_push.bat from saif72437 repos** — DONE (2026-07-05)
+
+Full analysis in `ANALYSIS_AU_BAT_FILE.md`. File retrieved from `saif72437/Email-Layout-Builder`
+(and 4 others); blob SHA `5549c357`, byte-identical across all.
+
+Key findings:
+- **Not an orchestrator** — a single-repo commit+push tool. An unrecovered outer loop (Python
+  Stage 4/5 or separate bat) iterates repos and calls this bat inside each one.
+- **Timestamp forgery method**: Reads victim's last commit author date (`%aI`) and committer
+  date (`%cI`) from `git log -1`, stores in `GIT_AUTHOR_DATE`/`GIT_COMMITTER_DATE` env vars
+  (git honors these on commit). Both timestamps set to victim's values → **author == committer,
+  zero gap**. Undetectable by zurichjs timestamp-gap method.
+- **Identity forgery**: `git config --local user.name/email` set from victim's `%an`/`%ae` —
+  commit attributed to victim developer, scoped to repo only.
+- **`git add .`** stages everything in working dir — including the bat itself (OPSEC failure).
+  `git commit --amend --no-verify` → `git push -uf --no-verify`.
+- **Developer comment reveals evolution**: "No Windows date/time commands: they prompt and
+  require locale formats (e.g. yy-mm-dd), which breaks bots." Prior version used system
+  clock manipulation (like config.bat V1); abandoned due to locale failures on Korean Windows
+  machines. "Breaks bots" confirms automated orchestrated execution.
+- **Cover set**: FontAwesome full set (22 files across .eot/.svg/.ttf/.woff/.woff2 formats)
+  added alongside payload — same technique as NikhilGupta777 atob dropper batch.
+- **No hardcoded C2 or infrastructure** in the bat — pure git automation tool only.
+- **Detection**: Only reliable signal is `pushed_at` (GitHub API) vs forged commit date.
+  The saif72437 sweep: commits forged to 2025-06-11, `pushed_at` 2026-06-15 — 1-year gap.
 
 **AV. Scan for oversized astro.config.mjs files** — PENDING
 `Rafijohari18/astro-speed` shows astro.config.mjs as 13696B (normal is <500B). GitHub code
