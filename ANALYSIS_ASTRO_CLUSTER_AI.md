@@ -1,18 +1,32 @@
 # Task AI: astro.config.mjs Cluster — Full Campaign ID Map + Infection Dates
 
-**Date:** 2026-06-28  
-**Task:** Extract campaign IDs from all 29 infected astro.config.mjs repos, build infection timeline,
+**Date:** 2026-06-28 (updated 2026-07-05)  
+**Task:** Extract campaign IDs from all infected astro.config.mjs repos, build infection timeline,
 identify multi-vector overlap, and determine when infections actually occurred.
+
+---
+
+## 2026-07-05 Update
+
+Task AV (completed 2026-07-05) identified **4 additional infected repos** using a new
+obfuscator.io outer wrapper format (~20KB, byte-identical blob). These are added to the
+cluster map below. New high-water mark: **`9-7298`** (aegre/damian, Jun 2026).
+
+Additionally, **`SanjayaPrasadRajapaksha/Hotel_Booking-Blog`** was confirmed remediated
+between Jun 28 and Jul 5, 2026 — now a clean 121-byte stub.
+
+**Current status**: 33 confirmed infected repos total (29 plaintext `_$_1e42` + 4 obfuscator.io);
+1 remediated since last scan.
 
 ---
 
 ## Summary
 
-27 of 29 repos confirmed infected (2 had path mismatches — file in non-root location). The cluster
-reveals **three mechanisms** by which the astro infection spreads, a **sleeper pre-positioning
-strategy** dating infections back to at least January 2023, and two repos with **stacked double
-infections**. Campaign ID numbers reach as high as `9-7226`, implying 10,000+ tracked victims
-across series 8 and 9.
+27 of 29 plaintext repos confirmed infected (2 had path mismatches). Adding the 4 obfuscator.io
+repos: **31 of 33 repos** carry live payloads. The cluster reveals **three mechanisms** by which
+the astro infection spreads, a **sleeper pre-positioning strategy** dating infections back to at
+least January 2023, and two repos with **stacked double infections**. Campaign ID numbers reach
+as high as `9-7298`, implying 11,000+ tracked victims across series 8 and 9.
 
 ---
 
@@ -36,7 +50,7 @@ across series 8 and 9.
 | 14 | `iSebasC/Astro` | `8-1821-1` | 5,490 | **2023-01-05** | **Sleeper** — oldest infection |
 | 15 | `Focus158/school-landing` | `8-1821-1` | 5,593 | 2025-05-17 | **Copy-paste** from iSebasC |
 | 16 | `sudais-khan12/netlify-feature-tour` | `10` | 5,690 | **~2025-01-08**¹ | Oldest ID format |
-| 17 | `SanjayaPrasadRajapaksha/Hotel_Booking-Blog` | `9-424` | 5,499 | 2025-09-06 | Standard |
+| 17 | `SanjayaPrasadRajapaksha/Hotel_Booking-Blog` | `9-424` | ~~5,499~~ **121** | 2025-09-06 | **REMEDIATED** ≤2026-07-05 |
 | 18 | `rajat22999/noa-feed` | `9-1435-7` + `8-2895` | 10,884 | 2025-09-19 | **DOUBLE INFECTION** |
 | 19 | `Rafijohari18/astro-speed` | `8-4081` | 13,696 | 2026-04-15 | Largest single payload |
 | 20 | `zainhaider-123/astro-portfolio` | `9-0506-3` | 5,667 | 2026-03-07 | Standard |
@@ -49,6 +63,20 @@ across series 8 and 9.
 | 27 | `jbpounders/em-and-me-cafe` | `9-2104` | 5,615 | 2025-12-08 | Standard |
 | 28 | `JudeTejada/jude-portfolio-v3` | `9-1330-1` + `8` | 11,715 | 2025-11-04 | **DOUBLE INFECTION** |
 | 29 | `Atx-3/Triverse-3.0-main` | `9-2518` | 5,604 | 2026-01-27 | Standard |
+
+**Obfuscator.io variant (Task AV — added 2026-07-05):**
+
+| # | Repo | Campaign ID | Size (B) | Pushed | Notes |
+|---|------|-------------|----------|--------|-------|
+| 30 | `aegre/damian` | `9-7298` | 20,836 | 2026-06-20 | Timestamp gap (Oct 2025 ← Jun 2026) |
+| 31 | `CharlieJT/cleric-homepage` | `9-7172` | 20,932 | 2026-06-26 | No timestamp gap |
+| 32 | `itzvin19/dance-studio` | `8-4435-1` | 21,025 | 2026-06-25 | Same victim, same session as #33 |
+| 33 | `itzvin19/03-blog` | `8-4435-1` | 20,979 | 2026-06-25 | Same victim, 7s after #32 |
+
+All 4 share identical obfuscator.io blob (byte-for-byte). Only `global['!']` differs per victim.
+Infrastructure: W1/W2 (canonical), XOR key `2[gWfGj;<:-93Z^C`. See `ANALYSIS_AX_OBFUSCATOR.md`.
+
+---
 
 ¹ `sudais-khan12/netlify-feature-tour` GitHub repo was created 2025-01-08 (API `created_at`). All
 visible commits are from the upstream `netlify/netlify-feature-tour` repo — the victim cloned it
@@ -177,16 +205,17 @@ rather than blockchain-fetched). Warrants separate investigation.
 
 ### Series 8 (older, lower numbers)
 
-IDs seen: `8-342`, `8-1828`, `8-2204`, `8-2895`, `8-1485-1`, `8-1422-2`, `8-1821-1`, `8-3336`, `8-4081`
+IDs seen: `8-342`, `8-1828`, `8-2204`, `8-2895`, `8-1485-1`, `8-1422-2`, `8-1821-1`, `8-3336`, `8-4081`, `8-4435-1`
 
-Highest: `8-4081` (`Rafijohari18/astro-speed`) — implies 4,081+ victims in series 8.
+Highest: **`8-4435-1`** (`itzvin19`, Jun 2026) — implies **4,435+ victims** in series 8.
+*(Previously `8-4081` was the max — raised by 354 between Apr and Jun 2026.)*
 
 ### Series 9 (newer, higher numbers)
 
-IDs seen: `9-196-1`, `9-0264-2`, `9-0304-1`, `9-0360-4`, `9-0387-4`, `9-0506-3`, `9-424`, `9-1330-1`, `9-1435-7`, `9-2104`, `9-2518`, `9-3890-1`, `9-4422-2`, `9-7226`
+IDs seen: `9-196-1`, `9-0264-2`, `9-0304-1`, `9-0360-4`, `9-0387-4`, `9-0506-3`, `9-424`, `9-1330-1`, `9-1435-7`, `9-2104`, `9-2518`, `9-3890-1`, `9-4422-2`, `9-7172`, `9-7226`, `9-7298`
 
-Highest: **`9-7226`** (`FieteLab/fietelab.github.io`, May 2026) — implies **7,226+ victims** in
-series 9 alone.
+Highest: **`9-7298`** (`aegre/damian`, Jun 2026) — implies **7,298+ victims** in series 9 alone.
+*(Previously `9-7226` at May 2026 — raised by 72 in ~6 weeks.)*
 
 ### Pre-series IDs (earliest format)
 
@@ -195,7 +224,7 @@ series 9 alone.
 
 ### Combined scale estimate
 
-Series 8 (4,081+) + Series 9 (7,226+) + historical = **11,000+ tracked victims** across the
+Series 8 (4,435+) + Series 9 (7,298+) + historical = **11,733+ tracked victims** across the
 astro.config.mjs vector alone, not counting tasks.json, npm, or Go package infections.
 
 ---
@@ -242,8 +271,27 @@ Jul-Dec    │  • AbdulwahidHusein/portfolio-1 (CID: 9-196-1) — Jul 2025
            │  • vkrms/astro-bookworm (CID: 9-0360-4) — Apr 2026
            │  • Rafijohari18/astro-speed (CID: 8-4081) — Apr 2026
            │  • devlopersabbir/devlopersabbir.github.io (latest update) — May 2026
-           │  • FieteLab/fietelab.github.io (CID: 9-7226) — May 2026 ← highest ID to date
+           │  • FieteLab/fietelab.github.io (CID: 9-7226) — May 2026
+           │
+           │  [New format: obfuscator.io outer wrapper, ~20KB]
+           │  • aegre/damian (CID: 9-7298) — Jun 20, 2026 ← new series-9 max
+           │  • itzvin19/dance-studio (CID: 8-4435-1) — Jun 25, 2026
+           │  • itzvin19/03-blog (CID: 8-4435-1) — Jun 25, 2026 (same victim, 7s gap)
+           │  • CharlieJT/cleric-homepage (CID: 9-7172) — Jun 26, 2026
+           │
+           │  [Remediation]
+           │  • SanjayaPrasadRajapaksha/Hotel_Booking-Blog — cleaned ≤2026-07-05
 ```
+
+---
+
+## Current Liveness (as of 2026-07-05)
+
+| Status | Count | Repos |
+|--------|-------|-------|
+| ✅ Still infected | 32 | All except SanjayaPrasadRajapaksha |
+| ✅ Remediated | 1 | `SanjayaPrasadRajapaksha/Hotel_Booking-Blog` (≤2026-07-05) |
+| ❌ Path mismatch | 2 | Angel-ISO, Abdelkaderbzz (not at root — not confirmed infected) |
 
 ---
 
@@ -253,15 +301,22 @@ Jul-Dec    │  • AbdulwahidHusein/portfolio-1 (CID: 9-196-1) — Jul 2025
 |-----|------|-------|
 | `8-1821-1` (×3 repos) | Campaign ID | Shared across iSebasC (2 repos) and Focus158 — copy-paste propagation |
 | `8-3336` (×3 repos) | Campaign ID | DanteIturri developer — all 3 repos shared ID |
-| `9-7226` | Campaign ID | Highest known ID in series 9 — at FieteLab/fietelab.github.io (2026-05-08) |
+| `9-7298` | Campaign ID | New series-9 max — aegre/damian (2026-06-20) |
+| `9-7172` | Campaign ID | CharlieJT/cleric-homepage (2026-06-26) |
+| `8-4435-1` | Campaign ID | itzvin19 (2 repos, 2026-06-25) — new series-8 max |
+| `9-7226` | Campaign ID | Previous series-9 max — FieteLab/fietelab.github.io (2026-05-08) |
 | `10` (bare) | Campaign ID | Oldest ID format — sudais-khan12/netlify-feature-tour (≈2025-01-08, corrected) |
 | `8` (bare) | Campaign ID | Second oldest — JudeTejada second infection, same era as `10` |
 | `9-1435-7` + `8-2895` | Campaign IDs | Double infection in `rajat22999/noa-feed` |
 | `9-1330-1` + `8` | Campaign IDs | Double infection in `JudeTejada/jude-portfolio-v3` |
 | `Rafijohari18/astro-speed` | GitHub repo | 13,696-byte single-IIFE astro payload — anomalously large |
 
-## New Task Spawned
+## Tasks Spawned
 
 **AK**: `Rafijohari18/astro-speed` deep dive — 13,696-byte single-IIFE payload is 2.4× the
 standard size but has only one campaign ID (`8-4081`). Decode the pYd to determine what extra
 code is present — inline Stage 2? Additional C2 fallbacks? Different payload architecture?
+
+**AV** (completed 2026-07-05): obfuscator.io outer wrapper analysis — see `ANALYSIS_AV_ASTRO_SCAN.md`
+
+**AX** (completed 2026-07-05): full decode of aegre/damian wrapper — see `ANALYSIS_AX_OBFUSCATOR.md`
