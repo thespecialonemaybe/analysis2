@@ -87,10 +87,10 @@
 
 | IP | Port(s) | Role | Routing trigger | Found in |
 |----|---------|------|-----------------|---------|
-| `166.88.134.62` | 443 | Admin / operator test pool | campaign `_V` = `admin` string | W1 Stage 1 `_$_9f51` only |
+| `166.88.134.62` | 443 | Admin pool + series-A victims | `_V` = `admin` OR `_V[0] == 'A'` | W1 `_$_9f51`; AX Stage 2 `_$_9f51` (Jul 2026) |
 | `198.105.127.210` | 80, 443 | Production victim handler | numeric `_V` OR mixed `N-N-NNN` format | W1 `_$_9f51`, W2 `_$_a478` |
 | `23.27.202.27` | 443, 27017 | MongoDB backend / HTTP fallback | else-branch when `_H` is set | W1 `_$_9f51`, W2 `_$_a478` |
-| `23.27.13.43` | 80 | Old `_$_1e42` batch victim handler | `_V` starts with `'A'` | W2 Stage 2 `_$_a478` only — new, Task B |
+| `23.27.13.43` | 80 | Old `_$_1e42` batch victim handler | `_V` starts with `'A'` (pre-Jul-2026) | W2 Stage 2 `_$_a478` only — superseded |
 
 ### C2 Routing Logic (W2 Stage 2 `_$_a478`)
 
@@ -115,10 +115,11 @@ Campaign ID format → routed server:
 
 | `_V` format | Example | Routed to |
 |-------------|---------|-----------|
-| Starts with `'A'` | `'A8-765'` | `23.27.13.43` |
+| Starts with `'A'` (pre-Jul-2026) | `'A8-765'` | `23.27.13.43` (now dead) |
+| Starts with `'A'` (Jul-2026+, AX wave) | `'A9-7298'` | `166.88.134.62` — routing changed |
 | Pure numeric | (unknown) | `198.105.127.210` |
 | Mixed `N-N-NNN` | `'5-3-161'` | `198.105.127.210` (fallback: `23.27.202.27:27017`) |
-| `'admin'` | (operator) | `166.88.134.62` (W1 path only) |
+| `'admin'` | (operator) | `166.88.134.62` |
 
 ### C2 Routing Logic (W1 Stage 1 `_$_9f51`)
 

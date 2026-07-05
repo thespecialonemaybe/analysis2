@@ -103,6 +103,22 @@ of analysis. New campaign IDs found: `5-3-225`, `5-3-252`, `5-3-296`, `5-3-341`,
 
 ---
 
+### 6 — obfuscator.io outer wrapper + live Stage 2/3 pull — aegre/damian (2026-07-05)
+
+**Files:** `ANALYSIS_AX_OBFUSCATOR.md` · `ANALYSIS_AX_STAGE2_LIVE.md`
+
+`aegre/damian/astro.config.mjs` carries a three-layer Stage 1 loader wrapping the standard
+PolinRider chain in an obfuscator.io shell (seed 2857687, 429-string table). Two new TRON
+wallet pairs extracted (W5/W6). Full live pull executed:
+
+- W5 TRON → BSC `0x18a8420f...` → XOR → **Stage 2 (5,849 bytes)** recovered
+- Stage 2 exposes **three C2 IPs** with campaign-ID routing (`_V[0]=='A'` → `166.88.134.62`)
+- Stage 2 embeds **Stage 3 (3,072 bytes)** via NVu cipher chain; Stage 3 fetches Stage 4
+  (Beavertail) via W3 TRON dead-drop with same XOR key `2[gWfGj;<:-93Z^C`
+- Campaign `A9-7298`; routing change: series-A now hits `166.88.134.62` (previously admin-only)
+
+---
+
 ### 5 — Live C2 analysis and Stage 1/2 payload retrieval (2026-06-27)
 
 **Files:** `INVESTIGATION_NOTES.md` · `artifacts_live_stage1_b229.zip` · `ANALYSIS_STAGE1_b229_live.md` · `artifacts_live_stage2.zip`
@@ -172,18 +188,23 @@ YARA detection rules for all three tiers (repo, decoded payload, memory) are in
 
 ```
 # Direct C2 servers (revealed in Stage 1 — obfuscated in Stage 0)
-166.88.134.62        (admin/test mode)
-198.105.127.210      (production campaign victims)
-23.27.202.27:27017   (MongoDB C2 backend)
+166.88.134.62        (admin/test; ALSO series-A victims as of Jul 2026)
+198.105.127.210      (production campaign victims — numeric IDs)
+23.27.202.27:27017   (MongoDB C2 backend — dead as of Jun 2026)
 
 # TRON wallets (blockchain dead-drop chain)
 TCqf6ZkaQD84vYsC2cuu1jRwB6JveTaRrF   (_$_913e W1)
 TFMryB9m6d4kBMRjEVyFRbqKSV1cV2NcpH   (_$_913e W2)
-TMfKQEd7TJJa5xNZJZ2Lep838vrzrs7mAP   (_$_b229 W1 Stage 0)
-TXfxHUet9pJVU1BgVkBAbrES4YUc1nGzcG   (_$_b229 W2 Stage 0)
-TA48dct6rFW8BXsiLAtjFaVFoSuryMjD3v   (Stage 1 → Stage 2 dead-drop, active Jun 2026)
+TMfKQEd7TJJa5xNZJZ2Lep838vrzrs7mAP   (AX W5 Stage 0 — live Jun 23 2026)
+TXfxHUet9pJVU1BgVkBAbrES4YUc1nGzcG   (AX W6 Stage 0 — live Jun 20 2026)
+TA48dct6rFW8BXsiLAtjFaVFoSuryMjD3v   (W3 Stage 2→3 dead-drop, active Jun 2026)
 
-# Shared XOR key (all campaigns)
+# Aptos fallback wallets
+0xbe037400670fbf1c32364f762975908dc43eeb38759263e7dfcdabc76380811e   (AX W5)
+0x3f0e5781d0855fb460661ac63257376db1941b2bb522499e4757ecb3ebd5dce3   (AX W6)
+0x533b2dbcaeff19cd1f799234a27b578d713d8fcaa341b7501e4526106483e0b1   (Stage 3→4 link)
+
+# Shared XOR key (Stage 1 W5 + Stage 3, series-A campaigns)
 2[gWfGj;<:-93Z^C
 
 # Compromised GitHub account
