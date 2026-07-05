@@ -1,27 +1,28 @@
 # Task J: TRON/Aptos Channel Update Cadence Snapshot
 
-**Date:** 2026-06-30 (updated)  
+**Date:** 2026-07-05 (updated)  
 **Task:** Monitor W1/W2/W3 update cadence; check for new payloads since last scan
 
 ---
 
-## Status Snapshot (as of 2026-06-30)
+## Status Snapshot (as of 2026-07-05)
 
-| Channel | Last update | Days since | BSC TX |
-|---------|------------|-----------|--------|
-| W1 / A1 | 2026-06-23 | **7 days** | `0x18a8420f727f2405f9...` |
-| W2 / A2 | 2026-06-25 | **5 days** | `0x622bcfd4538f7e6877...` |
-| W3 / A3 | 2026-06-08 | **22 days** | `0xb6c725890be6890fd2...` |
+| Channel | Last update | Days since | Status | BSC TX |
+|---------|------------|-----------|--------|--------|
+| W1 / A1 | 2026-06-23 | **12 days** | ⚠️ Past normal cadence (5–14d) | `0x18a8420f727f2405f9...` |
+| W2 / A2 | 2026-06-25 | **10 days** | Normal | `0x622bcfd4538f7e6877...` |
+| W3 / A3 | 2026-06-08 | **27 days** | ⚠️ Record silence | `0xb6c725890be6890fd2...` |
 
-No new updates on any channel since the Jun 28 snapshot.
+No new updates on any channel. W1 is now at 12 days — at the outer edge of its normal 5–14 day
+cadence. If it does not update by ~Jul 7 it will be the longest W1 gap on record.
 
-### Previous snapshot (2026-06-28)
+### Snapshot history
 
-| Channel | Last update | Days since | BSC TX |
-|---------|------------|-----------|--------|
-| W1 / A1 | 2026-06-23 | 5 days | `0x18a8420f727f2405f9...` |
-| W2 / A2 | 2026-06-25 | 3 days | `0x622bcfd4538f7e6877...` |
-| W3 / A3 | 2026-06-08 | 20 days | `0xb6c725890be6890fd2...` |
+| Date | W1 silence | W2 silence | W3 silence |
+|------|-----------|-----------|-----------|
+| 2026-06-28 | 5d | 3d | 20d |
+| 2026-06-30 | 7d | 5d | 22d |
+| **2026-07-05** | **12d** | **10d** | **27d** |
 
 ---
 
@@ -199,15 +200,25 @@ session/version identifiers used to verify Stage 2 → C2 handshake integrity.
 | W2 | 5d; normal | Monitor |
 | W3 | 22d quiet — approaching prior 2-month gap | Check weekly; may signal transition |
 
-**W3 hypothesis (as of Jun 30):** The 22-day silence mirrors the Mar 19 – May 16 gap
-(59 days). During that gap, Stage 2 was served directly from C2 rather than via blockchain
-dead-drop. Task AB confirmed the C2 servers now deliver `RS260605` Stage 2 format
-(generator-function obfuscated, XOR key `ThZG+0jfXE6VAGOJ`) instead of the LZString Beavertail
-blob. If W3 remains silent indefinitely, the actor may have permanently transitioned Stage 2
-delivery to the RS260605 C2-direct model — the blockchain dead-drop W3 link is no longer needed.
+**W1 warning (as of Jul 5):** W1 is now 12 days silent — at the outer edge of the observed
+5–14 day cadence range. This is not yet anomalous but warrants monitoring. If no update by
+~Jul 7–8, this becomes the longest recorded W1 gap and may signal a coordinated pause across
+all channels.
 
-W1/W2 (Stage 1 loaders) continue updating normally — the dead-drop loader chain is unchanged.
-Only Stage 2 delivery mode may be shifting.
+**W3 hypothesis (as of Jul 5):** At 27 days, W3 silence is nearly at the prior 2-month gap
+(Mar–May, 59 days). During that gap, Stage 2 was served directly from C2. Task AB confirmed
+the live C2 servers now deliver `RS260605` Stage 2 format (generator-function obfuscated, XOR
+key `ThZG+0jfXE6VAGOJ`) rather than the LZString Beavertail blob that W3 delivers. If W3 never
+updates again, the actor has permanently transitioned Stage 2 delivery to C2-direct — the
+blockchain dead-drop is retired.
+
+**Coordinated slowdown hypothesis:** With both W1 (12d) and W3 (27d) past their normal
+cadences simultaneously, the actor may be in a development pause — rebuilding Stage 1 or Stage 2
+before the next batch push. The previous large gap (Mar–May) coincided with the
+`_$_1e42` → `_$_913e`/`_$_b229` cipher rotation. A similar rotation event may be underway.
+
+W1/W2 (Stage 1 loaders) continue updating normally on a ~weekly cadence — the dead-drop
+loader chain is unchanged overall.
 
 The W3 silence is the most notable: with 69 TXs over 7.5 months the average cadence was
-<3 days between updates. A 22-day gap is the longest on record and warrants continued monitoring.
+<3 days between updates. A 27-day gap is unprecedented and warrants continued monitoring.

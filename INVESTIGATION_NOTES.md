@@ -329,27 +329,27 @@ payload. 10 additional BSC TXs from 2025 remain unanalyzed (see ANALYSIS_APTOS_W
 
 ### Lower priority / passive monitoring
 
-**J. TRON wallet W1 update cadence** — ONGOING (snapshots 2026-06-28, 2026-06-30)
-Full analysis in `ANALYSIS_CADENCE_J.md`. No new updates since Jun 28 snapshot.
+**J. TRON wallet W1 update cadence** — ONGOING (snapshots 2026-06-28, 2026-06-30, 2026-07-05)
+Full analysis in `ANALYSIS_CADENCE_J.md`. No new updates since Jun 25 (W2) / Jun 23 (W1).
 
-Status (2026-06-30): W1/A1 last Jun 23 (7d ago), W2/A2 last Jun 25 (5d ago), W3/A3 last Jun 8 (22d ago).
+Status (2026-07-05): W1/A1 last Jun 23 (**12d ago**), W2/A2 last Jun 25 (10d ago), W3/A3 last Jun 8 (**27d ago**).
 
 **W3 true history discovered:** 69 TXs back to Nov 13, 2025 (not Jun 2025). W3 added the Stage 2
 blockchain dead-drop layer in Nov 2025, 5 months after W1/W2 went live. Pre-Nov Stage 2 was
 served directly from C2.
 
 **Stage 2 payload evolution:** Function wrapper introduced May 21 mid-session; payload grew
-~65KB → 77KB (May 20 → Jun 8). Jun 8 payload stable for 22 days — longest W3 quiet period on record.
+~65KB → 77KB (May 20 → Jun 8). Jun 8 payload stable for 27 days — longest W3 quiet period on record.
 
 **16 new W3 BSC TXs catalogued** (May 20 – Jun 2). Pre-Function-wrapper payloads (~65KB) from
 May 20 may be easier entry point for Task T (Beavertail decode).
 
-**Jun 23 A2 payload newly decoded (Jun 30):** `_$_f5f0`, seed `570964`, activation `5842`,
-return `8711`. Fills the gap between Jun 20 (`8063`/`8223`) and Jun 25 (`1218`/`2021`) — codes
-change with every deployment, likely session/version identifiers.
+**Jun 23 A2 payload decoded (Jun 30):** `_$_f5f0`, seed `570964`, activation `5842`, return
+`8711`. Fills the gap between Jun 20 (`8063`/`8223`) and Jun 25 (`1218`/`2021`).
 
-**W3 22-day silence** hypothesis: actor may have permanently transitioned Stage 2 to C2-direct
-RS260605 format (Task AB), making W3 dead-drop obsolete. W1/W2 still updating normally.
+**Jul 5 assessment:** W1 at 12d (outer edge of normal cadence); W3 at 27d (unprecedented).
+Coordinated slowdown may signal actor in development pause / cipher rotation. W3 may be
+permanently retired if C2-direct RS260605 delivery has replaced the blockchain dead-drop.
 
 **M. Decode `Cot%3t=shtP` cipher from live samples** — DONE
 Full analysis in `ANALYSIS_COT_CIPHER.md`. Stage 2 fully decoded from `herasoftlabs/ChainLab`.
