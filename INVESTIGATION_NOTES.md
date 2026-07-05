@@ -510,11 +510,23 @@ Key findings:
 - **Detection**: Only reliable signal is `pushed_at` (GitHub API) vs forged commit date.
   The saif72437 sweep: commits forged to 2025-06-11, `pushed_at` 2026-06-15 — 1-year gap.
 
-**AV. Scan for oversized astro.config.mjs files** — PENDING
-`Rafijohari18/astro-speed` shows astro.config.mjs as 13696B (normal is <500B). GitHub code
-search for `astro.config.mjs` files with `defineConfig` + oversized content may surface more
-victims using this injection vector. Prior astro.config.mjs investigation (Task K/L) focused
-on Contagious Interview/VSCode clusters — this is a distinct PolinRider astro vector.
+**AV. Scan for oversized astro.config.mjs files** — DONE (2026-07-05)
+
+Full analysis in `ANALYSIS_AV_ASTRO_SCAN.md`.
+
+Key findings:
+- **4 new victims** found using a new delivery format: **obfuscator.io outer wrapper** (~20KB)
+  encasing the standard `_$_1e42` inner cipher. Completely invisible to `_1e42` code search.
+- New victims: `aegre/damian` (9-7298), `CharlieJT/cleric-homepage` (9-7172),
+  `itzvin19/dance-studio` (8-4435-1), `itzvin19/03-blog` (8-4435-1).
+- All swept Jun 20–26, 2026 — active ongoing wave.
+- `itzvin19` swept 2 repos 7 seconds apart (same machine); shared campaign ID `8-4435-1`.
+- Outer cipher: `var _0x383eb4=_0x22ee; function _0x37df()` — byte-identical template across all 4.
+- **Series 9 new max: `9-7298`** (previous max was 9-7226, Task AI). 11,733+ total tracked victims.
+- `createRequire+global filename:astro.config.mjs` is now the ONLY GitHub search that catches
+  this variant (plus manual file-size triage). All `_1e42` / `rmcej` / YARA searches miss it.
+- Total confirmed infected astro.config.mjs repos: **33+** (29 plaintext + 4 obfuscated).
+- Spawned Task AX: decode obfuscator.io outer wrapper to confirm C2 chain is intact.
 
 **AW. Correlate W4/W5 victims with atob dropper** — PENDING
 W4 (23 TXs, Nov 2025–May 2026) and W5 (3 TXs) have unknown ciphers. NikhilGupta777 and
