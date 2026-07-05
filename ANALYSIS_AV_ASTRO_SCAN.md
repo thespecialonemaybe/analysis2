@@ -172,6 +172,59 @@ search. Discovery requires fetching and inspecting individual files.
 
 ---
 
+## Task AX Decode Results — Applied Across All Victims (2026-07-05)
+
+Task AX fully decoded the obfuscator.io wrapper using `aegre/damian` as the target.
+Because the malicious payload blob is **byte-for-byte identical** across all 4 victims
+(confirmed by character-level diff), the decode results apply universally.
+
+### Shared Infrastructure (all 4 victims)
+
+| Type | Value |
+|------|-------|
+| TRON W5 | `TMfKQEd7TJJa5xNZJZ2Lep838vrzrs7mAP` |
+| TRON W6 | `TXfxHUet9pJVU1BgVkBAbrES4YUc1nGzcG` |
+| Aptos W5 | `0xbe037400670fbf1c32364f762975908dc43eeb38759263e7dfcdabc76380811e` |
+| Aptos W6 | `0x3f0e5781d0855fb460661ac63257376db1941b2bb522499e4757ecb3ebd5dce3` |
+| XOR key (W5 / Stage 3) | `2[gWfGj;<:-93Z^C` |
+| XOR key (W6) | `m6:tTh^D)cBz?NM]` |
+| BSC RPC primary | `bsc-dataseed.binance.org` |
+| BSC RPC fallback | `bsc-rpc.publicnode.com` |
+| Inner cipher | `_$_1e42` seed `2857687` (outer) / `_$af163278` seed `1812138` (inner) |
+
+### C2 Routing by Campaign Series
+
+From the live Stage 2 pull (see `ANALYSIS_AX_STAGE2_LIVE.md`), routing is determined by
+`_V[0]` (first character of campaign ID):
+
+| Series | `_V[0]` | Routes to |
+|--------|---------|-----------|
+| `8-XXXX` (itzvin19) | `'8'` numeric | `198.105.127.210:443` |
+| `9-XXXX` (aegre, CharlieJT) | `'9'` numeric | `198.105.127.210:443` |
+| `A-XXXX` | `'A'` | `166.88.134.62:443` |
+
+All four victims (series 8 and 9) route to the **production C2 at `198.105.127.210:443`**,
+not the admin server at `166.88.134.62`.
+
+### Template Deployment Mechanism
+
+The actor uses a **pre-compiled dropper template** with a single point of customization:
+
+```
+<legitimate Astro config header>
+<~500 chars trailing whitespace padding>
+global['!']='<CAMPAIGN-ID>';   ← only line that differs per victim
+<10,078 byte obfuscator.io blob — byte-identical across all deployments>
+```
+
+No other per-victim customization exists in the payload. Campaign ID is the only input
+to the C2 routing logic. The blob is compiled once and mass-deployed.
+
+→ Full cipher decode, `_$_ccfc` string table, and Stage 1–4 chain: **`ANALYSIS_AX_OBFUSCATOR.md`**  
+→ Live Stage 2/3 pull and decoded routing table: **`ANALYSIS_AX_STAGE2_LIVE.md`**
+
+---
+
 ## Assessment
 
 **The actor has added an obfuscator.io wrapping layer to the `astro.config.mjs` delivery
@@ -184,7 +237,7 @@ deployment wave — not a historical artifact. All four repos were infected with
 Jun 20–26, 2026 window, coinciding with the final W2/A2 update period (last TRON W2 TX
 was Jun 20; last Aptos A2 TX was Jun 25).
 
-**Recommended follow-on (Task AX):** Partially decode the `_0x22ee`/`_0x37df` outer cipher
-to confirm the full TRON → BSC → XOR chain is intact inside the obfuscated wrapper. This
-would close the loop on whether the obfuscated variant uses the same infrastructure or
-routes to a new endpoint.
+The obfuscator.io template deployment model confirms the actor has industrialized the
+infection pipeline: a single pre-compiled dropper blob is deployed to all targets with
+only the campaign ID substituted in. This matches the broader PolinRider pattern of
+automated sweep tooling rather than manual per-target operations.
