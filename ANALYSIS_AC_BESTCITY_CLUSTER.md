@@ -169,10 +169,12 @@ RPCs. These are two distinct actors using the same VSCode `folderOpen` delivery 
 
 | Type | Value | Notes |
 |------|-------|-------|
-| C2 URL | `https://www.jsonkeeper.com/b/85QGH` | Dead (404) |
-| Temp path | `/tmp/programx64/main.js` | Dropper staging path |
-| npm install | `axios`, `request` | Silently installed |
-| Process name | `Node.js JavaScript Runtime` | `process.title` evasion |
+| C2 URL (WJS variant) | `https://www.jsonkeeper.com/b/85QGH` | Dead (404 as of 2026-06-29) |
+| C2 URL (obfuscator.io variant) | `https://api-server-mocha.vercel.app/api/ipcheck-encrypted/609` | **451 (Vercel takedown as of 2026-07-11)** — see `ANALYSIS_AS_BESTCITY_OBFUSCATOR.md` |
+| Temp path (WJS) | `/tmp/programx64/main.js` | Dropper staging path |
+| Temp path (obfuscator.io) | `~/Programs_X64/main.js` | Different staging dir |
+| npm install | `axios`, `request` | Silently installed (both variants) |
+| Process name | `Node.js JavaScript Runtime` | `process.title` evasion (WJS variant only) |
 | Commit emails | `forbesmike200@gmail.com`, `williamherr8@gmail.com`, `alexander.wormbs@gmail.com` | Actor-adjacent |
 | Fake personas | `nicolasmelo12@gmail.com`, `myselfmail0301@gmail.com`, `Fiddlekins@gmail.com`, `sbegaa@gmail.com` | Shared across repos |
 
@@ -196,8 +198,13 @@ to this cluster.
 
 ### C2 Status
 
-`jsonkeeper.com/b/85QGH` returns 404 as of 2026-06-29 — the dead-drop has been deleted or
-expired. The cluster appears to be **inactive** (C2 down).
+Both BestCity C2 endpoints are now dead:
+- `jsonkeeper.com/b/85QGH` → 404 as of 2026-06-29 (WJS variant dead-drop deleted/expired)
+- `api-server-mocha.vercel.app/api/ipcheck-encrypted/609` → **451 Unavailable For Legal Reasons** as of 2026-07-11 (Vercel legal/abuse takedown)
+- `BestCity-v1/Demo-v1` repo also deleted (404 as of 2026-07-11)
+
+The cluster is **fully decommissioned** as of 2026-07-11. See `ANALYSIS_AS_BESTCITY_OBFUSCATOR.md`
+for full obfuscator.io variant decode.
 
 ### Timeline
 
