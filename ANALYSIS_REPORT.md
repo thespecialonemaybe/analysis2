@@ -597,6 +597,13 @@ first and falls back to the other:
   `2[gWfGj;<:-93Z^C` → LZString UTF16 decompress → Stage 3 JS (or Stage 1 JS for W1/W2)
 - Calldata separated by delimiter `?.?`
 
+**Important — Aptos does not rescue a pruned BSC TX:** TRON and Aptos are both resolvers
+for step 1 only (retrieving the BSC TX hash pointer). Both chains store the *same hash*
+pointing to the *same BSC transaction*. If a public BSC RPC node has pruned that transaction
+from its index, falling back from TRON to Aptos still yields the same unresolvable hash.
+The payload chain breaks at step 2 regardless of which resolver succeeded. Recovery requires
+a BSC full-archive node (e.g. Quicknode/Alchemy archive tier), not a chain fallback.
+
 All three TRON wallets and all three Aptos addresses were created and funded on the **same day:
 2025-11-13**. This is the actor's infrastructure setup date, approximately **3 months before
 campaign 5-3-161 launched** (2026-02-19).
