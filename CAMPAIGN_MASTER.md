@@ -1,7 +1,7 @@
 # PolinRider / DEV#POPPER / Void Dokkaebi — Campaign Master Reference
 
 **Classification:** TLP:WHITE  
-**Last updated:** 2026-07-18  
+**Last updated:** 2026-07-23  
 **Confidence:** High  
 **Attribution:** Lazarus Group / Famous Chollima / DPRK-nexus
 
@@ -302,6 +302,7 @@ Total actor-tracked victims across series 9+8: **≥11,733**.
 | atob dropper victims | NikhilGupta777 (13 repos), Rafijohari18 | 11-# | ANALYSIS_AP_ATOB_DROPPER.md, ANALYSIS_AK_RAFI.md |
 | npm packages | html-to-gutenberg@4.2.11, fetch-page-assets@1.2.9 | A8-** | JFrog; ANALYSIS_CIPHER_SCAN_P.md |
 | Go packages (Nextron) | 16 packages, all repos deleted | A8-** (inferred) | ANALYSIS_AN_GO_PACKAGES.md |
+| ChainVeil npm (A6 batch) | tailwindcss-merge, sass-formats, clsx-tailwind, typeorm-encrypt, rate-limit-flexible, rate-limits-flexible, sass-format, tailwindcss-animates-kit, tailwindcss-animatics | A6-317 through A6-519-85 | ANALYSIS_BA_CHAINVEIL_NPM.md |
 
 ---
 
@@ -314,6 +315,7 @@ Total actor-tracked victims across series 9+8: **≥11,733**.
 | — | 5,102–5,103B | `5-X-Y` | shuffle cipher | Early ZurichJS-adjacent payloads |
 | — | 8,080B | varies | shuffle cipher | Intermediate variant |
 | — | 20,836–21,025B | `8-**`, `9-XXXX` | obfuscator.io outer + `_$_1e42` inner | Latest wave (Jun 2026) |
+| ~4KB | `A6-**` | Knuth shuffle seed `2540575` | ChainVeil npm A6-series; `axhscuutcrogycrneotisjlnkdpfqmzovtrwb` anagram |
 
 ---
 
@@ -464,7 +466,7 @@ Chat ID:       7699029999
 | **AO** | W3 silence monitoring — poll for activity break |
 | **AY** | W4 payload recovery via BSC archive node (23 TX hashes documented in ANALYSIS_AW_W4W5_ATOB_CORRELATION.md) |
 | **AZ** | A6 campaign victim repo hunt + `23.27.13.43` C2 analysis |
-| **BA** | Dragon-Lady ChainVeil npm packages — 9 packages (incl. typeorm-encrypt) status + cipher |
+| **BA** | ~~DONE 2026-07-23~~ All 9 A6 series; A6-519-79 confirmed; seed 2540575; tarballs deleted; wallets unrecovered. See `ANALYSIS_BA_CHAINVEIL_NPM.md` |
 | **AA** | MD5 `9a47bb48b7b8ca41fc138fd3372e8cc0` — blocked; needs vendor intel (ANY.RUN/Mandiant) |
 
 ---
@@ -488,6 +490,7 @@ Chat ID:       7699029999
 | `ANALYSIS_AR_STAGE5_SCAN.md` | Stage 5 process name hunt; Shai-Hulud/durabletask cluster |
 | `ANALYSIS_AN_GO_PACKAGES.md` | 16 Nextron Go packages; all deleted; W1 cipher confirmed |
 | `ANALYSIS_CIPHER_SCAN_P.md` | JFrog post full summary; Dragon-Lady cross-ref; all new IOCs |
+| `ANALYSIS_BA_CHAINVEIL_NPM.md` | 9 A6-series npm packages; seed 2540575; Amazon Inspector; typeorm-encrypt new vector |
 | `ANALYSIS_AC_BESTCITY_CLUSTER.md` | BestCity cluster overview (separate actor) |
 | `ANALYSIS_AS_BESTCITY_OBFUSCATOR.md` | BestCity obfuscator.io variant decode |
 | `ANALYSIS_AM_CASHOUT_WALLETS.md` | Cashout wallet analysis |
