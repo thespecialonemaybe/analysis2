@@ -1,7 +1,7 @@
 # PolinRider / DEV#POPPER / Void Dokkaebi — Campaign Master Reference
 
 **Classification:** TLP:WHITE  
-**Last updated:** 2026-07-23  
+**Last updated:** 2026-08-03  
 **Confidence:** High  
 **Attribution:** Lazarus Group / Famous Chollima / DPRK-nexus
 
@@ -114,19 +114,20 @@ W1–W3 for what are now W4/W5/W3 respectively. The AX-W crossref (ANALYSIS_AX_W
 resolved this. Always use canonical names above. When reading older docs: AX "W5" = canonical
 W1, AX "W6" = canonical W2.
 
-### 3.2 Wallet Status (as of 2026-07-18)
+### 3.2 Wallet Status (as of 2026-08-03)
 
 | Wallet | Last dead-drop TX | Days silent | Notes |
 |--------|-------------------|-------------|-------|
-| W1 | 2026-06-23 02:35 UTC | **25d** | Last ever; JFrog disclosure Jun 24 |
-| W2 | 2026-06-20 13:37 UTC | **28d** | Last ever |
-| W3 | 2026-06-08 21:29 UTC | **40d** | Last ever |
-| W4 | 2026-05-19 15:04 UTC | **60d** (dead-drop) | Any activity: Jun 15 (TRC-10 token receipt) |
-| W5 | 2026-02-27 02:27 UTC | **141d** | Confirmed dormant |
+| W1 | 2026-06-23 02:35 UTC | **41d** | No new activity confirmed 2026-08-03 |
+| W2 | 2026-06-20 13:37 UTC | **44d** | No new activity confirmed 2026-08-03 |
+| W3 | 2026-06-08 21:29 UTC | **56d** | No new activity confirmed 2026-08-03 |
+| W4 | 2026-05-19 15:04 UTC | **76d** (dead-drop) | Any activity: Jun 15 (TRC-10 token receipt) |
+| W5 | 2026-02-27 02:27 UTC | **157d** | Confirmed dormant |
 
-All five wallets are silent. Silence pre-dates JFrog disclosure (Jun 24): W3 dark Jun 8
-(16d before), W2 dark Jun 20 (4d before), W1 dark Jun 23 (1d before). This is a planned
-wind-down, not an emergency shutdown in response to disclosure.
+All five wallets remain silent. No reactivation detected as of 2026-08-03. Silence pre-dates
+JFrog disclosure (Jun 24): W3 dark Jun 8 (16d before), W2 dark Jun 20 (4d before), W1 dark
+Jun 23 (1d before). This is a planned wind-down, not an emergency shutdown in response to
+disclosure.
 
 ### 3.3 Infrastructure Creation Date
 
