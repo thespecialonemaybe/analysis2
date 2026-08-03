@@ -32,8 +32,9 @@ belonging to DataStax, Neutralinojs, ZurichJS, and many independent developers.
 
 **Current status:** Blockchain dead-drop wallets went silent in June 2026 (W1 last active
 Jun 23, W2 Jun 20, W3 Jun 8). Production C2 `198.105.127.210` may still respond. The actor
-has not been observed deploying new infrastructure as of 2026-07-23 but has historically
-resumed operations after pauses.
+has not been observed deploying new infrastructure as of 2026-07-23; the ZurichJS re-infection
+(21 days after first remediation) shows this group re-engages confirmed victims, and
+reactivation on new infrastructure cannot be ruled out.
 
 ---
 
@@ -47,7 +48,7 @@ resumed operations after pauses.
 | **Motivation** | Financial (crypto theft from developer wallets, credential theft) + intelligence collection |
 | **Targeting** | Software developers — primarily JavaScript/TypeScript, Node.js, React, Python ecosystem |
 | **Lure** | Fake technical job interviews; recruiters on LinkedIn/Telegram offering coding challenges |
-| **Infra creation** | 2025-11-13 (confirmed); pre-positioning payloads observed from 2023 |
+| **Infra creation** | 2025-11-13 (confirmed first blockchain activity); some infected repo commit timestamps date to 2023, but the actor's own commit-backdating TTP (`temp_auto_push.bat`) makes those dates unverifiable |
 | **Campaign active** | 2025-11 through 2026-06 (wind-down indicators); potentially resuming |
 
 **Fake job interview lure:** The actor poses as a technical recruiter, invites developers to
@@ -129,7 +130,8 @@ DEVELOPER OPENS REPO IN VS CODE
                           ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │ STAGE 2 — Boot Payload                                              │
-│  Repeats blockchain dead-drop fetch for Stage 3                     │
+│  Routes to C2 HTTP server based on campaign ID prefix:             │
+│  Fetches Stage 3 via GET <C2>/$/boot (not blockchain)              │
 │  C2 routing by campaign prefix:                                     │
 │    'A...'  → 166.88.134.62 (admin pool) [or 23.27.13.43 Jun 20-25] │
 │    '5-...' → 198.105.127.210 (production)                           │
@@ -201,7 +203,7 @@ DEVELOPER OPENS REPO IN VS CODE
 | `.vscode/tasks.json` + `fa-solid-400.woff2` | VS Code folderOpen (trusted workspace) | Any VS Code user |
 | npm package (postinstall / side-effect import) | `npm install` | Any npm user |
 | Go module | `go get` / module import | Go developers |
-| atob dropper | eval(atob(...)) in build config | Same as above |
+| atob dropper | eval(atob(...)) in build config | JavaScript/Node.js/React developers |
 
 **Key insight:** The `.vscode/tasks.json` vector is self-propagating — once a developer is
 infected, the actor plants the `tasks.json` in their other repositories, infecting anyone
@@ -234,8 +236,9 @@ After Stage 3 runs, the malware persists by modifying application files. Detecti
 ~/.local/bin/node20            — planted Node.js binary (Linux/macOS)
 %LOCALAPPDATA%\Programs\Python\Python3127\  — Python runtime planted by Stage 4 (Windows)
 /tmp/.npm                      — exfil staging directory (Linux/macOS)
-%USERPROFILE%\.npm             — exfil staging directory (Windows)
-*.zip matching <hostname>$<username>.zip  — exfil archive
+%USERPROFILE%\.npm             — NOTE: legitimate npm cache dir; suspicious only if it
+                                 contains a file matching <hostname>$<username>.zip
+*.zip matching <hostname>$<username>.zip  — exfil archive (look in /tmp/.npm or %USERPROFILE%\.npm)
 ```
 
 ### 6.2 File content search (all platforms)
@@ -284,7 +287,6 @@ rule PolinRider_Stage1_Loader {
         $xor2 = "m6:tTh^D)cBz?NM]" ascii
         $tron = "api.trongrid.io" ascii
         $aptos = "fullnode.mainnet.aptoslabs.com" ascii
-        $bsc_sep = "?.?" ascii
         $wallet_w1 = "TMfKQEd7TJJa5xNZJZ2Lep838vrzrs7mAP" ascii
         $wallet_w2 = "TXfxHUet9pJVU1BgVkBAbrES4YUc1nGzcG" ascii
         $wallet_w3 = "TA48dct6rFW8BXsiLAtjFaVFoSuryMjD3v" ascii
@@ -292,7 +294,7 @@ rule PolinRider_Stage1_Loader {
         $marker_bang = "global['!']" ascii
     condition:
         any of ($xor1, $xor2) or
-        (2 of ($tron, $aptos, $bsc_sep, $wallet_w1, $wallet_w2, $wallet_w3)) or
+        (2 of ($tron, $aptos, $wallet_w1, $wallet_w2, $wallet_w3)) or
         ($marker_v and ($tron or $aptos))
 }
 
@@ -308,8 +310,9 @@ rule PolinRider_Persistence_Marker {
         $anchor2 = "global['_p_t']" ascii
         $anchor3 = "ThZG+0jfXE6VAGOJ" ascii
     condition:
-        $marker1 or $marker2 or $anchor3 or
-        (2 of ($anchor1, $anchor2))
+        $marker1 or $anchor3 or
+        (2 of ($anchor1, $anchor2)) or
+        ($marker2 and any of ($anchor1, $anchor2, $anchor3))
 }
 
 rule PolinRider_Stage0_FakeFont {
@@ -322,8 +325,7 @@ rule PolinRider_Stage0_FakeFont {
         $js_sig2 = "global['_V']" ascii
         $spaces = { 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 }  // 16+ spaces (padding pattern)
     condition:
-        (uint16(0) != 0x8BEF) and  // not a real WOFF2
-        (uint32(0) != 0x774F4632) and  // not a real WOFF2 magic
+        (uint32be(0) != 0x774F4632) and  // not real WOFF2 magic (big-endian: 77 4F 46 32)
         ($spaces and ($js_sig1 or $js_sig2)) and
         (filename matches /\.woff2$/ or filename matches /astro\.config/ or
          filename matches /postcss\.config/ or filename matches /next\.config/)
@@ -356,9 +358,9 @@ All campaign C2 infrastructure is hosted on **AS149440 Evoxt Sdn. Bhd.**
 | IP | Role | Status | Ports |
 |----|------|--------|-------|
 | `198.105.127.210` | Primary production C2 | **Active** (last checked 2026-07-18) | 80, 443, 5985, 27017 |
-| `166.88.134.62` | Admin C2 (A-prefix victims) | Active | 5985 |
+| `166.88.134.62` | Admin C2 (A-prefix victims) | Unverified (port 5985 confirmed; HTTP not probed) | 5985 |
 | `166.88.54.158` | Stage 3 socket.io WebSocket C2 | Unknown | — |
-| `23.27.202.27` | Secondary C2 / WebSocket | Active | 5985 |
+| `23.27.202.27` | Secondary C2 / WebSocket | Unverified (port 5985 confirmed; HTTP not probed) | 5985 |
 | `23.27.13.43` | A6-prefix victim C2 (Jun 20–25 only) | Offline | — |
 | `136.0.9.8` | Former C2 | Dead (since 2026-06-18) | — |
 
@@ -397,8 +399,6 @@ detection:
   selection:
     cs-uri-path|contains: '/$/boot'
     cs-headers|contains: 'Sec-V:'
-  filter_legit:
-    c-ip: 'internal'
   condition: selection
 falsepositives:
   - None known; path and header combination is highly specific
@@ -429,7 +429,7 @@ falsepositives:
 level: medium
 tags:
   - attack.command_and_control
-  - attack.t1102.002
+  - attack.t1102.001
 
 ---
 # Rule 3: Detached Node.js process with -e flag (Stage 1 spawn path)
@@ -691,7 +691,8 @@ If PolinRider is detected on a workstation:
 - [ ] Notify any organizations whose repositories the developer has push access to
 
 **Assess propagation:**
-- [ ] Review all repositories the developer has committed to in the past 90 days
+- [ ] Review all repositories the developer has committed to in the past 6 months
+      (ZurichJS dwell was 74 days on first infection; assume multi-month access)
 - [ ] Check each for `.vscode/tasks.json` with `runOn: folderOpen`
 - [ ] Check each for suspicious injections in `astro.config.mjs`, `postcss.config.mjs`,
   `next.config.mjs`, or unexpected binary files (`.woff2`) in source directories
@@ -713,13 +714,14 @@ Re-image is recommended for any workstation where Stage 3 or later was reached.
 
 - **Infrastructure provider:** 100% Evoxt Sdn. Bhd. (AS149440) — any new Evoxt IP used
   in developer-targeting attacks should be treated as potential PolinRider infrastructure
-- **WinRM fleet signature:** All active C2 IPs have port 5985 (WinRM) open — the actor
+- **WinRM fleet signature:** 4 of 6 confirmed C2 IPs have port 5985 (WinRM) open
+  (`198.105.127.210`, `166.88.134.62`, `23.27.202.27`, `23.27.13.43`) — the actor
   manages their Windows C2 infrastructure via PowerShell Remoting
 - **Campaign wind-down indicators:** Wallet silence precedes public disclosure by weeks
   (W3 silent 16 days before JFrog Jun 24 post; W2 4 days before; W1 1 day before).
   The actor monitors threat intel feeds and proactively retires infrastructure.
 - **No infrastructure rotation:** The five TRON wallet addresses and two XOR keys have
-  never been rotated across the entire campaign lifetime (2023–2026). Only the obfuscation
+  never been rotated across the confirmed campaign lifetime (2025-11-13 to 2026-06). Only the obfuscation
   wrapper changed when detected.
 - **Commit backdating:** `temp_auto_push.bat` forgeries match original commit timestamps
   exactly. Do not rely on commit dates for triage — use file content, not metadata.
