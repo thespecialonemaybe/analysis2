@@ -73,9 +73,13 @@ all primary TTPs in a contained single-org incident.
 2026-05-26  5-3-298 remediated
 ```
 
-**Initial access mechanism:** The developer account `farisaziz12` was compromised via the
-fake interview lure in the first campaign. The actor retained access and used the
-`temp_auto_push.bat` commit-tampering tool to re-inject the second payload:
+**Initial access mechanism:** The initial access vector for `farisaziz12` is **not confirmed**.
+The actor had persistent remote access to the developer's machine — evidenced by the use of
+`temp_auto_push.bat` and the two separate injection events 21 days apart. How the machine was
+first compromised is unknown; candidates include the fake job interview lure (the documented
+primary vector for this campaign), infection via cloning another compromised repository, or
+phishing/credential theft. The actor retained that access and used the `temp_auto_push.bat`
+commit-tampering tool to re-inject the second payload:
 
 1. Script extracts original commit metadata (author, email, timestamp, message)
 2. System clock is temporarily altered to match the original commit date
